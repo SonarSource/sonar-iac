@@ -26,7 +26,7 @@ resource Sensitive_Should_raise_issue_missing_end '${type}@dummy' = {
   resource Sensitive_Should_raise_issue_missing_end_dummy 'firewallRules@2014-04-01' = {
     name: 'Sensitive: Should raise issue missing end/dummy'
     properties: {
-      startIpAddress: '241.0.0.0' // Noncompliant
+      startIpAddress: '200.0.0.0' // Noncompliant
     }
   }
 }
@@ -108,10 +108,10 @@ resource Sensitive_Should_raise_issue_for_IPs_192_0_2_255_and_192_168_0_0 '${typ
   }
 }
 
-resource Sensitive_Should_raise_issue_for_IPs_192_168_255_255_and_198_18_0_0 '${type}@dummy' = {
-  name: 'Sensitive: Should raise issue for IPs > 192.168.255.255 and < 198.18.0.0'
-  resource Sensitive_Should_raise_issue_for_IPs_192_168_255_255_and_198_18_0_0_dummy 'firewallRules@2014-04-01' = {
-    name: 'Sensitive: Should raise issue for IPs > 192.168.255.255 and < 198.18.0.0/dummy'
+resource Sensitive_Should_raise_issue_for_IP_192_169_0_0_and_lower_end_ip '${type}@dummy' = {
+  name: 'Sensitive: Should raise issue for IP 192.169.0.0 and lower end IP'
+  resource Sensitive_Should_raise_issue_for_IP_192_169_0_0_and_lower_end_ip_dummy 'firewallRules@2014-04-01' = {
+    name: 'Sensitive: Should raise issue for IP 192.169.0.0 and lower end IP/dummy'
     properties: {
       startIpAddress: '192.169.0.0' // Noncompliant
       endIpAddress: '192.17.255.255'
@@ -152,23 +152,23 @@ resource Sensitive_Should_raise_issue_for_IPs_203_0_113_255_and_240_0_0_0 '${typ
   }
 }
 
-resource Sensitive_Should_raise_issue_for_IPs_240_255_255_254_and_255_255_255_255 '${type}@dummy' = {
-  name: 'Sensitive: Should raise issue for IPs > 240.255.255.254 and < 255.255.255.255'
-  resource Sensitive_Should_raise_issue_for_IPs_240_255_255_254_and_255_255_255_255_dummy 'firewallRules@2014-04-01' = {
-    name: 'Sensitive: Should raise issue for IPs > 240.255.255.254 and < 255.255.255.255/dummy'
+resource Sensitive_Should_raise_issue_for_IP_200_255_255_255_and_255_255_255_255 '${type}@dummy' = {
+  name: 'Sensitive: Should raise issue for IP 200.255.255.255 and 255.255.255.255'
+  resource Sensitive_Should_raise_issue_for_IP_200_255_255_255_and_255_255_255_255_dummy 'firewallRules@2014-04-01' = {
+    name: 'Sensitive: Should raise issue for IP 200.255.255.255 and 255.255.255.255/dummy'
     properties: {
-      startIpAddress: '240.255.255.255' // Noncompliant
+      startIpAddress: '200.255.255.255' // Noncompliant
       endIpAddress: '255.255.255.255'
     }
   }
 }
 
-resource Sensitive_Should_raise_issue_for_IPs_240_255_255_254_no_endIpAddress '${type}@dummy' = {
-  name: 'Sensitive: Should raise issue for IPs > 240.255.255.254 no endIpAddress'
-  resource Sensitive_Should_raise_issue_for_IPs_240_255_255_254_no_endIpAddress_dummy 'firewallRules@2014-04-01' = {
-    name: 'Sensitive: Should raise issue for IPs > 240.255.255.254 no endIpAddress/dummy'
+resource Sensitive_Should_raise_issue_for_IP_200_255_255_255_no_endIpAddress '${type}@dummy' = {
+  name: 'Sensitive: Should raise issue for IP 200.255.255.255 no endIpAddress'
+  resource Sensitive_Should_raise_issue_for_IP_200_255_255_255_no_endIpAddress_dummy 'firewallRules@2014-04-01' = {
+    name: 'Sensitive: Should raise issue for IP 200.255.255.255 no endIpAddress/dummy'
     properties: {
-      startIpAddress: '240.255.255.255' // Noncompliant
+      startIpAddress: '200.255.255.255' // Noncompliant
     }
   }
 }
@@ -211,7 +211,7 @@ resource Sensitive_Should_raise_issue_for_unknown_endIpAddress '${type}@dummy' =
   resource Sensitive_Should_raise_issue_for_unknown_endIpAddress_dummy 'firewallRules@2014-04-01' = {
     name: 'Sensitive: Should raise issue for unknown endIpAddress/dummy'
     properties: {
-      startIpAddress: '250.0.0.0' // Noncompliant
+      startIpAddress: '200.0.0.0' // Noncompliant
       endIpAddress: 'unknown'
     }
   }

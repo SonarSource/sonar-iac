@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.sonar.iac.common.checkdsl.ContextualTree;
+import org.sonar.iac.common.checks.network.IpAddressClassifier;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
@@ -41,7 +42,7 @@ import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAcces
 public class AzurePublicNetworkAccessCheckPart extends AbstractNewResourceCheck {
 
   private static final Predicate<String> STARTS_WITH_AZURERM_PUBLIC_IP = exactMatchStringPredicate("azurerm_public_ip.*", CASE_INSENSITIVE);
-  private static final Predicate<ExpressionTree> IS_PUBLIC_IP_ADDRESS = treePredicate(exactMatchStringPredicate("(10|172[.]16|192[.]168)[.].*|0[.]0[.]0[.]0/32").negate());
+  private static final Predicate<ExpressionTree> IS_PUBLIC_IP_ADDRESS = treePredicate(literal -> !IpAddressClassifier.isReserved(literal));
 
   @Override
   protected void registerResourceConsumer() {

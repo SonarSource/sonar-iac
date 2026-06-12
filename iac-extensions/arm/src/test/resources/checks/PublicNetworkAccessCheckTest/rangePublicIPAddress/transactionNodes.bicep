@@ -36,7 +36,7 @@ resource Sensitive_Should_raise_issue_missing_end 'Microsoft.Blockchain/blockcha
     properties: {
       firewallRules: [
         {
-          startIpAddress: '241.0.0.0' // Noncompliant
+          startIpAddress: '200.0.0.0' // Noncompliant
         }
       ]
     }
@@ -148,10 +148,10 @@ resource Sensitive_Should_raise_issue_for_IPs_192_0_2_255_and_192_168_0_0 'Micro
   }
 }
 
-resource Sensitive_Should_raise_issue_for_IPs_192_168_255_255_and_198_18_0_0 'Microsoft.Blockchain/blockchainMembers@dummy' = {
-  name: 'Sensitive: Should raise issue for IPs > 192.168.255.255 and < 198.18.0.0'
-  resource Sensitive_Should_raise_issue_for_IPs_192_168_255_255_and_198_18_0_0_dummy 'transactionNodes@dummy' = {
-    name: 'Sensitive: Should raise issue for IPs > 192.168.255.255 and < 198.18.0.0/dummy'
+resource Sensitive_Should_raise_issue_for_IP_192_169_0_0_and_lower_end_ip 'Microsoft.Blockchain/blockchainMembers@dummy' = {
+  name: 'Sensitive: Should raise issue for IP 192.169.0.0 and lower end IP'
+  resource Sensitive_Should_raise_issue_for_IP_192_169_0_0_and_lower_end_ip_dummy 'transactionNodes@dummy' = {
+    name: 'Sensitive: Should raise issue for IP 192.169.0.0 and lower end IP/dummy'
     properties: {
       firewallRules: [
         {
@@ -208,14 +208,14 @@ resource Sensitive_Should_raise_issue_for_IPs_203_0_113_255_and_240_0_0_0 'Micro
   }
 }
 
-resource Sensitive_Should_raise_issue_for_IPs_240_255_255_254_and_255_255_255_255 'Microsoft.Blockchain/blockchainMembers@dummy' = {
-  name: 'Sensitive: Should raise issue for IPs > 240.255.255.254 and < 255.255.255.255'
-  resource Sensitive_Should_raise_issue_for_IPs_240_255_255_254_and_255_255_255_255_dummy 'transactionNodes@dummy' = {
-    name: 'Sensitive: Should raise issue for IPs > 240.255.255.254 and < 255.255.255.255/dummy'
+resource Sensitive_Should_raise_issue_for_IP_200_255_255_255_and_255_255_255_255 'Microsoft.Blockchain/blockchainMembers@dummy' = {
+  name: 'Sensitive: Should raise issue for IP 200.255.255.255 and 255.255.255.255'
+  resource Sensitive_Should_raise_issue_for_IP_200_255_255_255_and_255_255_255_255_dummy 'transactionNodes@dummy' = {
+    name: 'Sensitive: Should raise issue for IP 200.255.255.255 and 255.255.255.255/dummy'
     properties: {
       firewallRules: [
         {
-          startIpAddress: '240.255.255.255' // Noncompliant
+          startIpAddress: '200.255.255.255' // Noncompliant
           endIpAddress: '255.255.255.255'
         }
       ]
@@ -223,14 +223,14 @@ resource Sensitive_Should_raise_issue_for_IPs_240_255_255_254_and_255_255_255_25
   }
 }
 
-resource Sensitive_Should_raise_issue_for_IPs_240_255_255_254_no_endIpAddress 'Microsoft.Blockchain/blockchainMembers@dummy' = {
-  name: 'Sensitive: Should raise issue for IPs > 240.255.255.254 no endIpAddress'
-  resource Sensitive_Should_raise_issue_for_IPs_240_255_255_254_no_endIpAddress_dummy 'transactionNodes@dummy' = {
-    name: 'Sensitive: Should raise issue for IPs > 240.255.255.254 no endIpAddress/dummy'
+resource Sensitive_Should_raise_issue_for_IP_200_255_255_255_no_endIpAddress 'Microsoft.Blockchain/blockchainMembers@dummy' = {
+  name: 'Sensitive: Should raise issue for IP 200.255.255.255 no endIpAddress'
+  resource Sensitive_Should_raise_issue_for_IP_200_255_255_255_no_endIpAddress_dummy 'transactionNodes@dummy' = {
+    name: 'Sensitive: Should raise issue for IP 200.255.255.255 no endIpAddress/dummy'
     properties: {
       firewallRules: [
         {
-          startIpAddress: '240.255.255.255' // Noncompliant
+          startIpAddress: '200.255.255.255' // Noncompliant
         }
       ]
     }
@@ -289,7 +289,7 @@ resource Sensitive_Should_raise_issue_for_unknown_endIpAddress 'Microsoft.Blockc
     properties: {
       firewallRules: [
         {
-          startIpAddress: '250.0.0.0' // Noncompliant
+          startIpAddress: '200.0.0.0' // Noncompliant
           endIpAddress: 'unknown'
         }
       ]
@@ -304,7 +304,7 @@ resource Sensitive_Should_raise_issue_for_first_rule 'Microsoft.Blockchain/block
     properties: {
       firewallRules: [
         {
-          startIpAddress: '250.0.0.0' // Noncompliant
+          startIpAddress: '200.0.0.0' // Noncompliant
           endIpAddress: '251.0.0.0'
         }
         {
@@ -327,7 +327,7 @@ resource Sensitive_Should_raise_issue_for_second_rule 'Microsoft.Blockchain/bloc
           endIpAddress: '240.255.0.0'
         }
         {
-          startIpAddress: '250.0.0.0' // Noncompliant
+          startIpAddress: '200.0.0.0' // Noncompliant
           endIpAddress: '251.0.0.0'
         }
       ]
@@ -346,7 +346,7 @@ resource Sensitive_Should_raise_issue_for_both_rules 'Microsoft.Blockchain/block
           endIpAddress: '11.255.0.0'
         }
         {
-          startIpAddress: '250.0.0.0' // Noncompliant
+          startIpAddress: '200.0.0.0' // Noncompliant
           endIpAddress: '251.0.0.0'
         }
       ]
@@ -380,7 +380,7 @@ resource Compliant_Should_NOT_raise_issue_for_wrong_subtype 'Microsoft.Blockchai
     properties: {
       firewallRules: [
         {
-          startIpAddress: '250.0.0.0'
+          startIpAddress: '200.0.0.0'
           endIpAddress: 'unknown'
         }
       ]

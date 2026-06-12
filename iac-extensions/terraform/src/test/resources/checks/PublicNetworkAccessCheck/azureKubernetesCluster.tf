@@ -7,6 +7,9 @@ resource "azurerm_kubernetes_cluster" "production" {
     "51.67.288.198", # Noncompliant {{Make sure that allowing public IP addresses is safe here.}}
   # ^^^^^^^^^^^^^^^
     "172.16.0.0/12",
+    "172.20.0.0/16",
+    "127.0.0.1",
+    "10.0.0.0/1", # Noncompliant
     "12.23.45.67" # Noncompliant
   ]
 

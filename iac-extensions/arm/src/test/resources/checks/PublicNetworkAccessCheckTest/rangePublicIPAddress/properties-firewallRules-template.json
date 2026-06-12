@@ -39,7 +39,7 @@
         "firewallRules": [
           {
             "properties": {
-              "startIpAddress": "241.0.0.0"
+              "startIpAddress": "200.0.0.0"
             }
           }
         ]
@@ -153,7 +153,7 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
-      "name": "Sensitive: Should raise issue for IPs > 192.168.255.255 and < 198.18.0.0",
+      "name": "Sensitive: Should raise issue for IP 192.169.0.0 and lower end IP",
       "properties": {
         "firewallRules": [
           {
@@ -213,12 +213,12 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
-      "name": "Sensitive: Should raise issue for IPs > 240.255.255.254 and < 255.255.255.255",
+      "name": "Sensitive: Should raise issue for IP 200.255.255.255 and 255.255.255.255",
       "properties": {
         "firewallRules": [
           {
             "properties": {
-              "startIpAddress": "240.255.255.255",
+              "startIpAddress": "200.255.255.255",
               "endIpAddress": "255.255.255.255"
             }
           }
@@ -228,12 +228,12 @@
     {
       "type": "${type}",
       "apiVersion": "dummy",
-      "name": "Sensitive: Should raise issue for IPs > 240.255.255.254 no endIpAddress",
+      "name": "Sensitive: Should raise issue for IP 200.255.255.255 no endIpAddress",
       "properties": {
         "firewallRules": [
           {
             "properties": {
-              "startIpAddress": "240.255.255.255"
+              "startIpAddress": "200.255.255.255"
             }
           }
         ]
@@ -292,7 +292,7 @@
         "firewallRules": [
           {
             "properties": {
-              "startIpAddress": "250.0.0.0",
+              "startIpAddress": "200.0.0.0",
               "endIpAddress": "unknown"
             }
           }
@@ -307,7 +307,7 @@
         "firewallRules": [
           {
             "properties": {
-              "startIpAddress": "250.0.0.0",
+              "startIpAddress": "200.0.0.0",
               "endIpAddress": "251.0.0.0"
             }
           },
@@ -334,7 +334,7 @@
           },
           {
             "properties": {
-              "startIpAddress": "250.0.0.0",
+              "startIpAddress": "200.0.0.0",
               "endIpAddress": "251.0.0.0"
             }
           }
@@ -355,7 +355,7 @@
           },
           {
             "properties": {
-              "startIpAddress": "250.0.0.0",
+              "startIpAddress": "200.0.0.0",
               "endIpAddress": "251.0.0.0"
             }
           }
