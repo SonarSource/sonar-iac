@@ -19,6 +19,7 @@ package org.sonar.iac.docker.checks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -26,7 +27,6 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
-import org.sonar.iac.docker.checks.utils.ArgumentChmod;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Flag;
@@ -35,11 +35,14 @@ import org.sonar.iac.docker.tree.api.TransferInstruction;
 @Rule(key = "S6504")
 public class ExecutableNotOwnedByRootCheck implements IacCheck {
 
-  private static final String MESSAGE = "Make sure no write permissions are assigned to the copied resource.";
+  private static final String MESSAGE = "Make sure the copied resource cannot be modified by a non-root user.";
   private static final String MESSAGE_SECONDARY_OTHER_EXEC = "Other copied resource.";
   private static final String MESSAGE_SECONDARY_CHOWN = "Sensitive file owner.";
 
   private static final Set<String> COMPLIANT_CHOWN_VALUES = Set.of("root", "0", "");
+
+  private static final Pattern SENSITIVE_PATH_PATTERN = Pattern.compile("^\\/(bin|boot|dev|etc|lib|lib32|lib64|proc|root|usr|sbin)(\\/(.+)?)?$");
+  private static final Pattern RISKY_EXTENSION_PATTERN = Pattern.compile("\\.(sh|bash|zsh|fish|py|rb|pl|php|bin|elf|so|service|timer|socket)$");
 
   @Override
   public void initialize(InitContext init) {
@@ -48,39 +51,35 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
 
   private static void checkTransferInstruction(CheckContext ctx, TransferInstruction transferInstruction) {
     var sensitiveChownFlag = getSensitiveChownFlag(transferInstruction);
+    if (sensitiveChownFlag == null) {
+      return;
+    }
 
-    if (sensitiveChownFlag != null) {
-      var sensitiveFiles = transferInstruction.srcs();
-
-      if (isNonRootUser(sensitiveChownFlag)) {
-        reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
-      }
-
-      var chmod = getChmod(transferInstruction);
-      if (chmod == null) {
-        if (!sensitiveFiles.isEmpty()) {
-          reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
-        }
-      } else if (isSensitiveChmod(sensitiveChownFlag, sensitiveFiles, chmod)) {
-        reportIssue(ctx, sensitiveChownFlag, sensitiveFiles);
-      }
+    if (hasSensitivePath(transferInstruction) || hasSensitiveExtension(transferInstruction)) {
+      reportIssue(ctx, sensitiveChownFlag, transferInstruction.srcs());
     }
   }
 
-  private static boolean isSensitiveChmod(Flag sensitiveChownFlag, List<Argument> sensitiveFiles, ArgumentChmod chmod) {
-    return !isRootUserAndGroupHasNoWritePermission(sensitiveChownFlag, chmod)
-      && isSensitiveWriteChmod(chmod)
-      && (isSensitiveExecuteChmod(chmod) || !sensitiveFiles.isEmpty());
+  private static boolean hasSensitivePath(TransferInstruction transferInstruction) {
+    var resolved = ArgumentResolution.of(transferInstruction.dest());
+    return resolved.isResolved() && SENSITIVE_PATH_PATTERN.matcher(resolved.value()).matches();
   }
 
-  private static void reportIssue(CheckContext ctx, Flag sensitiveChownFlag, List<Argument> sensitiveFiles) {
-    if (sensitiveFiles.isEmpty()) {
+  private static boolean hasSensitiveExtension(TransferInstruction transferInstruction) {
+    return transferInstruction.srcs().stream()
+      .map(ArgumentResolution::of)
+      .filter(ArgumentResolution::isResolved)
+      .anyMatch(resolved -> RISKY_EXTENSION_PATTERN.matcher(resolved.value()).find());
+  }
+
+  private static void reportIssue(CheckContext ctx, Flag sensitiveChownFlag, List<Argument> srcs) {
+    if (srcs.isEmpty()) {
       ctx.reportIssue(sensitiveChownFlag, MESSAGE);
     } else {
-      HasTextRange primaryLocation = sensitiveFiles.get(0);
+      HasTextRange primaryLocation = srcs.get(0);
       List<SecondaryLocation> secondaryLocations = new ArrayList<>();
-      for (Argument otherExecutable : sensitiveFiles.subList(1, sensitiveFiles.size())) {
-        secondaryLocations.add(new SecondaryLocation(otherExecutable, MESSAGE_SECONDARY_OTHER_EXEC));
+      for (Argument otherFile : srcs.subList(1, srcs.size())) {
+        secondaryLocations.add(new SecondaryLocation(otherFile, MESSAGE_SECONDARY_OTHER_EXEC));
       }
       secondaryLocations.add(new SecondaryLocation(sensitiveChownFlag, MESSAGE_SECONDARY_CHOWN));
       ctx.reportIssue(primaryLocation, MESSAGE, secondaryLocations);
@@ -99,39 +98,6 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   private static boolean isSensitiveUser(Flag chownFlag) {
     var resolvedArgArgument = ArgumentResolution.of(chownFlag.value());
     return resolvedArgArgument.isResolved() && isNonRootChown(resolvedArgArgument.value());
-  }
-
-  @CheckForNull
-  private static ArgumentChmod getChmod(TransferInstruction transferInstruction) {
-    return transferInstruction.options().stream()
-      .filter(f -> f.name().equals("chmod"))
-      .map(f -> ArgumentResolution.of(f.value()))
-      .filter(ArgumentResolution::isResolved)
-      .map(argResolved -> new ArgumentChmod(null, null, argResolved.value()))
-      .findFirst()
-      .orElse(null);
-  }
-
-  private static boolean isSensitiveWriteChmod(ArgumentChmod chmod) {
-    return chmod.hasPermission("u+w") || chmod.hasPermission("g+w");
-  }
-
-  private static boolean isSensitiveExecuteChmod(ArgumentChmod chmod) {
-    return chmod.hasPermission("u+x") || chmod.hasPermission("g+x") || chmod.hasPermission("o+x");
-  }
-
-  // true if user value is any of ['root', '0', ''], group value is not from this list, and group has write permissions
-  // for example --chown=root:bar --chmod=664
-  private static boolean isRootUserAndGroupHasNoWritePermission(Flag chown, ArgumentChmod chmod) {
-    var resolvedChown = ArgumentResolution.of(chown.value());
-    var isRootUser = !isNonRootAtId(resolvedChown.value(), 0);
-    return !chmod.hasPermission("g+w") && isRootUser && isNonRootAtId(resolvedChown.value(), 1);
-  }
-
-  // true if the user value is different from ['root', '0', ''], for example 'foo:root'
-  private static boolean isNonRootUser(Flag sensitiveChownFlag) {
-    var resolvedChown = ArgumentResolution.of(sensitiveChownFlag.value());
-    return isNonRootAtId(resolvedChown.value(), 0);
   }
 
   // true if any of the user or group value is different from ['root', '0', ''], for example 'root:foo'

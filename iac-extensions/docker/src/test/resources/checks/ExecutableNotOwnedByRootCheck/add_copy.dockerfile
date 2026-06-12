@@ -2,166 +2,145 @@ FROM scratch
 
 ARG SENSITIVE_USER=other
 ARG COMPLIANT_USER=root
-ARG SENSITIVE_CHMOD=u+w
-ARG COMPLIANT_CHMOD=u+r
-ARG SENSITIVE_FILE=file.sh
+ARG SENSITIVE_FILE=start.sh
 ARG COMPLIANT_FILE=file.txt
 
-# Noncompliant@+1
-ADD  --chown=:group     --chmod=777 file.sh  target/
+## Issue: non-root user with risky shell script extension
 
-## Sensitive because user is not root
 # Noncompliant@+1
-ADD --chown=other              file.sh  target/
+ADD --chown=other file.sh target/
 # Noncompliant@+1
-ADD --chown=other              file.txt target/
+ADD --chown=other file.bash target/
 # Noncompliant@+1
-ADD --chown=other --chmod=u+x  file.sh  target/
+ADD --chown=other file.zsh target/
 # Noncompliant@+1
-ADD --chown=other --chmod=u+x  file.txt target/
-# Noncompliant@+1
-ADD --chown=other --chmod=u+w  file.sh  target/
-# Noncompliant@+1
-ADD --chown=other --chmod=u+w  file.txt target/
-# Noncompliant@+1
-ADD --chown=other --chmod=u+wx file.sh  target/
-# Noncompliant@+1
-ADD --chown=other --chmod=u+wx file.txt target/
+ADD --chown=other file.fish target/
 
-## Error messages + locations
-# Noncompliant@+1 {{Make sure no write permissions are assigned to the copied resource.}}
-  ADD --chown=other --chmod=u+w file1.sh file2.sh  target/
+## Issue: non-root user with risky interpreted script extension
+
+# Noncompliant@+1
+ADD --chown=other file.py target/
+# Noncompliant@+1
+ADD --chown=other file.rb target/
+# Noncompliant@+1
+ADD --chown=other file.pl target/
+# Noncompliant@+1
+ADD --chown=other file.php target/
+
+## Issue: non-root user with risky native executable extension
+
+# Noncompliant@+1
+ADD --chown=other file.bin target/
+# Noncompliant@+1
+ADD --chown=other file.elf target/
+# Noncompliant@+1
+ADD --chown=other libcustom.so target/
+
+## Issue: non-root user with risky systemd unit extension
+
+# Noncompliant@+1
+ADD --chown=other svc.service target/
+# Noncompliant@+1
+ADD --chown=other svc.timer target/
+# Noncompliant@+1
+ADD --chown=other svc.socket target/
+
+## Issue: non-root user with sensitive destination path (risky extension irrelevant)
+
+# Noncompliant@+1
+COPY --chown=other file.txt /etc/config
+# Noncompliant@+1
+COPY --chown=other file.txt /bin/tool
+# Noncompliant@+1
+COPY --chown=other file.txt /usr/share/file
+# Noncompliant@+1
+COPY --chown=other file.txt /dev/device
+# Noncompliant@+1
+COPY --chown=other file.txt /boot/grub.cfg
+# Noncompliant@+1
+COPY --chown=other file.txt /root/file
+# Noncompliant@+1
+COPY --chown=other file.txt /proc/something
+# Noncompliant@+1
+COPY --chown=other file.txt /sbin/tool
+# Noncompliant@+1
+COPY --chown=other file.txt /lib/lib.so.1
+# Noncompliant@+1
+COPY --chown=other libfoo.so /lib64/libfoo.so
+# Noncompliant@+1
+COPY --chown=other libbar.so /lib32/libbar.so
+# subdirectory of sensitive path
+# Noncompliant@+1
+COPY --chown=other entrypoint.sh /usr/local/bin/entrypoint.sh
+
+## Issue: ADD instruction with sensitive destination path
+
+# Noncompliant@+1
+ADD --chown=other file.txt /etc/config
+# Noncompliant@+1
+ADD --chown=other file.txt /usr/share/file
+
+## Issue: non-root group (user is root) with risky extension or sensitive path
+
+# Noncompliant@+1
+ADD --chown=:group file.sh target/
+# Noncompliant@+1
+ADD --chown=:group file.txt /etc/config
+
+## Error message and secondary locations
+# Noncompliant@+1 {{Make sure the copied resource cannot be modified by a non-root user.}}
+  ADD --chown=other file1.sh file2.sh  target/
 #     ^^^^^^^^^^^^^> {{Sensitive file owner.}}
-#                               ^^^^^^^^@-1
-#                                        ^^^^^^^^@-2< {{Other copied resource.}}
+#                   ^^^^^^^^@-1
+#                            ^^^^^^^^@-2< {{Other copied resource.}}
 
-## Other sensitive use cases
+## With variables: resolved non-root user triggers, resolved root user does not
 # Noncompliant@+1
-ADD  --chown=other      --chmod=200 file.sh  target/
-# Noncompliant@+1
-ADD  --chown=other      --chmod=    file.sh  target/
-# Noncompliant@+1
-ADD  --chown=other      --chmod     file.sh  target/
-# Noncompliant@+1
-ADD  --chown=other      --chmod=300 file.sh  target/
-# Noncompliant@+1
-ADD  --chown=other      --chmod=300 file.txt target/
-# Noncompliant@+1
-ADD  --chown=other      --chmod=744 file.sh  target/
-# Noncompliant@+1
-COPY --chown=other      --chmod=200 file.sh  target/
+ADD --chown=$SENSITIVE_USER file.sh target/
+ADD --chown=$COMPLIANT_USER file.sh target/
+ADD --chown=$UNKNOWN_USER   file.sh target/
 
+## With variables: resolved risky file triggers, resolved safe file and unresolved do not
 # Noncompliant@+1
-ADD  --chown=other --chmod=400 file.sh  target/
-# Noncompliant@+1
-COPY --chown=other --chmod=400 file.sh  target/
-# Noncompliant@+1
-ADD  --chown=other --chmod=200 file.txt target/
-# Noncompliant@+1
-ADD  --chown=other --chmod=o+w file.sh  target/
-# Noncompliant@+1
-ADD  --chown=other --chmod=200 sh       target/
+ADD --chown=other $SENSITIVE_FILE target/
+ADD --chown=other $COMPLIANT_FILE target/
+ADD --chown=other $UNKNOWN_FILE   target/
 
-# Noncompliant@+1
-ADD --chown=other --chmod=g+w          file.sh  target/
-# Noncompliant@+1
-ADD --chown=other --chmod=u+w,g+w      file.sh  target/
-# Noncompliant@+1
-ADD --chown=other --chmod=g+wx         file.sh  target/
-# Noncompliant@+1
-ADD --chown=other --chmod=u+w,g+x      file.sh  target/
-# Noncompliant@+1
-ADD --chown=other --chmod=u+w,g+x,o+x  file.sh  target/
-# Noncompliant@+1
-ADD --chown=other --chmod=u+w,o+x      file.sh  target/
-# Noncompliant@+1
-ADD --chown=other --chmod=u+wx,g+x     file.sh  target/
-# Noncompliant@+1
-ADD --chown=other --chmod=u+wx,g+x,o+x file.sh  target/
-# Noncompliant@+1
-ADD --chown=other --chmod=u+wx,o+x     file.sh  target/
-
-## With variables
-# Noncompliant@+1
-ADD --chown=$SENSITIVE_USER --chmod=u+w              file1.sh        target/
-ADD --chown=$COMPLIANT_USER --chmod=u+w              file1.sh        target/
-ADD --chown=$UNKNOWN_USER   --chmod=u+w              file1.sh        target/
-# Noncompliant@+1
-ADD --chown=other           --chmod=$SENSITIVE_CHMOD file1.sh        target/
-# Noncompliant@+1
-ADD --chown=other           --chmod=$COMPLIANT_CHMOD file1.sh        target/
-# Noncompliant@+1
-ADD --chown=other           --chmod=$UNKNOWN_CHMOD   file1.sh        target/
-# Noncompliant@+1
-ADD --chown=other           --chmod=u+w              $SENSITIVE_FILE target/
-# Noncompliant@+1
-ADD --chown=other           --chmod=u+w              $COMPLIANT_FILE target/
-# Noncompliant@+1
-ADD --chown=other           --chmod=u+w              $UNKNOWN_FILE   target/
-
-## Other compliant use cases
-ADD  --chown       --chmod=400 file.sh  target/
-ADD  --chown=      --chmod=400 file.sh  target/
-ADD  --chown=:     --chmod=400 file.sh  target/
-ADD  --chown=:group     --chmod=200 file.sh  target/
-
-## Use cases where user='root'/'0', group!='root'/'0' and group has different rights
-COPY --chown=root:bar --chmod=604 foo.jar /
-
-COPY --chown=root:bar --chmod=614 foo.jar /
-
-COPY --chown=0:bar --chmod=614 foo.jar /
-
-# Noncompliant@+1
-COPY --chown=root:bar --chmod=624 foo.jar /
-
-# Noncompliant@+1
-COPY --chown=0:bar --chmod=624 foo.jar /
-
-# Noncompliant@+1
-COPY --chown=root:bar --chmod=634 foo.jar /
-
-COPY --chown=root:bar --chmod=644 foo.jar /
-
-COPY --chown=root:bar --chmod=654 foo.jar /
-
-# Noncompliant@+1
-COPY --chown=root:bar --chmod=664 foo.jar /
-
-# Noncompliant@+1
-COPY --chown=root:bar --chmod=674 foo.jar /
-
-# Noncompliant@+1
-COPY --chown=root:appgroup --chmod=666 src.txt dst.txt
-
-## Compliant use cases because of root user
+## Compliant: root ownership (user)
 ADD --chown=root               file.sh  target/
-ADD --chown=root:root               file.sh  target/
-ADD --chown=root:               file.sh  target/
-ADD --chown=:root               file.sh  target/
-ADD --chown=0               file.sh  target/
-ADD --chown=0:0               file.sh  target/
-ADD --chown=:0               file.sh  target/
-ADD --chown=:0               file.sh  target/
-ADD --chown=root:0               file.sh  target/
-ADD --chown=0:root               file.sh  target/
+ADD --chown=root:root          file.sh  target/
+ADD --chown=root:              file.sh  target/
+ADD --chown=:root              file.sh  target/
+ADD --chown=0                  file.sh  target/
+ADD --chown=0:0                file.sh  target/
+ADD --chown=0:root             file.sh  target/
 
-COPY --chown=root:root foo.jar
-COPY --chown=root: foo.jar
-COPY --chown=:root foo.jar
-COPY --chown=0 foo.jar
+## Compliant: no chown flag
+ADD file.sh target/
+COPY --chmod=755 start.sh /usr/local/bin/start.sh
 
-ADD --chown=root               file.sh  target/
-ADD --chown=root               file.txt target/
-ADD --chown=root  --chmod=u+x  file.sh  target/
-ADD --chown=root  --chmod=u+x  file.txt target/
-ADD --chown=root  --chmod=u+w  file.sh  target/
-ADD --chown=root  --chmod=u+w  file.txt target/
-ADD --chown=root  --chmod=u+wx file.sh  target/
-ADD --chown=root  --chmod=u+wx file.txt target/
+## Compliant: empty/root-equivalent chown values
+ADD --chown       file.sh target/
+ADD --chown=      file.sh target/
+ADD --chown=:     file.sh target/
 
-## Compliant because user doesn't change
-ADD --chown=:              file.sh  target/
+## Compliant: non-risky extension AND non-sensitive destination path
+ADD --chown=other file.txt   target/
+COPY --chown=other config.yaml /app/config.yaml
+COPY --chown=other dist/       /app/dist/
+COPY --chown=other app.jar     /app/
+COPY --chown=other app.conf    /app/
 
-## Compliant, but should no lead to an exception of the check
-COPY --chown=root:bar --chmod=614 fileName:withColon.sh /
+## Compliant: sensitive path but root ownership
+COPY --chown=root config.txt /etc/config
+COPY --chown=0    config.txt /bin/tool
+
+## Compliant: non-root group (user is root), non-risky extension, non-sensitive path
+COPY --chown=root:bar --chmod=604 foo.jar /app/
+COPY --chown=root:bar --chmod=664 foo.jar /app/
+COPY --chown=0:bar              foo.jar /app/
+
+## Compliant: path looks similar to sensitive path but is not
+COPY --chown=other file.txt /develop/app
+COPY --chown=other file.txt /binary/app
+COPY --chown=other file.txt /app/etc/config
