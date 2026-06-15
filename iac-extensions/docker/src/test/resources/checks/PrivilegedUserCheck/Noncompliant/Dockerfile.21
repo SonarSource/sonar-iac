@@ -1,0 +1,5 @@
+# Noncompliant@+1 {{The "ubuntu" image runs with "root" as the default user. Make sure it is safe here.}}
+  FROM ubuntu
+# ^^^^^^^^^^^
+# FP: missing unwrap — CMD ["sh", "-c", "..."] is not suppressed because sh -c is not unwrapped
+  CMD ["sh", "-c", "gosu app"]

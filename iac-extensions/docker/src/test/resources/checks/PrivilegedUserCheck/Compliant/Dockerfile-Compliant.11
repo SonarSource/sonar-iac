@@ -1,0 +1,4 @@
+FROM debian
+RUN set -eux; \
+    useradd -r -g postgres --uid=999 --home-dir=/var/lib/postgresql postgres; \
+    gosu --version

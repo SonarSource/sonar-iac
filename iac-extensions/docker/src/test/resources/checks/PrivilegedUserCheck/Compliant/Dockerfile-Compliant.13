@@ -1,0 +1,3 @@
+FROM debian
+RUN apk add --no-cache su-exec
+RUN su-exec mcwebserver pip3 install --user requirements.txt

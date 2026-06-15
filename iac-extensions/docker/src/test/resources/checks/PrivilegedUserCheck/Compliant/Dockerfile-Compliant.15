@@ -1,0 +1,2 @@
+FROM debian
+RUN ["gosu", "app", "whoami"]

@@ -1,0 +1,7 @@
+FROM debian as build
+RUN gosu app whoami
+ONBUILD RUN echo hi
+
+# Noncompliant@+1 {{The "alpine" image runs with "root" as the default user. Make sure it is safe here.}}
+  FROM alpine
+# ^^^^^^^^^^^

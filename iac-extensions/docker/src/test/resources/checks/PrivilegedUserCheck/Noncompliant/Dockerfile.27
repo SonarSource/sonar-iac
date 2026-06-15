@@ -1,0 +1,4 @@
+# Noncompliant@+1 {{The "debian" image runs with "root" as the default user. Make sure it is safe here.}}
+  FROM debian
+# ^^^^^^^^^^^
+  CMD ["php", "-a", "index.php"]

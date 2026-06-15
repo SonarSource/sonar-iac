@@ -84,6 +84,11 @@ class PrivilegedUserCheckTest {
     DockerVerifier.verifyNoIssue("PrivilegedUserCheck/Dockerfile_multi_stage_build-Compliant", check);
   }
 
+  @Test
+  void testMultiStageSignalConfinedToBuilderStage() {
+    DockerVerifier.verify("PrivilegedUserCheck/Dockerfile_multi_stage_signal_in_builder_only", check);
+  }
+
   private static List<String> provideTestFiles(String testFileDir) {
     try (Stream<Path> pathStream = Files.list(BASE_DIR.resolve(testFileDir))) {
       return pathStream
