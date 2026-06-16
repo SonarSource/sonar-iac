@@ -63,3 +63,5 @@ iac-extensions/jvm-framework-config/src/main/antlr/PropertiesLexer.tokens
 
 # AIs
 CLAUDE.local.md
+.claude/settings.json
+.claude/settings.local.json

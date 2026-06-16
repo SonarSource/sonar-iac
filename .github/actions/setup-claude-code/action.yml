@@ -19,15 +19,23 @@ runs:
           development/kv/data/code-security-claude-code portkey-api-key | PORTKEY_API_KEY;
 
     - uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8 # v3.6.1
+      name: Install claude code using Mise
       with:
         version: 2026.2.24
         tool_versions: |
           claude-code latest
 
-    - name: Configure Claude Code permissions (full)
+    # The "Install claude code using Mise" step creates .tool-versions file. It needs to be removed for having clean worktree.
+    - name: Remove tool-versions file
       shell: bash
       run: |
-        cat > .claude/settings.json << 'EOF'
+        rm .tool-versions || true
+
+    - name: Configure Claude Code permissions (user-level)
+      shell: bash
+      run: |
+        mkdir -p ~/.claude
+        cat > ~/.claude/settings.json << 'EOF'
         {
           "permissions": {
             "allow": [
