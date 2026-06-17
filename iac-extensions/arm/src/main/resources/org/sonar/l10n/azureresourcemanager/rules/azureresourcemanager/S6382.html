@@ -1,43 +1,106 @@
-<p>Disabling certificate-based authentication can reduce an organization’s ability to react against attacks on its critical functions and data.</p>
-<p>Azure offers various authentication options to access resources: Anonymous connections, Basic authentication, password-based authentication, and
-certificate-based authentication.</p>
-<p>Choosing certificate-based authentication helps bring client/host trust by allowing the host to verify the client and vice versa. It cannot be
-forged or forwarded by a man-in-the-middle eavesdropper, and the certificate’s private key is never sent over the network so it’s harder to steal than
-a password.</p>
-<p>In case of a security incident, certificates help bring investigators traceability and allow security operations teams to react faster. For
-example, all compromised certificates could be revoked individually, or an issuing certificate could be revoked which causes all the certificates it
-issued to become untrusted.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This Azure resource is essential for the information system infrastructure.</li>
-  <li>This Azure resource is essential for mission-critical functions.</li>
-  <li>Compliance policies require access to this resource to be authenticated with certificates.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Enable certificate-based authentication.</p>
-<h2>Sensitive Code Example</h2>
-<p>Where the use of client certificates is controlled by a boolean value, such as:</p>
-<ul>
-  <li><code>Microsoft.Web/sites</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-arm-template#siteproperties">clientCertEnabled</a></li>
-  <li><code>Microsoft.SignalRService/signalR</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.signalrservice/signalr?pivots=deployment-language-arm-template#signalrtlssettings">tls → clientCertEnabled</a></li>
-  <li><code>Microsoft.SignalRService/webPubSub</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.signalrservice/webpubsub?pivots=deployment-language-arm-template#webpubsubtlssettings-1">tls → clientCertEnabled</a></li>
-  <li><code>Microsoft.ApiManagement/service/gateways/hostnameConfigurations</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/gateways/hostnameconfigurations?pivots=deployment-language-arm-template#gatewayhostnameconfigurationcontractproperties">negotiateClientCertificate</a></li>
-</ul>
-<pre data-diff-id="1" data-diff-type="noncompliant">
+<p>Azure resources that participate in service-to-service communications can authenticate their peers with client certificates, in a mutual TLS
+handshake. Disabling that mechanism leaves the endpoint relying on weaker controls, such as passwords or network position alone, to establish trust
+between the two parties.</p>
+<h2>Why is this an issue?</h2>
+<p>Several Azure services let workloads authenticate their peers with client certificates over TLS, establishing mutual trust between the two ends of
+the connection. Unlike a shared password, a certificate cannot be forged or replayed by a man-in-the-middle, and its private key never leaves the
+holder, which makes it considerably harder to steal.</p>
+<p>This rule targets resources used for internal, machine-to-machine traffic, where mTLS is the industry-standard authentication mechanism.
+Externally-facing endpoints handling browser or mobile traffic are out of scope, since certificate-based authentication is impractical there.</p>
+<p>Disabling client certificate authentication on an internal resource, or selecting an authentication mode that does not require a certificate,
+removes the mutual-trust guarantee. The endpoint must then rely on weaker controls, such as passwords or network reachability, to decide whether the
+caller is legitimate.</p>
+<p>Certificates also support precise incident response. Compromised certificates can be revoked individually, and an issuing certificate authority can
+be revoked to invalidate every certificate it produced. Authentication mechanisms that do not rely on certificates do not offer that level of
+traceability and containment.</p>
+<h3>What is the potential impact?</h3>
+<p>Without client certificate authentication, an attacker who learns a shared password or reaches the endpoint over the network can impersonate the
+legitimate caller. Depending on what the affected resource handles, this exposes data flowing through the endpoint, the credentials it stores, or any
+downstream system it integrates with.</p>
+<p>Recovery is also harder. A password leak typically forces a rotation across every caller that knows it, whereas certificate-based authentication
+scopes the blast radius to a single revoked credential and preserves an audit trail of which certificate was used.</p>
+<h2>How to fix it in Azure App Service</h2>
+<p>Set <code>clientCertEnabled</code> to <code>true</code> and <code>clientCertMode</code> to <code>Required</code> on the
+<code>Microsoft.Web/sites</code> (or <code>Microsoft.Web/sites/slots</code>) resource.</p>
+<h3>Code examples</h3>
+<p>The following code disables client certificate authentication on an Azure resource, leaving the endpoint to rely on weaker controls such as
+passwords, or on no peer authentication at all.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="13" data-diff-type="noncompliant">
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "name": "internal-api",
+      "properties": {
+        "publicNetworkAccess": "Disabled",
+        "clientCertEnabled": true,
+        "clientCertMode": "Optional"
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="14" data-diff-type="noncompliant">
+resource internalApi 'Microsoft.Web/sites@2022-03-01' = {
+  name: 'internal-api'
+  properties: {
+    publicNetworkAccess: 'Disabled'
+    clientCertEnabled: true
+    clientCertMode: 'Optional' // Noncompliant
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="13" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "name": "internal-api",
+      "properties": {
+        "publicNetworkAccess": "Disabled",
+        "clientCertEnabled": true,
+        "clientCertMode": "Required"
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="14" data-diff-type="compliant">
+resource internalApi 'Microsoft.Web/sites@2022-03-01' = {
+  name: 'internal-api'
+  properties: {
+    publicNetworkAccess: 'Disabled'
+    clientCertEnabled: true
+    clientCertMode: 'Required'
+  }
+}
+</pre>
+<h2>How to fix it in Azure SignalR Service</h2>
+<p>Set <code>tls.clientCertEnabled</code> to <code>true</code> on the <code>Microsoft.SignalRService/signalR</code> or
+<code>Microsoft.SignalRService/webPubSub</code> resource.</p>
+<h3>Code examples</h3>
+<p>The following code disables client certificate authentication on an Azure resource, leaving the endpoint to rely on weaker controls such as
+passwords, or on no peer authentication at all.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="15" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
       "type": "Microsoft.SignalRService/webPubSub",
-      "apiVersion": "2020-07-01-preview",
-      "name": "example",
+      "apiVersion": "2021-10-01",
+      "name": "internal-bus",
       "properties": {
+        "publicNetworkAccess": "Disabled",
         "tls": {
           "clientCertEnabled": false
         }
@@ -46,86 +109,67 @@ issued to become untrusted.</p>
   ]
 }
 </pre>
-<pre data-diff-id="11" data-diff-type="noncompliant">
-resource example 'Microsoft.SignalRService/webPubSub@2020-07-01-preview' = {
-  name: 'example'
+<pre data-diff-id="16" data-diff-type="noncompliant">
+resource internalBus 'Microsoft.SignalRService/webPubSub@2021-10-01' = {
+  name: 'internal-bus'
   properties: {
+    publicNetworkAccess: 'Disabled'
     tls: {
-      clientCertEnabled: false // Sensitive
+      clientCertEnabled: false // Noncompliant
     }
   }
 }
 </pre>
-<pre data-diff-id="2" data-diff-type="noncompliant">
+<h4>Compliant solution</h4>
+<pre data-diff-id="15" data-diff-type="compliant">
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2015-08-01",
-      "name": "example",
+      "type": "Microsoft.SignalRService/webPubSub",
+      "apiVersion": "2021-10-01",
+      "name": "internal-bus",
       "properties": {
-        "clientCertEnabled": false
+        "publicNetworkAccess": "Disabled",
+        "tls": {
+          "clientCertEnabled": true
+        }
       }
     }
   ]
 }
 </pre>
-<pre data-diff-id="12" data-diff-type="noncompliant">
-resource example 'Microsoft.Web/sites@2015-08-01' = {
-  name: 'example'
+<pre data-diff-id="16" data-diff-type="compliant">
+resource internalBus 'Microsoft.SignalRService/webPubSub@2021-10-01' = {
+  name: 'internal-bus'
   properties: {
-    clientCertEnabled: false // Sensitive
-  }
-}
-</pre>
-<p>Where the use of client certificates can be made optional, such as:</p>
-<ul>
-  <li><code>Microsoft.Web/sites</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-arm-template#siteproperties">clientCertMode</a></li>
-  <li><code>Microsoft.App/containerApps</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.app/containerapps?pivots=deployment-language-arm-template#ingress">configuration →
-  ingress → clientCertificateMode</a></li>
-</ul>
-<pre data-diff-id="3" data-diff-type="noncompliant">
-{
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "resources": [
-    {
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2015-08-01",
-      "name": "example",
-      "properties": {
-        "clientCertEnabled": true,
-        "clientCertMode": "Optional"
-      }
+    publicNetworkAccess: 'Disabled'
+    tls: {
+      clientCertEnabled: true
     }
-  ]
-}
-</pre>
-<pre data-diff-id="13" data-diff-type="noncompliant">
-resource example 'Microsoft.Web/sites@2015-08-01' = {
-  name: 'example'
-  properties: {
-    clientCertEnabled: true
-    clientCertMode: 'Optional' // Sensitive
   }
 }
 </pre>
-<pre data-diff-id="4" data-diff-type="noncompliant">
+<h2>How to fix it in Azure Container Apps</h2>
+<p>Set <code>configuration.ingress.clientCertificateMode</code> to <code>require</code> on the <code>Microsoft.App/containerApps</code> resource.</p>
+<h3>Code examples</h3>
+<p>The following code disables client certificate authentication on an Azure resource, leaving the endpoint to rely on weaker controls such as
+passwords, or on no peer authentication at all.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="17" data-diff-type="noncompliant">
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
       "type": "Microsoft.App/containerApps",
       "apiVersion": "2022-10-01",
-      "name": "example",
+      "name": "internal-worker",
       "properties": {
         "configuration": {
           "ingress": {
+            "external": false,
             "clientCertificateMode": "accept"
           }
         }
@@ -134,32 +178,122 @@ resource example 'Microsoft.Web/sites@2015-08-01' = {
   ]
 }
 </pre>
-<pre data-diff-id="14" data-diff-type="noncompliant">
-resource example 'Microsoft.App/containerApps@2022-10-01' = {
-  name: 'example'
+<pre data-diff-id="18" data-diff-type="noncompliant">
+resource internalWorker 'Microsoft.App/containerApps@2022-10-01' = {
+  name: 'internal-worker'
   properties: {
     configuration: {
       ingress: {
-        clientCertificateMode: 'accept' // Sensitive
+        external: false
+        clientCertificateMode: 'accept' // Noncompliant
       }
     }
   }
 }
 </pre>
-<p>Where client certificates can be used to authenticate outbound requests, such as:</p>
-<ul>
-  <li><code>Microsoft.DataFactory/factories/linkedservices</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.datafactory/factories/linkedservices?pivots=deployment-language-arm-template#httplinkedservicetypeproperties">typeProperties → authenticationType</a> where the request type is <code>Web</code> or <code>HttpServer</code></li>
-  <li><code>Microsoft.DataFactory/factories/pipelines</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.datafactory/factories/pipelines?pivots=deployment-language-arm-template#webactivityauthentication">activites → typeProperties → authentication → type</a> where the activity type is <code>WebActivity</code> or <code>WebHook</code></li>
-  <li><code>Microsoft.Scheduler/jobCollections/jobs</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.scheduler/jobcollections/jobs?pivots=deployment-language-arm-template#httprequest-1">action → request → authentication → type</a></li>
-  <li><code>Microsoft.Scheduler/jobCollections/jobs</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.scheduler/jobcollections/jobs?pivots=deployment-language-arm-template#joberroraction-1">action → errorAction → request → authentication → type</a></li>
-</ul>
-<pre data-diff-id="5" data-diff-type="noncompliant">
+<h4>Compliant solution</h4>
+<pre data-diff-id="17" data-diff-type="compliant">
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-10-01",
+      "name": "internal-worker",
+      "properties": {
+        "configuration": {
+          "ingress": {
+            "external": false,
+            "clientCertificateMode": "require"
+          }
+        }
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="18" data-diff-type="compliant">
+resource internalWorker 'Microsoft.App/containerApps@2022-10-01' = {
+  name: 'internal-worker'
+  properties: {
+    configuration: {
+      ingress: {
+        external: false
+        clientCertificateMode: 'require'
+      }
+    }
+  }
+}
+</pre>
+<h2>How to fix it in Azure API Management</h2>
+<p>Set <code>negotiateClientCertificate</code> to <code>true</code> on the
+<code>Microsoft.ApiManagement/service/gateways/hostnameConfigurations</code> resource.</p>
+<h3>Code examples</h3>
+<p>The following code disables client certificate authentication on an Azure resource, leaving the endpoint to rely on weaker controls such as
+passwords, or on no peer authentication at all.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="19" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.ApiManagement/service/gateways/hostnameConfigurations",
+      "apiVersion": "2022-11-01",
+      "name": "service/gateway/m2m-host",
+      "properties": {
+        "negotiateClientCertificate": false
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="20" data-diff-type="noncompliant">
+resource m2mHost 'Microsoft.ApiManagement/service/gateways/hostnameConfigurations@2022-11-01' = {
+  name: 'm2m-host'
+  properties: {
+    negotiateClientCertificate: false // Noncompliant
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="19" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.ApiManagement/service/gateways/hostnameConfigurations",
+      "apiVersion": "2022-11-01",
+      "name": "service/gateway/m2m-host",
+      "properties": {
+        "negotiateClientCertificate": true
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="20" data-diff-type="compliant">
+resource m2mHost 'Microsoft.ApiManagement/service/gateways/hostnameConfigurations@2022-11-01' = {
+  name: 'm2m-host'
+  properties: {
+    negotiateClientCertificate: true
+  }
+}
+</pre>
+<h2>How to fix it in Azure Data Factory</h2>
+<p>Data Factory linked services of type <code>Web</code> or <code>HttpServer</code>, and pipeline <code>WebActivity</code> / <code>WebHook</code>
+activities, call external endpoints from the integration runtime. The <code>authenticationType</code> field selects how the runtime authenticates to
+the remote endpoint, and any value other than <code>ClientCertificate</code> disables certificate-based authentication.</p>
+<h3>Code examples</h3>
+<p>The following code disables client certificate authentication on an Azure resource, leaving the endpoint to rely on weaker controls such as
+passwords, or on no peer authentication at all.</p>
+<h4>Noncompliant code example</h4>
+<p>A linked service authenticating with a basic password:</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
@@ -176,58 +310,149 @@ resource example 'Microsoft.App/containerApps@2022-10-01' = {
   ]
 }
 </pre>
-<pre data-diff-id="15" data-diff-type="noncompliant">
+<pre data-diff-id="2" data-diff-type="noncompliant">
 resource example 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'example'
   properties: {
     type: 'Web'
     typeProperties: {
-      authenticationType: 'Basic' // Sensitive
+      authenticationType: 'Basic' // Noncompliant
     }
   }
 }
 </pre>
-<p>Where a list of permitted client certificates must be provided, such as:</p>
-<ul>
-  <li><code>Microsoft.DocumentDB/cassandraClusters</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/cassandraclusters?pivots=deployment-language-arm-template#clusterresourceproperties-1">clientCertificates</a></li>
-  <li><code>Microsoft.Network/applicationGateways</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.network/applicationgateways?pivots=deployment-language-arm-template#applicationgatewaypropertiesformat-1">trustedClientCertificates</a></li>
-  <li><code>Microsoft.ServiceFabric/clusters</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.servicefabric/clusters?pivots=deployment-language-arm-template#clusterproperties-1">clientCertificateCommonNames</a> or <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.servicefabric/clusters?pivots=deployment-language-arm-template#clusterproperties-1">clientCertificateThumbprints</a></li>
-</ul>
-<pre data-diff-id="6" data-diff-type="noncompliant">
+<p>A pipeline <code>WebActivity</code> authenticating with a basic password:</p>
+<pre data-diff-id="3" data-diff-type="noncompliant">
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
-      "type": "Microsoft.DocumentDB/cassandraClusters",
-      "apiVersion": "2021-10-15",
-      "name": "example",
+      "type": "Microsoft.DataFactory/factories/pipelines",
+      "apiVersion": "2018-06-01",
+      "name": "factories/example",
       "properties": {
-        "clientCertificates": []
+        "activities": [
+          {
+            "name": "CallEndpoint",
+            "type": "WebActivity",
+            "typeProperties": {
+              "url": "https://example.com",
+              "method": "POST",
+              "authenticationType": "Basic"
+            }
+          }
+        ]
       }
     }
   ]
 }
 </pre>
-<pre data-diff-id="16" data-diff-type="noncompliant">
-resource example 'Microsoft.DocumentDB/cassandraClusters@2021-10-15' = {
+<pre data-diff-id="4" data-diff-type="noncompliant">
+resource example 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
   name: 'example'
   properties: {
-    clientCertificates: [] // Sensitive
+    activities: [
+      {
+        name: 'CallEndpoint'
+        type: 'WebActivity'
+        typeProperties: {
+          url: 'https://example.com'
+          method: 'POST'
+          authenticationType: 'Basic' // Noncompliant
+        }
+      }
+    ]
   }
 }
 </pre>
-<p>Where a resouce can use both certificate-based and password-based authentication, such as:</p>
-<ul>
-  <li><code>Microsoft.ContainerRegistry/registries/tokens</code> with <a
-  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries/tokens?pivots=deployment-language-arm-template#tokencredentialsproperties-1">credentials → certficates</a> and <code>credentials</code> → <code>passwords</code></li>
-</ul>
+<h4>Compliant solution</h4>
+<p>A linked service authenticating with a client certificate:</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "name": "example",
+      "properties": {
+        "type": "Web",
+        "typeProperties": {
+          "authenticationType": "ClientCertificate"
+        }
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+resource example 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+  name: 'example'
+  properties: {
+    type: 'Web'
+    typeProperties: {
+      authenticationType: 'ClientCertificate'
+    }
+  }
+}
+</pre>
+<p>A pipeline <code>WebActivity</code> authenticating with a client certificate:</p>
+<pre data-diff-id="3" data-diff-type="compliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.DataFactory/factories/pipelines",
+      "apiVersion": "2018-06-01",
+      "name": "example",
+      "properties": {
+        "activities": [
+          {
+            "name": "CallEndpoint",
+            "type": "WebActivity",
+            "typeProperties": {
+              "url": "https://example.com",
+              "method": "POST",
+              "authenticationType": "ClientCertificate"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="4" data-diff-type="compliant">
+resource example 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: 'example'
+  properties: {
+    activities: [
+      {
+        name: 'CallEndpoint'
+        type: 'WebActivity'
+        typeProperties: {
+          url: 'https://example.com'
+          method: 'POST'
+          authenticationType: 'ClientCertificate'
+        }
+      }
+    ]
+  }
+}
+</pre>
+<h2>How to fix it in Azure Container Registry</h2>
+<p>A Container Registry token can authenticate clients with either certificates or passwords. Defining only passwords leaves the registry without a
+certificate-based credential, so clients fall back to shared secrets that are easier to steal and harder to revoke individually.</p>
+<h3>Code examples</h3>
+<p>The following code disables client certificate authentication on an Azure resource, leaving the endpoint to rely on weaker controls such as
+passwords, or on no peer authentication at all.</p>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="7" data-diff-type="noncompliant">
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
@@ -247,12 +472,12 @@ resource example 'Microsoft.DocumentDB/cassandraClusters@2021-10-15' = {
   ]
 }
 </pre>
-<pre data-diff-id="17" data-diff-type="noncompliant">
+<pre data-diff-id="8" data-diff-type="noncompliant">
 resource example 'Microsoft.ContainerRegistry/registries/tokens@2022-12-01' = {
   name: 'example'
   properties: {
     credentials: {
-      passwords: [ // Sensitive
+      passwords: [ // Noncompliant
         {
           name: 'password1'
         }
@@ -261,189 +486,10 @@ resource example 'Microsoft.ContainerRegistry/registries/tokens@2022-12-01' = {
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
-<p>Where the use of client certificates is controlled by a boolean value:</p>
-<pre data-diff-id="1" data-diff-type="compliant">
-{
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "resources": [
-    {
-      "type": "Microsoft.SignalRService/webPubSub",
-      "apiVersion": "2020-07-01-preview",
-      "name": "example",
-      "properties": {
-        "tls": {
-          "clientCertEnabled": true
-        }
-      }
-    }
-  ]
-}
-</pre>
-<pre data-diff-id="11" data-diff-type="compliant">
-resource example 'Microsoft.SignalRService/webPubSub@2020-07-01-preview' = {
-  name: 'example'
-  properties: {
-    tls: {
-      clientCertEnabled: true
-    }
-  }
-}
-</pre>
-<pre data-diff-id="2" data-diff-type="compliant">
-{
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "resources": [
-    {
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2015-08-01",
-      "name": "example",
-      "properties": {
-        "clientCertEnabled": true,
-        "clientCertMode": "Required"
-      }
-    }
-  ]
-}
-</pre>
-<pre data-diff-id="12" data-diff-type="compliant">
-resource example 'Microsoft.Web/sites@2015-08-01' = {
-  name: 'example'
-  properties: {
-    clientCertEnabled: true
-    clientCertMode: 'Required'
-  }
-}
-</pre>
-<p>Where the use of client certificates can be made optional:</p>
-<pre data-diff-id="3" data-diff-type="compliant">
-{
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "resources": [
-    {
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2015-08-01",
-      "name": "example",
-      "properties": {
-        "clientCertEnabled": true,
-        "clientCertMode": "Required"
-      }
-    }
-  ]
-}
-</pre>
-<pre data-diff-id="13" data-diff-type="compliant">
-resource example 'Microsoft.Web/sites@2015-08-01' = {
-  name: 'example'
-  properties: {
-    clientCertEnabled: true
-    clientCertMode: 'Required'
-  }
-}
-</pre>
-<pre data-diff-id="4" data-diff-type="compliant">
-{
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "resources": [
-    {
-      "type": "Microsoft.App/containerApps",
-      "apiVersion": "2022-10-01",
-      "name": "example",
-      "properties": {
-        "configuration": {
-          "ingress": {
-            "clientCertificateMode": "require"
-          }
-        }
-      }
-    }
-  ]
-}
-</pre>
-<pre data-diff-id="14" data-diff-type="compliant">
-resource example 'Microsoft.App/containerApps@2022-10-01' = {
-  name: 'example'
-  properties: {
-    configuration: {
-      ingress: {
-        clientCertificateMode: 'require'
-      }
-    }
-  }
-}
-</pre>
-<p>Where client certificates can be used to authenticate outbound requests:</p>
-<pre data-diff-id="5" data-diff-type="compliant">
-{
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "resources": [
-    {
-      "type": "Microsoft.DataFactory/factories/linkedservices",
-      "apiVersion": "2018-06-01",
-      "name": "example",
-      "properties": {
-        "type": "Web",
-        "typeProperties": {
-          "authenticationType": "ClientCertificate"
-        }
-      }
-    }
-  ]
-}
-</pre>
-<pre data-diff-id="15" data-diff-type="compliant">
-resource example 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
-  name: 'example'
-  properties: {
-    type: 'Web'
-    typeProperties: {
-      authenticationType: 'ClientCertificate'
-    }
-  }
-}
-</pre>
-<p>Where a list of permitted client certificates must be provided:</p>
-<pre data-diff-id="6" data-diff-type="compliant">
-{
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "resources": [
-    {
-      "type": "Microsoft.DocumentDB/cassandraClusters",
-      "apiVersion": "2021-10-15",
-      "name": "example",
-      "properties": {
-        "clientCertificates": [
-          {
-            "pem": "[base64-encoded certificate]"
-          }
-        ]
-      }
-    }
-  ]
-}
-</pre>
-<pre data-diff-id="16" data-diff-type="compliant">
-resource example 'Microsoft.DocumentDB/cassandraClusters@2021-10-15' = {
-  name: 'example'
-  properties: {
-    clientCertificates: [
-      {
-        pem: '[base64-encoded certificate]'
-      }
-    ]
-  }
-}
-</pre>
-<p>Where a resouce can use both certificate-based and password-based authentication:</p>
+<h4>Compliant solution</h4>
 <pre data-diff-id="7" data-diff-type="compliant">
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "resources": [
     {
@@ -464,7 +510,7 @@ resource example 'Microsoft.DocumentDB/cassandraClusters@2021-10-15' = {
   ]
 }
 </pre>
-<pre data-diff-id="17" data-diff-type="compliant">
+<pre data-diff-id="8" data-diff-type="compliant">
 resource example 'Microsoft.ContainerRegistry/registries/tokens@2022-12-01' = {
   name: 'example'
   properties: {
@@ -479,9 +525,40 @@ resource example 'Microsoft.ContainerRegistry/registries/tokens@2022-12-01' = {
   }
 }
 </pre>
-<h2>See</h2>
+<p>The same pattern of providing a list of accepted client certificates also applies to two other Azure resources that the rule flags. On
+<code>Microsoft.DocumentDB/cassandraClusters</code>, populate <code>clientCertificates</code> with the operator certificates that should be allowed to
+connect. On <code>Microsoft.ServiceFabric/clusters</code>, populate <code>clientCertificateCommonNames</code> or
+<code>clientCertificateThumbprints</code> with the same intent. In both cases, leaving the list empty (or omitting it) leaves the resource without
+certificate-based authentication.</p>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li><a href="https://learn.microsoft.com/en-us/azure/templates/">Azure Resource Manager templates</a></li>
+  <li>Microsoft Learn - <a href="https://learn.microsoft.com/en-us/azure/templates/">Azure Resource Manager templates</a></li>
+  <li>Microsoft Learn - <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-arm-template#siteproperties">Microsoft.Web/sites - SiteProperties</a></li>
+  <li>Microsoft Learn - <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.signalrservice/signalr?pivots=deployment-language-arm-template#signalrtlssettings">Microsoft.SignalRService/signalR - SignalRTlsSettings</a></li>
+  <li>Microsoft Learn - <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.signalrservice/webpubsub?pivots=deployment-language-arm-template#webpubsubtlssettings-1">Microsoft.SignalRService/webPubSub - WebPubSubTlsSettings</a></li>
+  <li>Microsoft Learn - <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.app/containerapps?pivots=deployment-language-arm-template#ingress">Microsoft.App/containerApps - Ingress</a></li>
+  <li>Microsoft Learn - <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/gateways/hostnameconfigurations?pivots=deployment-language-arm-template#gatewayhostnameconfigurationcontractproperties">Microsoft.ApiManagement/service/gateways/hostnameConfigurations - GatewayHostnameConfigurationContractProperties</a></li>
+  <li>Microsoft Learn - <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.datafactory/factories/linkedservices?pivots=deployment-language-arm-template#httplinkedservicetypeproperties">Microsoft.DataFactory/factories/linkedservices - HttpLinkedServiceTypeProperties</a></li>
+  <li>Microsoft Learn - <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.datafactory/factories/pipelines?pivots=deployment-language-arm-template#webactivitytypeproperties">Microsoft.DataFactory/factories/pipelines - WebActivityTypeProperties</a></li>
+  <li>Microsoft Learn - <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.documentdb/cassandraclusters?pivots=deployment-language-arm-template#clusterresourceproperties-1">Microsoft.DocumentDB/cassandraClusters - ClusterResourceProperties</a></li>
+  <li>Microsoft Learn - <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.containerregistry/registries/tokens?pivots=deployment-language-arm-template#tokencredentialsproperties-1">Microsoft.ContainerRegistry/registries/tokens - TokenCredentialsProperties</a></li>
+  <li>Microsoft Learn - <a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.servicefabric/clusters?pivots=deployment-language-arm-template#clusterproperties-1">Microsoft.ServiceFabric/clusters - ClusterProperties</a></li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/287">CWE-287 - Improper Authentication</a></li>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/668">CWE-668 - Exposure of Resource to Wrong Sphere</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/1390">CWE-1390 - Weak Authentication</a></li>
 </ul>
 

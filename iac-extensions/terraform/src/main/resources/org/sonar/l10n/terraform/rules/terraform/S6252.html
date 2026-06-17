@@ -1,29 +1,27 @@
-<p>S3 buckets can be in three states related to versioning:</p>
-<ul>
-  <li>unversioned (default one)</li>
-  <li>enabled</li>
-  <li>suspended</li>
-</ul>
-<p>When the S3 bucket is unversioned or has versioning suspended it means that a new version of an object overwrites an existing one in the S3
-bucket.</p>
-<p>It can lead to unintentional or intentional information loss.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The bucket stores information that require high availability.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to enable S3 versioning and thus to have the possibility to retrieve and restore different versions of an object.</p>
-<h2>Sensitive Code Example</h2>
+<p>Amazon S3 buckets can be unversioned, have versioning enabled, or have versioning suspended.</p>
+<h2>Why is this an issue?</h2>
+<p>When an S3 bucket is unversioned or has versioning suspended, uploading a new object overwrites the previous one instead of preserving prior
+versions. The rule flags buckets without versioning enabled, including when the versioning property is omitted and defaults to disabled.</p>
+<h3>What is the potential impact?</h3>
+<h4>Data loss</h4>
+<p>Objects can be permanently overwritten or deleted without the ability to restore previous versions. This can result from accidental changes,
+misconfiguration, or malicious activity.</p>
+<h4>Reduced availability of historical data</h4>
+<p>Buckets that store information requiring long-term preservation become vulnerable to unintentional or intentional information loss when versioning
+is not enabled.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<p>Versioning is disabled when the property is omitted or explicitly set to disable versioning, so new object uploads overwrite existing ones.</p>
+<h4>Noncompliant code example</h4>
 <p>Versioning is disabled by default:</p>
-<pre>
-resource "aws_s3_bucket" "example" { # Sensitive
+<pre data-diff-id="1" data-diff-type="noncompliant">
+resource "aws_s3_bucket" "example" { # Noncompliant
   bucket = "example"
 }
 </pre>
-<h2>Compliant Solution</h2>
+<h4>Compliant solution</h4>
 <p>Versioning is enabled for AWS provider version 4 or above:</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "aws_s3_bucket" "example" {
   bucket = "example"
 }
@@ -35,7 +33,7 @@ resource "aws_s3_bucket_versioning" "example-versioning" {
   }
 }
 </pre>
-<p>Versioning is enabled for AWS provider version 3 or below:</p>
+<p>For AWS provider version 3 or below, enable versioning inline on the bucket resource:</p>
 <pre>
 resource "aws_s3_bucket" "example" {
   bucket = "example"
@@ -45,8 +43,15 @@ resource "aws_s3_bucket" "example" {
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html">AWS documentation</a> - Using versioning in S3 buckets</li>
+  <li><a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_s3.Bucket.html#versioned">AWS CDK version 2</a> - Using versioning in S3
+  buckets</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/16">CWE-16 - Configuration</a></li>
 </ul>
 

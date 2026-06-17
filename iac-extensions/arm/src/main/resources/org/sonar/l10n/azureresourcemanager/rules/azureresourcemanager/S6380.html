@@ -1,22 +1,19 @@
-<p>Allowing anonymous access can reduce an organization’s ability to protect itself against attacks on its Azure resources.</p>
-<p>Security incidents may include disrupting critical functions, data theft, and additional Azure subscription costs due to resource overload.</p>
-<p>Using authentication coupled with fine-grained authorizations helps bring defense-in-depth and bring traceability to investigators of security
-incidents.</p>
-<p>Depending on the affected Azure resource, multiple authentication choices are possible: Active Directory Authentication, OpenID implementations
-(Google, Microsoft, etc.) or native Azure mechanisms.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This Azure resource is essential for the information system infrastructure.</li>
-  <li>This Azure resource is essential for mission-critical functions.</li>
-  <li>This Azure resource stores or processes sensitive data.</li>
-  <li>Compliance policies require access to this resource to be authenticated.</li>
-</ul>
-<p>There is a risk if you answered yes to any of these questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Enable authentication in this Azure resource, and disable anonymous access.</p>
-<p>If only Basic Authentication is available, enable it.</p>
-<h2>Sensitive Code Example</h2>
-<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Service</a>:</p>
+<p>Multiple Azure resource types support authentication configuration, and several allow anonymous access to be explicitly enabled or left
+unconfigured. Allowing anonymous access can expose sensitive data and operations to unauthorized users.</p>
+<h2>Why is this an issue?</h2>
+<p>Allowing anonymous access to Azure resources means that any request, regardless of origin, can interact with the resource without providing
+credentials. For services such as App Service, API Management, Data Factory linked services, Storage Accounts, and Redis Caches, unauthenticated
+access can expose sensitive data and operations to unauthorized users. Enabling authentication ensures that only verified identities can access these
+resources, and provides an audit trail for investigators of security incidents.</p>
+<h3>What is the potential impact?</h3>
+<p>If anonymous access is permitted, an attacker can read, modify, or delete data and trigger operations without authentication. Depending on the
+resource type, this can result in data breaches, unauthorized API calls, service disruption, or unexpected Azure subscription costs due to resource
+abuse.</p>
+<h2>How to fix it in JSON templates</h2>
+<h3>Code examples</h3>
+<p>The following code allows anonymous access to the Azure resource, leaving it accessible to any caller without authentication.</p>
+<p>For App Service:</p>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -30,167 +27,7 @@ incidents.</p>
     ]
 }
 </pre>
-<pre data-diff-id="101" data-diff-type="noncompliant">
-resource appService 'Microsoft.Web/sites@2022-09-01' = {
-    name: 'example'
-    // Sensitive: no authentication defined
-}
-</pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
-<pre data-diff-id="2" data-diff-type="noncompliant">
-{
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.ApiManagement/service",
-            "apiVersion": "2022-09-01-preview",
-            "name": "example"
-        }
-    ]
-}
-</pre>
-<pre data-diff-id="102" data-diff-type="noncompliant">
-resource apiManagementService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
-    name: 'example'
-    // Sensitive: no portal authentication defined
-
-    resource apis 'apis@2022-09-01-preview' = {
-        name: 'exampleApi'
-        properties: {
-            path: '/test'
-            // Sensitive: no API authentication defined
-        }
-    }
-}
-</pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory</a> Linked Services:</p>
-<pre data-diff-id="3" data-diff-type="noncompliant">
-{
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.DataFactory/factories/linkedservices",
-            "apiVersion": "2018-06-01",
-            "name": "example",
-            "properties": {
-                "type": "Web",
-                "typeProperties": {
-                    "authenticationType": "Anonymous"
-                }
-            }
-        }
-    ]
-}
-</pre>
-<pre data-diff-id="103" data-diff-type="noncompliant">
-resource linkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
-    name: 'example'
-    properties: {
-        type: 'Web'
-        typeProperties: {
-            authenticationType: 'Anonymous' // Sensitive
-        }
-    }
-}
-</pre>
-<p>For <a href="https://azure.microsoft.com/en-us/product-categories/storage/">Storage Accounts and Storage Containers</a>:</p>
-<pre data-diff-id="4" data-diff-type="noncompliant">
-{
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2022-09-01",
-            "name": "example",
-            "properties": {
-                "allowBlobPublicAccess": true
-            }
-        }
-    ]
-}
-</pre>
-<pre data-diff-id="104" data-diff-type="noncompliant">
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-    name: 'example'
-    properties: {
-        allowBlobPublicAccess: true // Sensitive
-    }
-}
-</pre>
-<pre data-diff-id="5" data-diff-type="noncompliant">
-{
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2022-09-01",
-            "name": "example",
-            "resources": [
-                {
-                    "type": "blobServices/containers",
-                    "apiVersion": "2022-09-01",
-                    "name": "blobContainerExample",
-                    "properties": {
-                        "publicAccess": "Blob"
-                    }
-                }
-            ]
-        }
-    ]
-}
-</pre>
-<pre data-diff-id="105" data-diff-type="noncompliant">
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-    name: 'example'
-
-    resource blobService 'blobServices@2022-09-01' = {
-        name: 'default'
-
-        resource containers 'containers@2022-09-01' = {
-            name: 'exampleContainer'
-            properties: {
-                publicAccess: 'Blob' // Sensitive
-            }
-        }
-    }
-}
-</pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/cache/">Redis Caches</a>:</p>
-<pre data-diff-id="6" data-diff-type="noncompliant">
-{
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.Cache/redis",
-            "apiVersion": "2022-06-01",
-            "name": "example",
-            "properties": {
-                "redisConfiguration": {
-                    "authnotrequired": "true"
-                }
-            }
-        }
-    ]
-}
-</pre>
-<pre data-diff-id="106" data-diff-type="noncompliant">
-resource redisCache 'Microsoft.Cache/redis@2023-04-01' = {
-    name: 'example'
-    location: location
-    properties: {
-        redisConfiguration: {
-            authnotrequired: 'true' // Sensitive
-        }
-    }
-}
-</pre>
-<h2>Compliant Solution</h2>
-<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Services and equivalent</a>:</p>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -209,6 +46,9 @@ resource redisCache 'Microsoft.Cache/redis@2023-04-01' = {
                         "globalValidation": {
                             "requireAuthentication": true,
                             "unauthenticatedClientAction": "RedirectToLoginPage"
+                        },
+                        "platform": {
+                            "enabled": true
                         }
                     }
                 }
@@ -217,25 +57,22 @@ resource redisCache 'Microsoft.Cache/redis@2023-04-01' = {
     ]
 }
 </pre>
-<pre data-diff-id="101" data-diff-type="compliant">
-resource appService 'Microsoft.Web/sites@2022-09-01' = {
-    name: 'example'
-
-    resource authSettings 'config@2022-09-01' = { // Compliant
-        name: 'authsettingsV2'
-        properties: {
-            globalValidation: {
-                requireAuthentication: true
-                unauthenticatedClientAction: 'AllowAnonymous'
-            }
-            platform: {
-                enabled: true
-            }
+<p>For API Management:</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.ApiManagement/service",
+            "apiVersion": "2022-09-01-preview",
+            "name": "example"
         }
-    }
+    ]
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
+<h4>Compliant solution</h4>
 <pre data-diff-id="2" data-diff-type="compliant">
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -272,7 +109,233 @@ resource appService 'Microsoft.Web/sites@2022-09-01' = {
     ]
 }
 </pre>
-<pre data-diff-id="102" data-diff-type="compliant">
+<p>For Data Factory Linked Services:</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.DataFactory/factories/linkedservices",
+            "apiVersion": "2018-06-01",
+            "name": "example",
+            "properties": {
+                "type": "Web",
+                "typeProperties": {
+                    "authenticationType": "Anonymous"
+                }
+            }
+        }
+    ]
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="3" data-diff-type="compliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "pfx": {
+            "type": "securestring"
+        },
+        "pfxPassword": {
+            "type": "securestring"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.DataFactory/factories/linkedservices",
+            "apiVersion": "2018-06-01",
+            "name": "example",
+            "properties": {
+                "type": "Web",
+                "typeProperties": {
+                    "authenticationType": "ClientCertificate",
+                    "url": "https://example.com",
+                    "pfx": {
+                        "type": "SecureString",
+                        "value": "[parameters('pfx')]"
+                    },
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('pfxPassword')]"
+                    }
+                }
+            }
+        }
+    ]
+}
+</pre>
+<p>For Storage Accounts:</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="4" data-diff-type="noncompliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2022-09-01",
+            "name": "example",
+            "properties": {
+                "allowBlobPublicAccess": true
+            }
+        }
+    ]
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="4" data-diff-type="compliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2022-09-01",
+            "name": "example",
+            "properties": {
+                "allowBlobPublicAccess": false
+            }
+        }
+    ]
+}
+</pre>
+<p>For Storage Containers:</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="5" data-diff-type="noncompliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2022-09-01",
+            "name": "example",
+            "resources": [
+                {
+                    "type": "blobServices/containers",
+                    "apiVersion": "2022-09-01",
+                    "name": "blobContainerExample",
+                    "properties": {
+                        "publicAccess": "Blob"
+                    }
+                }
+            ]
+        }
+    ]
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="5" data-diff-type="compliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2022-09-01",
+            "name": "example",
+            "resources": [
+                {
+                    "type": "blobServices/containers",
+                    "apiVersion": "2022-09-01",
+                    "name": "blobContainerExample",
+                    "properties": {
+                        "publicAccess": "None"
+                    }
+                }
+            ]
+        }
+    ]
+}
+</pre>
+<p>For Redis Caches:</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="6" data-diff-type="noncompliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Cache/redis",
+            "apiVersion": "2022-06-01",
+            "name": "example",
+            "properties": {
+                "redisConfiguration": {
+                    "authnotrequired": "true"
+                }
+            }
+        }
+    ]
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="6" data-diff-type="compliant">
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Cache/redis",
+            "apiVersion": "2022-06-01",
+            "name": "example",
+            "properties": {
+                "redisConfiguration": {}
+            }
+        }
+    ]
+}
+</pre>
+<h2>How to fix it in Bicep</h2>
+<h3>Code examples</h3>
+<p>The following code allows anonymous access to the Azure resource, leaving it accessible to any caller without authentication.</p>
+<p>For App Service:</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="7" data-diff-type="noncompliant">
+resource appService 'Microsoft.Web/sites@2022-09-01' = {
+    name: 'example'
+    // Noncompliant: no authentication defined
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="7" data-diff-type="compliant">
+resource appService 'Microsoft.Web/sites@2022-09-01' = {
+    name: 'example'
+
+    resource authSettings 'config@2022-09-01' = { // Compliant
+        name: 'authsettingsV2'
+        properties: {
+            globalValidation: {
+                requireAuthentication: true
+                unauthenticatedClientAction: 'RedirectToLoginPage'
+            }
+            platform: {
+                enabled: true
+            }
+        }
+    }
+}
+</pre>
+<p>For API Management:</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="8" data-diff-type="noncompliant">
+resource apiManagementService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
+    name: 'example'
+    // Noncompliant: no portal authentication defined
+
+    resource apis 'apis@2022-09-01-preview' = {
+        name: 'exampleApi'
+        properties: {
+            path: '/test'
+            // Noncompliant: no API authentication defined
+        }
+    }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="8" data-diff-type="compliant">
 resource apiManagementService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
     name: 'example'
 
@@ -297,64 +360,60 @@ resource apiManagementService 'Microsoft.ApiManagement/service@2022-09-01-previe
     }
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory</a> Linked Services:</p>
-<pre data-diff-id="3" data-diff-type="compliant">
-{
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.DataFactory/factories/linkedservices",
-            "apiVersion": "2018-06-01",
-            "name": "example",
-            "properties": {
-                "type": "Web",
-                "typeProperties": {
-                    "authenticationType": "Basic"
-                }
-            }
+<p>For Data Factory Linked Services:</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="9" data-diff-type="noncompliant">
+resource linkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+    name: 'example'
+    properties: {
+        type: 'Web'
+        typeProperties: {
+            authenticationType: 'Anonymous' // Noncompliant
         }
-    ]
+    }
 }
 </pre>
-<pre data-diff-id="103" data-diff-type="compliant">
+<h4>Compliant solution</h4>
+<pre data-diff-id="9" data-diff-type="compliant">
 @secure()
-@description('The password for authentication')
-param password string
+@description('The PFX certificate for authentication, base64-encoded')
+param pfx string
+
+@secure()
+@description('The password for the PFX certificate')
+param pfxPassword string
 
 resource linkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
     name: 'example'
     properties: {
         type: 'Web'
         typeProperties: {
-            authenticationType: 'Basic' // Compliant
-            username: 'test'
+            authenticationType: 'ClientCertificate'
+            url: 'https://example.com'
+            pfx: {
+                type: 'SecureString'
+                value: pfx
+            }
             password: {
                 type: 'SecureString'
-                value: password
+                value: pfxPassword
             }
         }
     }
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/product-categories/storage/">Storage Accounts</a>:</p>
-<pre data-diff-id="4" data-diff-type="compliant">
-{
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2022-09-01",
-            "name": "example",
-            "properties": {
-                "allowBlobPublicAccess": false
-            }
-        }
-    ]
+<p>For Storage Accounts:</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="10" data-diff-type="noncompliant">
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+    name: 'example'
+    properties: {
+        allowBlobPublicAccess: true // Noncompliant
+    }
 }
 </pre>
-<pre data-diff-id="104" data-diff-type="compliant">
+<h4>Compliant solution</h4>
+<pre data-diff-id="10" data-diff-type="compliant">
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'example'
   properties: {
@@ -362,30 +421,26 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
 }
 </pre>
-<pre data-diff-id="5" data-diff-type="compliant">
-{
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2022-09-01",
-            "name": "example",
-            "resources": [
-                {
-                    "type": "blobServices/containers",
-                    "apiVersion": "2022-09-01",
-                    "name": "blobContainerExample",
-                    "properties": {
-                        "publicAccess": "None"
-                    }
-                }
-            ]
+<p>For Storage Containers:</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="11" data-diff-type="noncompliant">
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+    name: 'example'
+
+    resource blobService 'blobServices@2022-09-01' = {
+        name: 'default'
+
+        resource containers 'containers@2022-09-01' = {
+            name: 'exampleContainer'
+            properties: {
+                publicAccess: 'Blob' // Noncompliant
+            }
         }
-    ]
+    }
 }
 </pre>
-<pre data-diff-id="105" data-diff-type="compliant">
+<h4>Compliant solution</h4>
+<pre data-diff-id="11" data-diff-type="compliant">
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     name: 'example'
 
@@ -401,24 +456,21 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     }
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/cache/">Redis Caches</a>:</p>
-<pre data-diff-id="6" data-diff-type="compliant">
-{
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-        {
-            "type": "Microsoft.Cache/redis",
-            "apiVersion": "2022-06-01",
-            "name": "example",
-            "properties": {
-                "redisConfiguration": {}
-            }
+<p>For Redis Caches:</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="12" data-diff-type="noncompliant">
+resource redisCache 'Microsoft.Cache/redis@2023-04-01' = {
+    name: 'example'
+    location: location
+    properties: {
+        redisConfiguration: {
+            authnotrequired: 'true' // Noncompliant
         }
-    ]
+    }
 }
 </pre>
-<pre data-diff-id="106" data-diff-type="compliant">
+<h4>Compliant solution</h4>
+<pre data-diff-id="12" data-diff-type="compliant">
 resource redisCache 'Microsoft.Cache/redis@2023-04-01' = {
     name: 'example'
     location: location
@@ -429,7 +481,16 @@ resource redisCache 'Microsoft.Cache/redis@2023-04-01' = {
     }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://azure.microsoft.com/en-us/services/app-service/">Azure App Service</a></li>
+  <li><a href="https://azure.microsoft.com/en-us/services/api-management/">Azure API Management</a></li>
+  <li><a href="https://azure.microsoft.com/en-us/services/data-factory/">Azure Data Factory</a></li>
+  <li><a href="https://azure.microsoft.com/en-us/product-categories/storage/">Azure Storage Accounts</a></li>
+  <li><a href="https://azure.microsoft.com/en-us/services/cache/">Azure Cache for Redis</a></li>
+</ul>
+<h3>Standards</h3>
 <ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/668">CWE-668 - Exposure of Resource to Wrong Sphere</a></li>
 </ul>

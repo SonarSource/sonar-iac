@@ -1,25 +1,34 @@
-<p>Exposing administrative services can lead to unauthorized access to pods or escalation of privileges inside pods.</p>
-<p>A port that is commonly used for administration services is open or marked as being open. Administration services like SSH might contain
-vulnerabilities, hard-coded credentials, or other security issues that increase the attack surface of a Kubernetes deployment. Even if the ports of
-the services do not get forwarded to the host system, by default they are reachable from other containers in the same network. A malicious actor that
-gets access to one container could use such services to escalate access and privileges.</p>
-<p>If the administrative port is forwarded through a load balancer, then in most cases this port should be removed from the configuration to make sure
-it is not reachable externally. Setting the <code>containerPort</code> on a pod is purely informative. Therefore, removing the property is not
-sufficient to be secure. The port is still open and the service is still accessible.</p>
-<p>In both cases, it is most secure to not start any administrative services in deployments. Instead, try to access the required information using
-Kubernetes’s own administrative tools. For example, to execute code inside a container, <code>kubectl exec</code> can be used. If the administration
-service is included to access logs, Kubernetes suggests using a sidecar container with a logging agent.</p>
-<h2>Ask Yourself Whether</h2>
+<h2>Why is this an issue?</h2>
+<p>Exposing administration services increases the attack surface of a container deployment. Administration services like SSH, VNC, or RDP may contain
+vulnerabilities, hard-coded credentials, or other security weaknesses. Modern container technologies provide built-in management capabilities that
+make running dedicated administration services inside containers unnecessary.</p>
+<p>Kubernetes provides <code>kubectl exec</code> to run commands inside a container, <code>kubectl logs</code> to access container logs, and
+<code>kubectl cp</code> to transfer files, making SSH and similar services unnecessary.</p>
+<h3>What is the potential impact?</h3>
+<h4>Lateral movement within the container network</h4>
+<p>Even when an administration service port is not forwarded to the host, it is by default reachable from other containers on the same network. A
+malicious actor who compromises one container can exploit exposed administration services to pivot to other containers across the deployment.</p>
+<h4>Unauthorized external access</h4>
+<p>When an administration service port is forwarded to the host system or exposed through an external load balancer, it becomes reachable from outside
+the container environment. An attacker can exploit vulnerabilities or weak credentials in services such as SSH to gain direct access to the container
+or the underlying host system.</p>
+<h2>How to fix it</h2>
+<p>Do not run administration services in Kubernetes pods or expose their ports through services. Use <code>kubectl exec</code> to run commands inside
+a container, <code>kubectl logs</code> to access container logs, and <code>kubectl cp</code> to transfer files. These tools make SSH and similar
+services unnecessary. Note that simply removing <code>containerPort</code> or <code>hostPort</code> is not sufficient. A running administration
+service remains accessible from other pods on the same cluster network.</p>
+<p>Kubernetes exposes administration service ports at three severity levels:</p>
 <ul>
-  <li>The pod starts an administrative service.</li>
+  <li><code>containerPort</code> on a pod is informational and does not forward the port to the host; however, the service is still reachable from
+  other pods on the same cluster network.</li>
+  <li><code>hostPort</code> on a pod maps the container port directly to the host’s network interface, making it reachable from the host and any
+  client that can reach it.</li>
+  <li>A <code>Service</code> of type <code>LoadBalancer</code> or <code>NodePort</code> with an administration <code>targetPort</code> exposes the
+  port externally, making it reachable from outside the cluster.</li>
 </ul>
-<p>There is a risk if you answered yes to the question.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li>Do not start SSH, VNC, RDP or similar administrative services in pods.</li>
-</ul>
-<h2>Sensitive Code Example</h2>
-<pre>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 apiVersion: v1
 kind: Pod
 metadata:
@@ -28,30 +37,81 @@ metadata:
 spec:
   containers:
     - name: applications
-      image: my_image_with_ssh
+      image: example_image
+      command: ["/usr/sbin/sshd", "-f", "/etc/ssh/sshd_config", "-D"]
       ports:
-      - containerPort: 22  # Noncompliant: Merely informative, removing this property does not
-                           # close port 22.
+      - containerPort: 22  # Noncompliant
 </pre>
-<pre>
-apiVersion: apps/v1
+<pre data-diff-id="2" data-diff-type="noncompliant">
+apiVersion: v1
+kind: Pod
+metadata:
+    labels:
+        app: example_app
+spec:
+  containers:
+    - name: applications
+      image: example_image
+      command: ["/usr/sbin/sshd", "-f", "/etc/ssh/sshd_config", "-D"]
+      ports:
+      - containerPort: 22
+        hostPort: 22  # Noncompliant
+</pre>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+apiVersion: v1
 kind: Service
 metadata:
   name: example_lb
 spec:
   type: LoadBalancer
   ports:
-    - port: 8022
+    - port: 22
       targetPort: 22  # Noncompliant
   selector:
     app: example_app
 </pre>
-<h2>See</h2>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+apiVersion: v1
+kind: Pod
+metadata:
+    labels:
+        app: example_app
+spec:
+  containers:
+    - name: applications
+      image: example_image
+</pre>
+<pre data-diff-id="2" data-diff-type="compliant">
+apiVersion: v1
+kind: Pod
+metadata:
+    labels:
+        app: example_app
+spec:
+  containers:
+    - name: applications
+      image: example_image
+</pre>
+<pre data-diff-id="3" data-diff-type="compliant">
+apiVersion: v1
+kind: Service
+metadata:
+  name: example_lb
+spec:
+  type: LoadBalancer
+  selector:
+    app: example_app
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
-  <li><a href="https://kubernetes.io/docs/concepts/cluster-administration/logging/#sidecar-container-with-logging-agent">Kubernetes</a> - Logging
-  Architecture: Using a sidecar container with the logging agent</li>
+  <li><a href="https://kubernetes.io/docs/reference/kubectl/generated/kubectl_exec/">Kubernetes</a> - kubectl exec</li>
   <li><a href="https://kubernetes.io/docs/tasks/debug/debug-application/get-shell-running-container/">Kubernetes</a> - Get a Shell to a Running
   Container</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
 </ul>
 

@@ -1,27 +1,22 @@
-<p>Disabling Managed Identities can reduce an organization’s ability to protect itself against configuration faults and credential leaks.</p>
-<p>Authenticating via managed identities to an Azure resource solely relies on an API call with a non-secret token. The process is inner to Azure:
-secrets used by Azure are not even accessible to end-users.</p>
-<p>In typical scenarios without managed identities, the use of credentials can lead to mistakenly leaving them in code bases. In addition,
-configuration faults may also happen when storing these values or assigning them permissions.</p>
-<p>By transparently taking care of the Azure Active Directory authentication, Managed Identities allow getting rid of day-to-day credentials
-management.</p>
-<h2>Ask Yourself Whether</h2>
-<p>The resource:</p>
-<ul>
-  <li>Needs to authenticate to Azure resources that support Azure Active Directory (AAD).</li>
-  <li>Uses a different Access Control system that doesn’t guarantee the same security controls as AAD, or no Access Control system at all.</li>
-</ul>
-<p>There is a risk if you answered yes to all of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Enable the Managed Identities capabilities of this Azure resource. If supported, use a System-Assigned managed identity, as:</p>
-<ul>
-  <li>It cannot be shared across resources.</li>
-  <li>Its life cycle is deeply tied to the life cycle of its Azure resource.</li>
-  <li>It provides a unique independent identity.</li>
-</ul>
-<p>Alternatively, User-Assigned Managed Identities can also be used but don’t guarantee the properties listed above.</p>
-<h2>Sensitive Code Example</h2>
-<p>Using JSON templates:</p>
+<p>Azure Managed Identities allow resources to authenticate to other Azure services without the need to store and manage credentials. Azure Managed
+Identities should be used whenever possible.</p>
+<h2>Why is this an issue?</h2>
+<p>Azure resources fall into two categories where Managed Identities are required.</p>
+<p>Orchestrator resources — such as Web Apps, Function Apps, AKS clusters, API Management services, and Azure Data Factory — make outbound calls to
+other Azure services at runtime. Without a Managed Identity, these resources must rely on stored credentials (passwords, connection strings, or access
+keys) embedded in configuration, creating opportunities for exposure through misconfigurations, code leaks, or inadequate secret management.</p>
+<p>Conditionally flagged resources — such as SQL Server instances configured with Azure AD authentication, or storage accounts and Cognitive Services
+configured with customer-managed key encryption — require a Managed Identity because those features depend directly on Azure platform authentication.
+Without an identity block, the configured feature cannot function and the resource falls back to weaker authentication mechanisms.</p>
+<h3>What is the potential impact?</h3>
+<p>If credentials used to authenticate Azure resources are exposed — for example through a repository leak, a misconfigured environment, or a
+compromised deployment pipeline — an attacker can use them to access sensitive Azure services and data. Unlike Managed Identities, leaked credentials
+remain valid until manually rotated, giving attackers an extended window of access.</p>
+<h2>How to fix it in JSON templates</h2>
+<h3>Code examples</h3>
+<p>This resource type makes outbound calls to Azure services at runtime. Without a Managed Identity, it must rely on stored credentials instead of
+Azure’s secure token-based authentication.</p>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -30,20 +25,12 @@ management.</p>
         {
             "type": "Microsoft.ApiManagement/service",
             "apiVersion": "2022-09-01-preview",
-            "name": "apiManagementService"
+            "name": "apiManagementService" // Noncompliant: identity block is missing
         }
     ]
 }
 </pre>
-<p>Using Bicep:</p>
-<pre data-diff-id="2" data-diff-type="noncompliant">
-resource sensitiveApiManagementService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
-  name: 'apiManagementService'
-  // Sensitive: no Managed Identity is defined
-}
-</pre>
-<h2>Compliant Solution</h2>
-<p>Using JSON templates:</p>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -60,7 +47,18 @@ resource sensitiveApiManagementService 'Microsoft.ApiManagement/service@2022-09-
     ]
 }
 </pre>
-<p>Using Bicep:</p>
+<h2>How to fix it in Bicep</h2>
+<h3>Code examples</h3>
+<p>This resource type makes outbound calls to Azure services at runtime. Without a Managed Identity, it must rely on stored credentials instead of
+Azure’s secure token-based authentication.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource sensitiveApiManagementService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
+  name: 'apiManagementService'
+  // Noncompliant: no Managed Identity is defined
+}
+</pre>
+<h4>Compliant solution</h4>
 <pre data-diff-id="2" data-diff-type="compliant">
 resource sensitiveApiManagementService 'Microsoft.ApiManagement/service@2022-09-01-preview' = {
   name: 'apiManagementService'
@@ -69,7 +67,8 @@ resource sensitiveApiManagementService 'Microsoft.ApiManagement/service@2022-09-
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li><a href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview">Azure AD Documentation - Managed
   Identities Overview</a></li>
@@ -77,5 +76,9 @@ resource sensitiveApiManagementService 'Microsoft.ApiManagement/service@2022-09-
   href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/managed-identity-best-practice-recommendations">Azure AD Documentation - Managed Identities Best Practices</a></li>
   <li><a href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/services-support-managed-identities">Azure
   AD Documentation - Services that support managed identities</a></li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/1390">CWE-1390 - Weak Authentication</a></li>
 </ul>
 

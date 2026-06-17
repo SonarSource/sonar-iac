@@ -1,8 +1,14 @@
-<p>When a Docker image is specified with both a version tag and a digest, Docker uses the digest to determine which image to pull and ignores the
-version tag completely. This creates misleading documentation, as the version tag may not reflect the actual image version being used.</p>
+<p>When a Docker image is configured with both a version tag and a cryptographic digest (e.g., <code>image:tag@sha256:…​</code>), Docker prioritizes
+the digest and <strong>completely ignores the version tag</strong>. While technically valid, this practice introduces severe documentation drift. The
+visible version tag may not actually match the underlying image pointed to by the digest.</p>
 <h2>Why is this an issue?</h2>
-<p>This creates confusion during code review, debugging, and maintenance. Developers reading the Dockerfile will see the version tag and assume that
-version is being used, when Docker actually ignores it and uses the image specified by the digest instead.</p>
+<p><strong>Misleading Documentation</strong>: The Dockerfile becomes a source of misinformation. Over time, the tag and the digest can drift, meaning
+the tag says one thing while the container runs another.</p>
+<p><strong>Review &amp; Maintenance Confusion</strong>: During code reviews, auditing, or debugging, developers will naturally trust the explicit
+version tag. If an issue arises, they may waste hours troubleshooting the wrong version of an image because the true image identity is hidden behind
+the ignored tag.</p>
+<p><strong>False Sense of Security</strong>: It obscures dependency tracking and vulnerability scanning, as teams might think they are on a patched
+version based on the tag, while the digest pulls an older, vulnerable build.</p>
 <h2>How to fix it</h2>
 <p>To avoid this issue, it is recommended to specify either the version tag or the digest of the image. For example, instead of
 <code>my-image:1.2.3@sha256:26c68657ccce2cb0a31b330cb0be2b5e108d467f641c62e13ab40cbec258c68d</code>, it is better to use <code>my-image:1.2.3</code>

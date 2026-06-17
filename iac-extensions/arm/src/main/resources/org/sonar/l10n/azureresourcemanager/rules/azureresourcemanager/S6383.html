@@ -1,26 +1,26 @@
-<p>Disabling Role-Based Access Control (RBAC) on Azure resources can reduce an organization’s ability to protect itself against access controls being
-compromised.</p>
-<p>To be considered safe, access controls must follow the principle of least privilege and correctly segregate duties amongst users. RBAC helps
-enforce these practices by adapting the organization’s access control needs into explicit role-based policies: It helps keeping access controls
-maintainable and sustainable.</p>
-<p>Furthermore, RBAC allows operations teams to work faster during a security incident. It helps to mitigate account theft or intrusions by quickly
-shutting down accesses.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This Azure resource is essential for the information system infrastructure.</li>
-  <li>This Azure resource is essential for mission-critical functions.</li>
-  <li>Compliance policies require access to this resource to be enforced through the use of Role-Based Access Control.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li>Enable Azure RBAC when the Azure resource supports it.</li>
-  <li>For Kubernetes clusters, enable Azure RBAC if Azure AD integration is supported. Otherwise, use the built-in Kubernetes RBAC.</li>
-</ul>
-<h2>Sensitive Code Example</h2>
+<p>Azure role-based access control (RBAC) restricts what actions users, groups, and service principals can perform on resources and should not be
+disabled.</p>
+<h2>Why is this an issue?</h2>
+<p>Role-Based Access Control (RBAC) is an authorization mechanism that limits what actions users, groups, and service principals can perform on Azure
+resources. When RBAC is disabled, broader, less targeted access policies may take effect, violating the principle of least privilege. Azure resources
+such as Kubernetes clusters and Key Vaults expose explicit properties to enable or disable RBAC; leaving these disabled removes a critical layer of
+access control that helps keep permissions maintainable, auditable, and easy to revoke during an incident.</p>
+<h3>What is the potential impact?</h3>
+<h4>Unauthorized access</h4>
+<p>When RBAC is disabled, users or service principals may gain access to sensitive operations or data beyond what their role requires. An attacker who
+compromises any account with overly broad permissions can move laterally across the resource without fine-grained controls to limit the blast
+radius.</p>
+<h4>Impaired incident response</h4>
+<p>Without RBAC, revocations during a security incident must target broad access groups rather than specific roles, making it harder to contain a
+breach quickly.</p>
+<h2>How to fix it in Azure Kubernetes Service</h2>
+<h3>Code examples</h3>
+<p>The following examples show resources with RBAC explicitly disabled. Enable RBAC by setting the relevant property to <code>true</code> (or its
+enabled equivalent).</p>
 <p>For <a
 href="https://learn.microsoft.com/en-us/azure/templates/microsoft.containerservice/2023-03-01/managedclusters?pivots=deployment-language-arm-template">AKS
 Azure Kubernetes Service</a>:</p>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -44,41 +44,13 @@ Azure Kubernetes Service</a>:</p>
 resource aks 'Microsoft.ContainerService/managedClusters@2023-03-01' = {
   properties: {
     aadProfile: {
-      enableAzureRBAC: false    // Sensitive
+      enableAzureRBAC: false    // Noncompliant
     }
-    enableRBAC: false           // Sensitive
+    enableRBAC: false           // Noncompliant
   }
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.keyvault/2022-07-01/vaults?pivots=deployment-language-arm-template">Key
-Vault</a>:</p>
-<pre data-diff-id="3" data-diff-type="noncompliant">
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "resources": [
-    {
-      "name": "example",
-      "type": "Microsoft.KeyVault/vaults",
-      "apiVersion": "2022-07-01",
-      "properties": {
-        "enableRbacAuthorization": false
-      }
-    }
-  ]
-}
-</pre>
-<pre data-diff-id="4" data-diff-type="noncompliant">
-resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  properties: {
-    enableRbacAuthorization: false    // Sensitive
-  }
-}
-</pre>
-<h2>Compliant Solution</h2>
-<p>For <a
-href="https://learn.microsoft.com/en-us/azure/templates/microsoft.containerservice/2023-03-01/managedclusters?pivots=deployment-language-arm-template">AKS
-Azure Kubernetes Service</a>:</p>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -102,14 +74,41 @@ Azure Kubernetes Service</a>:</p>
 resource aks 'Microsoft.ContainerService/managedClusters@2023-03-01' = {
   properties: {
     aadProfile: {
-      enableAzureRBAC: true     // Compliant
+      enableAzureRBAC: true
     }
-    enableRBAC: true            // Compliant
+    enableRBAC: true
   }
 }
 </pre>
-<p>For <a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.keyvault/2022-07-01/vaults?pivots=deployment-language-arm-template">Key
-Vault</a>:</p>
+<h2>How to fix it in Azure Key Vault</h2>
+<h3>Code examples</h3>
+<p>The following examples show resources with RBAC explicitly disabled. Enable RBAC by setting the relevant property to <code>true</code> (or its
+enabled equivalent).</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "example",
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2022-07-01",
+      "properties": {
+        "enableRbacAuthorization": false
+      }
+    }
+  ]
+}
+</pre>
+<pre data-diff-id="4" data-diff-type="noncompliant">
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
+  properties: {
+    enableRbacAuthorization: false    // Noncompliant
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
 <pre data-diff-id="3" data-diff-type="compliant">
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -129,12 +128,21 @@ Vault</a>:</p>
 <pre data-diff-id="4" data-diff-type="compliant">
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   properties: {
-    enableRbacAuthorization: true    // Compliant
+    enableRbacAuthorization: true
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a
+  href="https://learn.microsoft.com/en-us/azure/templates/microsoft.containerservice/2023-03-01/managedclusters?pivots=deployment-language-arm-template">AKS Azure Kubernetes Service</a></li>
+  <li><a href="https://learn.microsoft.com/en-us/azure/templates/microsoft.keyvault/2022-07-01/vaults?pivots=deployment-language-arm-template">Key
+  Vault</a></li>
+</ul>
+<h3>Standards</h3>
 <ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/668">CWE-668 - Exposure of Resource to Wrong Sphere</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/732">CWE-732 - Incorrect Permission Assignment for Critical Resource</a></li>
 </ul>
 

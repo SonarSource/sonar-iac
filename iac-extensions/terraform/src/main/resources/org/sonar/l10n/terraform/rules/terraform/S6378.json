@@ -1,6 +1,6 @@
 {
-  "title": "Disabling Managed Identities for Azure resources is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Managed Identities should be used for Azure resources that authenticate to other services",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -13,15 +13,17 @@
     "constantCost": "1h"
   },
   "tags": [
-    "azure"
+    "azure",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
+  "quickfix": "unknown",
   "ruleSpecification": "RSPEC-6378",
   "sqKey": "S6378",
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      287
+      1390
     ]
   }
 }

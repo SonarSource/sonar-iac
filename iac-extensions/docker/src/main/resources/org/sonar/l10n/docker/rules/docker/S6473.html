@@ -1,32 +1,40 @@
-<p>Exposing administration services can lead to unauthorized access to containers or escalation of privilege inside of containers.</p>
-<p>A port that is commonly used for administration services is marked as being open through the <code>EXPOSE</code> command. Administration services
-like SSH might contain vulnerabilities, hard-coded credentials, or other security issues that increase the attack surface of a Docker deployment.
-  <br>
-  Even if the ports of the services do not get forwarded to the host system, by default they are reachable from other containers in the same network.
-  A malicious actor that gets access to one container could use such services to escalate access and privileges.</p>
-<p>Removing the <code>EXPOSE</code> command is not sufficient to be secure. The port is still open and the service accessible. To be secure, no
-administration services should be started. Instead, try to access the required information from the host system. For example, if the administration
-service is included to access logs or debug a service, you can do this from the host system instead. Docker allows you to read out any file that is
-inside of a container and to spawn a shell inside of a container if necessary.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The container starts an administration service.</li>
-</ul>
-<p>There is a risk if you answered yes to the question.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li>Do not start SSH, VNC, RDP or similar administration services in containers.</li>
-</ul>
-<h2>Sensitive Code Example</h2>
-<pre>
-FROM ubuntu:22.04
-# Sensitive
-EXPOSE 22
+<h2>Why is this an issue?</h2>
+<p>Exposing administration services increases the attack surface of a container deployment. Administration services like SSH, VNC, or RDP may contain
+vulnerabilities, hard-coded credentials, or other security weaknesses. Modern container technologies provide built-in management capabilities that
+make running dedicated administration services inside containers unnecessary.</p>
+<p>Docker provides built-in tools such as <code>docker exec</code> and <code>docker cp</code> for accessing and managing running containers, making
+SSH and similar services unnecessary.</p>
+<h3>What is the potential impact?</h3>
+<h4>Lateral movement within the container network</h4>
+<p>Even when an administration service port is not forwarded to the host, it is by default reachable from other containers on the same network. A
+malicious actor who compromises one container can exploit exposed administration services to pivot to other containers across the deployment.</p>
+<h4>Unauthorized external access</h4>
+<p>When an administration service port is forwarded to the host system or exposed through an external load balancer, it becomes reachable from outside
+the container environment. An attacker can exploit vulnerabilities or weak credentials in services such as SSH to gain direct access to the container
+or the underlying host system.</p>
+<h2>How to fix it</h2>
+<p>Do not start any administration service in the container. If you need to access logs or execute commands in a running container, use <code>docker
+exec</code> or <code>docker cp</code> from the host instead. Note that simply removing the <code>EXPOSE</code> instruction is not sufficient — the
+port remains open and the service remains accessible from other containers on the same Docker network.</p>
+<h3>Code examples</h3>
+<p>The following example uses <code>EXPOSE 22</code>, indicating that an SSH administration service is running inside the container.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+FROM example-image
+EXPOSE 22  # Noncompliant
 CMD ["/usr/sbin/sshd", "-f", "/etc/ssh/sshd_config", "-D"]
 </pre>
-<h2>See</h2>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+FROM example-image
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://docs.docker.com/engine/reference/builder/#expose">Dockerfile reference</a> - EXPOSE</li>
+</ul>
+<h3>Standards</h3>
 <ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
-  <li><a href="https://docs.docker.com/engine/reference/builder/#expose">Dockerfile reference</a> - EXPOSE</li>
 </ul>
 

@@ -1,23 +1,38 @@
-<p>Using unencrypted cloud storages can lead to data exposure. In the case that adversaries gain physical access to the storage medium they are able
-to access unencrypted information.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The service contains sensitive information that could cause harm when leaked.</li>
-  <li>There are compliance requirements for the service to store data encrypted.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to encrypt cloud storages that contain sensitive information.</p>
-<h2>Sensitive Code Example</h2>
+<p>Cloud storage resources that have encryption disabled or omit encryption configuration expose data to unauthorized access.</p>
+<h2>Why is this an issue?</h2>
+<p>Cloud storage resources that leave encryption disabled or omit encryption configuration store data in plain text on the underlying physical medium.
+If an attacker gains access to the storage infrastructure — through a misconfigured access policy, a compromised service account, or physical access
+to the hardware — they can read all stored data without any additional decryption step. Many Azure services disable encryption features by default,
+meaning the absence of an encryption setting is itself a misconfiguration.</p>
+<h3>What is the potential impact?</h3>
+<h4>Snapshot exfiltration</h4>
+<p>An attacker who gains limited cloud permissions may not be able to log into a server directly, but may still have permission to create or share
+disk snapshots. Without encryption, they can share a snapshot with an external account, attach it to a virtual machine they control, and read all
+stored data without any additional decryption step. Encryption at rest is the only control that makes a stolen snapshot useless to an attacker who
+does not also hold the encryption key.</p>
+<h4>Sensitive data exposure</h4>
+<p>Unencrypted storage exposes any data at rest — database records, backup files, virtual machine disks, and archive data — to unauthorized parties
+who gain access to the underlying storage medium or the cloud resource. Depending on what is stored, this can include personal information,
+credentials, intellectual property, or regulated data subject to compliance requirements such as PCI DSS. Modern ransomware attacks commonly
+exfiltrate data before triggering encryption: if the storage is unencrypted at the disk level, an attacker can immediately read and weaponize what
+they steal.</p>
+<h4>Compliance and legal exposure</h4>
+<p>Many regulatory frameworks consider encrypted data that is lost or stolen to be a non-reportable incident, while the loss of unencrypted data
+triggers mandatory breach notification obligations, fines, and remediation costs. Leaving storage unencrypted removes this safe harbor, converting a
+technical incident into a legal and financial liability.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<p>The following examples show cloud storage resources with encryption explicitly disabled or not configured. Enable encryption by setting the
+relevant property to its enabled value or by providing an encryption key reference.</p>
 <p>For <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_lake_store">azurerm_data_lake_store</a>:</p>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 resource "azurerm_data_lake_store" "store" {
   name             = "store"
-  encryption_state = "Disabled"  # Sensitive
+  encryption_state = "Disabled"  # Noncompliant
 }
 </pre>
-<h2>Compliant Solution</h2>
-<p>For <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_lake_store">azurerm_data_lake_store</a>:</p>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 resource "azurerm_data_lake_store" "store" {
   name             = "store"
@@ -25,14 +40,13 @@ resource "azurerm_data_lake_store" "store" {
   encryption_type  = "ServiceManaged"
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li><a href="https://docs.aws.amazon.com/efs/latest/ug/encryption.html">Data encryption in Amazon EFS</a></li>
-  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/311">CWE-311 - Missing Encryption of Sensitive Data</a></li>
-  <li><a href="https://learn.microsoft.com/en-us/azure/backup/backup-encryption">Encryption in Azure Backup</a></li>
-  <li><a href="https://learn.microsoft.com/en-us/azure/mysql/single-server/concepts-security">Security in Azure Database for MySQL</a></li>
-  <li><a href="https://learn.microsoft.com/en-us/azure/postgresql/single-server/concepts-security">Security in Azure Database for PostgreSQL</a></li>
-  <li><a href="https://learn.microsoft.com/en-us/azure/storage/common/infrastructure-encryption-enable?tabs=portal">Infrastructure double encryption
-  of data</a></li>
+  <li><a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_lake_store">azurerm_data_lake_store</a></li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/312">CWE-312 - Cleartext Storage of Sensitive Information</a></li>
 </ul>
 

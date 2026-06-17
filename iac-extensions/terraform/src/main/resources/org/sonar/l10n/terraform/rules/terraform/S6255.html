@@ -1,57 +1,35 @@
-<p>When S3 buckets versioning is enabled it’s possible to add an additional authentication factor before being allowed to delete versions of an object
-or changing the versioning state of a bucket. It prevents accidental object deletion by forcing the user sending the delete request to prove that he
-has a valid MFA device and a corresponding valid token.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The S3 bucket stores sensitive information that is required to be preserved on the long term.</li>
-  <li>The S3 bucket grants delete permission to many users.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to enable S3 MFA delete, note that:</p>
-<ul>
-  <li>MFA delete can only be enabled with the AWS CLI or API and with the root account.</li>
-  <li>To delete an object version, the API should be used with the <code>x-amz-mfa</code> header.</li>
-  <li>The API request, with the <code>x-amz-mfa</code> header, can only be used in HTTPS.</li>
-</ul>
-<h2>Sensitive Code Example</h2>
-<p>A versioned S3 bucket does not have MFA delete enabled for AWS provider version 3 or below:</p>
-<pre>
-resource "aws_s3_bucket" "example" { # Sensitive
-  bucket = "example"
-
-  versioning {
-    enabled = true
-  }
-}
-</pre>
-<p>A versioned S3 bucket does not have MFA delete enabled for AWS provider version 4 or above:</p>
-<pre>
+<p>MFA delete adds an extra authentication factor that must be provided before object versions can be permanently deleted from a versioned S3 bucket
+or before the bucket’s versioning state can be changed.</p>
+<h2>Why is this an issue?</h2>
+<p>When versioning is enabled on an S3 bucket without MFA delete, any user or process that holds delete permission on the bucket can remove object
+versions or change the versioning configuration using only their regular credentials. MFA delete forces the request sender to additionally prove
+possession of a valid MFA device and the corresponding token, turning the deletion into a deliberate two-step action rather than something that can be
+triggered by compromised credentials alone.</p>
+<p>This rule also detects the legacy syntax used with AWS provider version 3 or below, where MFA delete is configured through the
+<code>versioning</code> block of the <code>aws_s3_bucket</code> resource (<code>mfa_delete = true</code>).</p>
+<h3>What is the potential impact?</h3>
+<p>Without MFA delete, the accidental or malicious deletion of object versions cannot be reliably prevented. If the bucket is used to preserve
+sensitive information over the long term, or if delete permission is granted broadly, a single compromised set of credentials is enough for an
+attacker to permanently destroy the stored data by removing all of its versions.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<p>The following example uses the AWS provider version 4 or above syntax, where versioning and MFA delete are configured through a dedicated
+<code>aws_s3_bucket_versioning</code> resource.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 resource "aws_s3_bucket" "example" {
   bucket = "example"
 }
 
-resource "aws_s3_bucket_versioning" "example" { # Sensitive
+resource "aws_s3_bucket_versioning" "example" { # Noncompliant
   bucket = aws_s3_bucket.example.id
   versioning_configuration {
     status = "Enabled"
   }
 }
 </pre>
-<h2>Compliant Solution</h2>
-<p>MFA delete is enabled for AWS provider version 3 or below:</p>
-<pre>
-resource "aws_s3_bucket" "example" {
-  bucket = "example"
-
-  versioning {
-    enabled = true
-    mfa_delete = true
-  }
-}
-</pre>
-<p>MFA delete is enabled for AWS provider version 4 or above:</p>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "aws_s3_bucket" "example" {
   bucket = "example"
 }
@@ -65,10 +43,14 @@ resource "aws_s3_bucket_versioning" "example" {
   mfa = "${var.MFA}"
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/MultiFactorAuthenticationDelete.html">AWS documentation</a> - Configuring MFA
   delete</li>
+</ul>
+<h3>Standards</h3>
+<ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/308">CWE-308 - Use of Single-factor Authentication</a></li>
 </ul>
 

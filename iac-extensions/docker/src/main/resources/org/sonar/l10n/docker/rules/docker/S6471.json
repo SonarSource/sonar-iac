@@ -1,6 +1,6 @@
 {
-  "title": "Running containers as a privileged user is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Docker containers should not run as a privileged user",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "LOW"
@@ -12,9 +12,11 @@
     "func": "Constant\/Issue",
     "constantCost": "15min"
   },
+  "quickfix": "unknown",
   "tags": [
     "dockerfile",
-    "cwe"
+    "cwe",
+    "former-hotspot"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6471",
@@ -22,6 +24,7 @@
   "scope": "Main",
   "securityStandards": {
     "CWE": [
+      250,
       284
     ],
     "PCI DSS 3.2": [

@@ -1,45 +1,45 @@
-<p>Ownership or write permissions for a file or directory copied to the Docker image have been assigned to a user other than root.</p>
-<p>Write permissions enable malicious actors, who have a foothold on the container, to tamper with the resource and thus potentially manipulate the
-container’s expected behavior.
-  <br>
-  Manipulating files could disrupt services or aid in escalating privileges inside the container.
-  <br></p>
-<p>This also breaches the container immutability principle as it facilitates container changes during its life. Immutability, a container best
-practice, allows for a more reliable and reproducible behavior of Docker containers.</p>
-<p>If a user is given ownership on a file but no write permissions, the user can still modify it by using his ownership to change the file permissions
-first. This is why both ownership and write permissions should be avoided.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>A non-root user owns the resource.</li>
-  <li>A non-root user has been granted write permissions for the resource.</li>
-</ul>
-<p>There is a risk if you answered yes to any of these questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li>Use <code>--chmod</code> to change the permissions so that only root users can write to files.</li>
-  <li>Use <code>--chown</code> to change the file/directory owner to a root user.</li>
-  <li>Be mindful of the container immutability principle.</li>
-</ul>
-<h2>Sensitive Code Example</h2>
+<p>Docker’s <code>COPY</code> and <code>ADD</code> instructions support <code>--chown</code> and <code>--chmod</code> flags that control ownership and
+write permissions for resources copied into the image. Misconfiguring these flags can enable privilege escalation within the container.</p>
+<h2>Why is this an issue?</h2>
+<p>When files or directories are copied into a Docker image, assigning ownership to a non-root user through <code>--chown</code> allows that user to
+modify critical container resources. Even without explicit write permissions, a file’s owner can always grant themselves write access by changing the
+file’s permission bits.</p>
+<p>This also violates the container immutability principle. Containers should produce the same behavior at every run, which requires their resources
+to remain unchanged during the container’s lifecycle.</p>
+<h3>What is the potential impact?</h3>
+<p>If an attacker gains a foothold in the container as a non-root user, owning sensitive files allows them to modify those resources and manipulate
+the container’s expected behavior. This can cause service outages or aid in escalating privileges inside the container.</p>
+<h2>How to fix it</h2>
+<p>Do not assign ownership of sensitive resources to non-root users. Use <code>--chown=root:root</code> to keep ownership with root, and use
+<code>--chmod</code> to grant the minimum permissions non-root users need to read or execute the file without being able to modify it.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 FROM example
 
-RUN useradd exampleuser
-# Sensitive
-COPY --chown=exampleuser:exampleuser src.py dst.py
+RUN useradd example
+ADD --chown=example:example entrypoint.sh /usr/local/bin/entrypoint.sh # Noncompliant
+COPY --chown=example:example start.sh /app/start.sh # Noncompliant
+COPY --chown=example:example libcustom.so /usr/lib/libcustom.so # Noncompliant
 </pre>
-<h2>Compliant Solution</h2>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 FROM example
 
-COPY --chown=root:root --chmod=755 src.py dst.py
+ADD --chown=root:root --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY --chown=root:root --chmod=755 start.sh /app/start.sh
+COPY --chown=root:root --chmod=644 libcustom.so /usr/lib/libcustom.so
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li><a href="https://docs.docker.com/engine/reference/builder/#add">Dockerfile reference</a> - ADD instruction</li>
   <li><a href="https://docs.docker.com/engine/reference/builder/#copy">Dockerfile reference</a> - COPY instruction</li>
-  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/732">CWE-732 - Incorrect Permission Assignment for Critical Resource</a></li>
-  <li><a href="https://cloud.google.com/architecture/best-practices-for-operating-containers#immutability">Google Cloud, Immutability</a> - Best
+  <li><a href="https://cloud.google.com/blog/products/gcp/7-best-practices-operating-containers#immutability">Google Cloud, Immutability</a> - Best
   practices for operating containers</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/732">CWE-732 - Incorrect Permission Assignment for Critical Resource</a></li>
 </ul>
 

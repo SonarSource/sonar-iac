@@ -1,6 +1,6 @@
 {
-  "title": "Authorizing anonymous access to Azure resources is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Azure resources should not allow anonymous access",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -14,9 +14,11 @@
   },
   "tags": [
     "cwe",
-    "azure"
+    "azure",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
+  "quickfix": "unknown",
   "ruleSpecification": "RSPEC-6380",
   "sqKey": "S6380",
   "scope": "Main",

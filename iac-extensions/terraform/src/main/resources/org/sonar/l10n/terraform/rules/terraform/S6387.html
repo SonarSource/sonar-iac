@@ -1,45 +1,45 @@
-<p>Azure RBAC roles can be assigned to users, groups, or service principals. A role assignment grants permissions on a predefined set of resources
-called "scope".</p>
-<p>The widest scopes a role can be assigned to are:</p>
-<ul>
-  <li>Subscription: a role assigned with this scope grants access to all resources of this Subscription.</li>
-  <li>Management Group: a scope assigned with this scope grants access to all resources of all the Subscriptions in this Management Group.</li>
-</ul>
-<p>In case of security incidents involving a compromised identity (user, group, or service principal), limiting its role assignment to the narrowest
-scope possible helps separate duties and limits what resources are at risk.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The user, group, or service principal doesn’t use the entirety of the resources in the scope to operate on a day-to-day basis.</li>
-  <li>It is possible to follow the Separation of Duties principle and split the scope into multiple role assignments with a narrower scope.</li>
-</ul>
-<p>There is a risk if you answered yes to any of these questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li>Limit the scope of the role assignment to a Resource or Resource Group.</li>
-  <li>Apply the least privilege principle by assigning roles granting as few permissions as possible.</li>
-</ul>
-<h2>Sensitive Code Example</h2>
-<pre>
+<p>Azure RBAC role assignments grant permissions over a scope — a set of resources such as a resource group, subscription, or management group.
+Assigning roles at subscription or management group scope grants access to all resources within that entire boundary and should be avoided in favour
+of narrower scopes.</p>
+<h2>Why is this an issue?</h2>
+<p>The widest scopes a role can be assigned to are the Subscription scope, which grants access to all resources in a subscription, and the Management
+Group scope, which grants access to all resources across all subscriptions in that group. Assigning roles at these wide scopes violates the principle
+of least privilege. In the event of a compromised identity, an attacker gains access to a large portion of the infrastructure rather than a narrowly
+scoped set of resources.</p>
+<h3>What is the potential impact?</h3>
+<p>If an identity with a subscription- or management-group-scoped role assignment is compromised, an attacker gains permissions over all resources
+within that scope. This can lead to unauthorized access, data exfiltration, or destruction of resources across the entire subscription or management
+group.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<p>The following code creates a role assignment scoped to an entire subscription or management group, granting the assigned principal access to all
+resources within that scope.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 resource "azurerm_role_assignment" "example" {
-  scope                = data.azurerm_subscription.primary.id # Sensitive
+  scope                = data.azurerm_subscription.primary.id # Noncompliant
   role_definition_name = "Reader"
   principal_id         = data.azuread_user.user.object_id
 }
 </pre>
-<h2>Compliant Solution</h2>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "azurerm_role_assignment" "example" {
   scope                = azurerm_resource_group.example.id
   role_definition_name = "Reader"
   principal_id         = data.azuread_user.user.object_id
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/266">CWE-266 - Incorrect Privilege Assignment</a></li>
   <li><a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/scope-overview">Azure Documentation</a> - Understand scope for Azure
   RBAC</li>
   <li><a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/best-practices">Azure Documentation</a> - Best practices for Azure
   RBAC</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/266">CWE-266 - Incorrect Privilege Assignment</a></li>
 </ul>
 

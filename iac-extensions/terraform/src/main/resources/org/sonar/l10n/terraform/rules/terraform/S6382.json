@@ -1,6 +1,6 @@
 {
-  "title": "Disabling certificate-based authentication is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Client certificate authentication should be enabled on Azure service-to-service endpoints",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -12,9 +12,11 @@
     "func": "Constant\/Issue",
     "constantCost": "1h"
   },
+  "quickfix": "unknown",
   "tags": [
     "cwe",
-    "azure"
+    "azure",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6382",
@@ -22,7 +24,9 @@
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      668
+      287,
+      668,
+      1390
     ],
     "PCI DSS 3.2": [
       "6.5.10"

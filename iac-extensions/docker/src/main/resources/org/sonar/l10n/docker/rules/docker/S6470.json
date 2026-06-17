@@ -1,6 +1,6 @@
 {
-  "title": "Recursively copying context directories is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Dockerfiles should not copy the build context using recursive or glob patterns",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "HIGH"
@@ -14,7 +14,8 @@
   },
   "tags": [
     "dockerfile",
-    "cwe"
+    "cwe",
+    "former-hotspot"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-6470",
@@ -22,7 +23,6 @@
   "scope": "All",
   "securityStandards": {
     "CWE": [
-      668,
       497
     ]
   },

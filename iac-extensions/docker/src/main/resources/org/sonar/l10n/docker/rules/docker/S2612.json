@@ -14,7 +14,8 @@
   },
   "tags": [
     "cwe",
-    "docker"
+    "docker",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2612",

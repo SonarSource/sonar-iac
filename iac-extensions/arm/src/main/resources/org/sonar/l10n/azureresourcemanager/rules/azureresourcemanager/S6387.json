@@ -1,11 +1,11 @@
 {
-  "title": "Azure role assignments that grant access to all resources of a subscription are security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Azure role assignments should not be scoped to an entire subscription or management group",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
     },
-    "attribute": "COMPLETE"
+    "attribute": "TRUSTWORTHY"
   },
   "status": "ready",
   "remediation": {
@@ -13,7 +13,8 @@
     "constantCost": "30min"
   },
   "tags": [
-    "azure"
+    "azure",
+    "former-hotspot"
   ],
   "securityStandards": {
     "CWE": [

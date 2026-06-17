@@ -1,19 +1,21 @@
 {
-  "title": "Disabling S3 bucket MFA delete is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "S3 buckets should have MFA delete enabled",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "LOW"
     },
     "attribute": "CONVENTIONAL"
   },
-  "status": "ready",
+  "status": "deprecated",
+  "quickfix": "unknown",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
   "tags": [
-    "cwe"
+    "cwe",
+    "former-hotspot"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6255",

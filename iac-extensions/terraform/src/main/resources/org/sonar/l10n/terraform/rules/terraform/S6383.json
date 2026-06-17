@@ -1,6 +1,6 @@
 {
-  "title": "Disabling Role-Based Access Control on Azure resources is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Azure Role-Based Access Control should not be disabled",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -8,13 +8,15 @@
     "attribute": "COMPLETE"
   },
   "status": "ready",
+  "quickfix": "unknown",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "1h"
   },
   "tags": [
     "cwe",
-    "azure"
+    "azure",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6383",
@@ -22,7 +24,8 @@
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      668
+      668,
+      732
     ],
     "PCI DSS 3.2": [
       "6.5.8"

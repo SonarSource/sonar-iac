@@ -1,19 +1,21 @@
-<p>Allowing command execution (exec) for roles in a Kubernetes cluster can pose a significant security risk. This is because it provides the user with
-the ability to execute arbitrary commands within a container, potentially leading to unauthorized access or data breaches.</p>
-<p>In a production Kubernetes cluster, exec permissions are typically unnecessary due to the principle of least privilege, which suggests that a user
-or process should only have the minimum permissions necessary to perform its function. Additionally, containers in production are often treated as
-immutable infrastructure, meaning they should not be changed once deployed. Any changes should be made to the container image, which is then used to
-deploy a new container.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This role is given to people who are not administrators of the Kubernetes cluster.</li>
-</ul>
-<p>There is a risk if you answered yes to this question.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Disable exec privileges for this role. The <code>exec</code> permissions are set by allowing the <code>create</code> verb for the
-<code>pods/exec</code> resource. Removing this permission will prevent users and services from executing arbitrary commands within containers.</p>
-<h2>Sensitive Code Example</h2>
-<pre>
+<p>Kubernetes roles that allow command execution inside pods violate the principle of least privilege.</p>
+<h2>Why is this an issue?</h2>
+<p>The <code>pods/exec</code> subresource lets a caller run arbitrary commands inside any container of a pod that the role applies to. Granting the
+<code>create</code> verb on this subresource therefore turns the role into a remote-shell capability for those pods.</p>
+<p>In a production cluster, exec access is normally unnecessary: the principle of least privilege says a role should grant only the permissions its
+holders need to do their job, and containers are typically treated as immutable infrastructure that should be replaced by rebuilding the image rather
+than mutated in place at runtime.</p>
+<h3>What is the potential impact?</h3>
+<h4>Unauthorized access and data exposure</h4>
+<p>A user or service account bound to a role with <code>pods/exec</code> permissions can execute arbitrary commands inside the containers the role
+applies to. An attacker who compromises such an account can read secrets and other sensitive data accessible from inside those containers, tamper with
+the running workload, and use the foothold to probe other components reachable from the pod network.</p>
+<h2>How to fix it</h2>
+<p>Remove the <code>create</code> verb on the <code>pods/exec</code> resource from the role. If a subset of users genuinely needs to run commands in
+pods, define a dedicated role bound only to those users instead of granting exec rights to the general-purpose role.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -24,11 +26,11 @@ rules:
     resources: ["pods"]
     verbs: ["get"]
   - apiGroups: [""]
-    resources: ["pods/exec"] # Sensitive
+    resources: ["pods/exec"] # Noncompliant
     verbs: ["create"]
 </pre>
-<h2>Compliant Solution</h2>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -39,10 +41,17 @@ rules:
     resources: ["pods"]
     verbs: ["get"]
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li>Kubernetes Documentation - <a href="https://kubernetes.io/docs/tasks/debug/debug-application/get-shell-running-container/">Get a Shell to a
   Running Container</a></li>
+  <li>Kubernetes Documentation - <a href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/">Using RBAC Authorization</a></li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/269">CWE-269 - Improper Privilege Management</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/272">CWE-272 - Least Privilege Violation</a></li>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/284">CWE-284 - Improper Access Control</a></li>
 </ul>
 

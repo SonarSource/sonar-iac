@@ -1,6 +1,6 @@
 {
-  "title": "Defining a short log retention duration is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Log retention period should be long enough to support security investigations",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -14,8 +14,10 @@
   },
   "tags": [
     "azure",
-    "gcp"
+    "gcp",
+    "former-hotspot"
   ],
+  "quickfix": "unknown",
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6413",
   "sqKey": "S6413",

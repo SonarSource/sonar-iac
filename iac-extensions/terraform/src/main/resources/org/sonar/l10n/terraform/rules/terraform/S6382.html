@@ -1,94 +1,126 @@
-<p>Disabling certificate-based authentication can reduce an organization’s ability to react against attacks on its critical functions and data.</p>
-<p>Azure offers various authentication options to access resources: Anonymous connections, Basic authentication, password-based authentication, and
-certificate-based authentication.</p>
-<p>Choosing certificate-based authentication helps bring client/host trust by allowing the host to verify the client and vice versa. It cannot be
-forged or forwarded by a man-in-the-middle eavesdropper, and the certificate’s private key is never sent over the network so it’s harder to steal than
-a password.</p>
-<p>In case of a security incident, certificates help bring investigators traceability and allow security operations teams to react faster. For
-example, all compromised certificates could be revoked individually, or an issuing certificate could be revoked which causes all the certificates it
-issued to become untrusted.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This Azure resource is essential for the information system infrastructure.</li>
-  <li>This Azure resource is essential for mission-critical functions.</li>
-  <li>Compliance policies require access to this resource to be authenticated with certificates.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Enable certificate-based authentication.</p>
-<h2>Sensitive Code Example</h2>
-<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/containers/">Linux and Windows Web Apps</a>:</p>
-<pre data-diff-id="1" data-diff-type="noncompliant">
-resource "azurerm_linux_web_app" "example" {
-  client_cert_enabled = false # Sensitive
-}
-resource "azurerm_linux_web_app" "example2" {
-  client_certificate_enabled = true
-  client_certificate_mode = "Optional" # Sensitive
-}
-</pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/logic-apps/">Logic App Standards</a> and <a
-href="https://azure.microsoft.com/en-us/services/functions/">Function Apps</a>:</p>
-<pre data-diff-id="2" data-diff-type="noncompliant">
-resource "azurerm_linux_function_app" "example" {
-  client_cert_mode = "Optional" # Sensitive
-}
-</pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory Linked Services</a>:</p>
-<pre data-diff-id="3" data-diff-type="noncompliant">
-resource "azurerm_data_factory_linked_service_web" "example" {
-  authentication_type = "Basic" # Sensitive
-}
-</pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
-<pre data-diff-id="4" data-diff-type="noncompliant">
-resource "azurerm_api_management" "example" {
-  sku_name = "Consumption_1"
-  client_certificate_mode = "Optional" # Sensitive
-}
-</pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Service</a>:</p>
+<p>Azure resources that participate in service-to-service communications can authenticate their peers with client certificates, in a mutual TLS
+handshake. Disabling that mechanism leaves the endpoint relying on weaker controls, such as passwords or network position alone, to establish trust
+between the two parties.</p>
+<h2>Why is this an issue?</h2>
+<p>Several Azure services let workloads authenticate their peers with client certificates over TLS, establishing mutual trust between the two ends of
+the connection. Unlike a shared password, a certificate cannot be forged or replayed by a man-in-the-middle, and its private key never leaves the
+holder, which makes it considerably harder to steal.</p>
+<p>This rule targets resources used for internal, machine-to-machine traffic, where mTLS is the industry-standard authentication mechanism.
+Externally-facing endpoints handling browser or mobile traffic are out of scope, since certificate-based authentication is impractical there.</p>
+<p>Disabling client certificate authentication on an internal resource, or selecting an authentication mode that does not require a certificate,
+removes the mutual-trust guarantee. The endpoint must then rely on weaker controls, such as passwords or network reachability, to decide whether the
+caller is legitimate.</p>
+<p>Certificates also support precise incident response. Compromised certificates can be revoked individually, and an issuing certificate authority can
+be revoked to invalidate every certificate it produced. Authentication mechanisms that do not rely on certificates do not offer that level of
+traceability and containment.</p>
+<h3>What is the potential impact?</h3>
+<p>Without client certificate authentication, an attacker who learns a shared password or reaches the endpoint over the network can impersonate the
+legitimate caller. Depending on what the affected resource handles, this exposes data flowing through the endpoint, the credentials it stores, or any
+downstream system it integrates with.</p>
+<p>Recovery is also harder. A password leak typically forces a rotation across every caller that knows it, whereas certificate-based authentication
+scopes the blast radius to a single revoked credential and preserves an audit trail of which certificate was used.</p>
+<h2>How to fix it in Azure App Service</h2>
+<p>Set <code>client_certificate_enabled</code> to <code>true</code> and <code>client_certificate_mode</code> to <code>Required</code> on
+<code>azurerm_linux_web_app</code>, <code>azurerm_windows_web_app</code>, <code>azurerm_linux_function_app</code>,
+<code>azurerm_windows_function_app</code>, and their <code>_slot</code> variants. For <code>azurerm_logic_app_standard</code>, the equivalent
+attribute is <code>client_cert_mode</code>.</p>
+<h3>Code examples</h3>
+<p>The following code disables client certificate authentication on an Azure resource, leaving the endpoint to rely on weaker controls such as
+passwords, or on no peer authentication at all.</p>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="5" data-diff-type="noncompliant">
-resource "azurerm_app_service" "example" {
-  client_cert_enabled = false # Sensitive
+resource "azurerm_linux_web_app" "internal_api" {
+  public_network_access_enabled = false
+  client_certificate_enabled    = true
+  client_certificate_mode       = "Optional" # Noncompliant
 }
 </pre>
-<h2>Compliant Solution</h2>
-<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/containers/">Linux and Windows Web Apps</a>:</p>
-<pre data-diff-id="1" data-diff-type="compliant">
-resource "azurerm_linux_web_app" "example" {
-  client_certificate_enabled = true
-  client_certificate_mode = "Required"
+<pre data-diff-id="3" data-diff-type="noncompliant">
+resource "azurerm_logic_app_standard" "workflow_runner" {
+  public_network_access_enabled = false
+  client_cert_mode              = "Optional" # Noncompliant
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/logic-apps/">Logic App Standards</a> and <a
-href="https://azure.microsoft.com/en-us/services/functions/">Function Apps</a>:</p>
-<pre data-diff-id="2" data-diff-type="compliant">
-resource "azurerm_linux_function_app" "example" {
-  client_cert_mode = "Required"
+<h4>Compliant solution</h4>
+<pre data-diff-id="5" data-diff-type="compliant">
+resource "azurerm_linux_web_app" "internal_api" {
+  public_network_access_enabled = false
+  client_certificate_enabled    = true
+  client_certificate_mode       = "Required"
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory Linked Services</a>:</p>
 <pre data-diff-id="3" data-diff-type="compliant">
+resource "azurerm_logic_app_standard" "workflow_runner" {
+  public_network_access_enabled = false
+  client_cert_mode              = "Required"
+}
+</pre>
+<h2>How to fix it in Azure Container Apps</h2>
+<p>Set <code>ingress.client_certificate_mode</code> to <code>require</code> on the <code>azurerm_container_app</code> resource.</p>
+<h3>Code examples</h3>
+<p>The following code disables client certificate authentication on an Azure resource, leaving the endpoint to rely on weaker controls such as
+passwords, or on no peer authentication at all.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="4" data-diff-type="noncompliant">
+resource "azurerm_container_app" "internal_worker" {
+  ingress {
+    target_port             = 80
+    external_enabled        = false
+    client_certificate_mode = "accept" # Noncompliant
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="4" data-diff-type="compliant">
+resource "azurerm_container_app" "internal_worker" {
+  ingress {
+    target_port             = 80
+    external_enabled        = false
+    client_certificate_mode = "require"
+  }
+}
+</pre>
+<h2>How to fix it in Azure Data Factory</h2>
+<p>A <code>azurerm_data_factory_linked_service_web</code> resource calls an external HTTP endpoint as part of a Data Factory pipeline. The
+<code>authentication_type</code> argument selects how the runtime authenticates to that endpoint, and any value other than
+<code>ClientCertificate</code> disables certificate-based authentication.</p>
+<h3>Code examples</h3>
+<p>The following code disables client certificate authentication on an Azure resource, leaving the endpoint to rely on weaker controls such as
+passwords, or on no peer authentication at all.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+resource "azurerm_data_factory_linked_service_web" "example" {
+  authentication_type = "Basic" # Noncompliant
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "azurerm_data_factory_linked_service_web" "example" {
   authentication_type = "ClientCertificate"
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
-<pre data-diff-id="4" data-diff-type="compliant">
-resource "azurerm_api_management" "example" {
-  sku_name = "Consumption_1"
-  client_certificate_mode = "Required"
-}
-</pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Service</a>:</p>
-<pre data-diff-id="5" data-diff-type="compliant">
-resource "azurerm_app_service" "example" {
-  client_cert_enabled = true
-}
-</pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
+  <li>Terraform Registry - <a
+  href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app">azurerm_linux_web_app</a></li>
+  <li>Terraform Registry - <a
+  href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/windows_web_app">azurerm_windows_web_app</a></li>
+  <li>Terraform Registry - <a
+  href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_function_app">azurerm_linux_function_app</a></li>
+  <li>Terraform Registry - <a
+  href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/windows_function_app">azurerm_windows_function_app</a></li>
+  <li>Terraform Registry - <a
+  href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/logic_app_standard">azurerm_logic_app_standard</a></li>
+  <li>Terraform Registry - <a
+  href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app">azurerm_container_app</a></li>
+  <li>Terraform Registry - <a
+  href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/data_factory_linked_service_web">azurerm_data_factory_linked_service_web</a></li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/287">CWE-287 - Improper Authentication</a></li>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/668">CWE-668 - Exposure of Resource to Wrong Sphere</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/1390">CWE-1390 - Weak Authentication</a></li>
 </ul>
 

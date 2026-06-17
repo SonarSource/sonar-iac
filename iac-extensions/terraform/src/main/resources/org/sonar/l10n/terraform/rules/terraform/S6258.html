@@ -1,116 +1,33 @@
-<p>Disabling logging of this component can lead to missing traceability in case of a security incident.</p>
-<p>Logging allows operational and security teams to get detailed and real-time feedback on an information system’s events. The logging coverage
-enables them to quickly react to events, ranging from the most benign bugs to the most impactful security incidents, such as intrusions.</p>
-<p>Apart from security detection, logging capabilities also directly influence future digital forensic analyses. For example, detailed logging will
-allow investigators to establish a timeline of the actions perpetrated by an attacker.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This component is essential for the information system infrastructure.</li>
-  <li>This component is essential for mission-critical functions.</li>
-  <li>Compliance policies require this component to be monitored.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Enable the logging capabilities of this component. Depending on the component, new permissions might be required by the logging storage components.
-  <br>
-  You should consult the official documentation to enable logging for the impacted components. For example, AWS Application Load Balancer Access Logs
-  <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/enable-access-logging.html">require an additional bucket
-  policy</a>.</p>
-<h2>Sensitive Code Example</h2>
+<p>Disabling or omitting logging for cloud resources prevents operational and security teams from detecting and investigating security incidents.</p>
+<h2>Why is this an issue?</h2>
+<p>Logging provides operational and security teams with a real-time feed of events from the information system. When logging is disabled or not
+configured for a cloud resource, security incidents can go undetected and leave no forensic trail for investigators. This rule raises an issue when a
+cloud resource that is essential to the infrastructure — such as a storage bucket, database, load balancer, or API gateway — has logging explicitly
+disabled or omitted.</p>
+<h3>What is the potential impact?</h3>
+<p>Without logs, security teams lose the ability to detect and respond to intrusions in real time. In the event of an incident, investigators cannot
+reconstruct a timeline of attacker activity, making it impossible to determine the scope of a breach, identify compromised data, or attribute actions
+to a specific actor.</p>
+<h2>How to fix it in AWS</h2>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because logging is not enabled for the resource, which prevents security and operational teams from detecting and
+investigating incidents.</p>
+<h4>Noncompliant code example</h4>
 <p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket">S3 access requests</a>:</p>
-<pre>
-resource "aws_s3_bucket" "example" { # Sensitive
+<pre data-diff-id="1" data-diff-type="noncompliant">
+resource "aws_s3_bucket" "example" { # Noncompliant
   bucket = "example"
 }
 </pre>
 <p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage">API Gateway stages</a>:</p>
-<pre>
-resource "aws_api_gateway_stage" "example" { # Sensitive
-  xray_tracing_enabled = false # Sensitive
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource "aws_api_gateway_stage" "example" { # Noncompliant
+  xray_tracing_enabled = false # Noncompliant
 }
 </pre>
-<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/msk_cluster">MSK Broker logs</a>:</p>
-<pre>
-resource "aws_msk_cluster" "example" {
-  cluster_name           = "example"
-  kafka_version          = "2.7.1"
-  number_of_broker_nodes = 3
-
-  logging_info {
-    broker_logs { # Sensitive
-      firehose {
-        enabled = false
-      }
-      s3 {
-        enabled = false
-      }
-    }
-  }
-}
-</pre>
-<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/mq_broker">MQ Brokers</a>:</p>
-<pre>
-resource "aws_mq_broker" "example" {
-  logs {  # Sensitive
-    audit   = false
-    general = false
-  }
-}
-</pre>
-<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/docdb_cluster">Amazon DocumentDB</a>:</p>
-<pre>
-resource "aws_docdb_cluster" "example" { # Sensitive
-  cluster_identifier = "example"
-}
-</pre>
-<p>For Azure <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/app_service">App Services</a>:</p>
-<pre>
-resource "azurerm_app_service" "example" {
-  logs {
-    application_logs {
-      file_system_level = "Off" # Sensitive
-      azure_blob_storage {
-        level = "Off"           # Sensitive
-      }
-    }
-  }
-}
-</pre>
-<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork/">VPC Subnetwork</a>:</p>
-<pre>
-resource "google_compute_subnetwork" "example" { # Sensitive
-  name          = "example"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.example.id
-}
-</pre>
-<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance/">SQL Database
-Instance</a>:</p>
-<pre>
-resource "google_sql_database_instance" "example" {
-  name = "example"
-
-  settings { # Sensitive
-    tier = "db-f1-micro"
-    ip_configuration {
-      require_ssl  = true
-      ipv4_enabled = true
-    }
-  }
-}
-</pre>
-<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/container_cluster/">Kubernetes Engine (GKE)
-cluster</a>:</p>
-<pre>
-resource "google_container_cluster" "example" {
-  name               = "example"
-  logging_service    = "none" # Sensitive
-}
-</pre>
-<h2>Compliant Solution</h2>
+<h4>Compliant solution</h4>
 <p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket">S3 access requests</a>:</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 resource "aws_s3_bucket" "example" {
   bucket = "example"
 }
@@ -146,12 +63,12 @@ data "aws_iam_policy_document" "logs" {
 }
 
 resource "aws_s3_bucket_policy" "logs" {
-  bucket = aws_s3_bucket.example-logs.id
-  policy = data.aws_iam_policy_document.example.json
+  bucket = aws_s3_bucket.logs.id
+  policy = data.aws_iam_policy_document.logs.json
 }
 </pre>
 <p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage">API Gateway stages</a>:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
 resource "aws_api_gateway_stage" "example" {
   xray_tracing_enabled = true
 
@@ -161,46 +78,26 @@ resource "aws_api_gateway_stage" "example" {
   }
 }
 </pre>
-<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/msk_cluster">MSK Broker logs</a>:</p>
-<pre>
-resource "aws_msk_cluster" "example" {
-  cluster_name           = "example"
-  kafka_version          = "2.7.1"
-  number_of_broker_nodes = 3
-
-  logging_info {
-    broker_logs {
-      firehose   {
-        enabled = false
-      }
-      s3 {
-        enabled = true
-        bucket  = "example"
-        prefix  = "log/msk-"
+<h2>How to fix it in Azure</h2>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because logging is not enabled for the resource, which prevents security and operational teams from detecting and
+investigating incidents.</p>
+<p>For Azure <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/app_service">App Services</a>:</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+resource "azurerm_app_service" "example" {
+  logs {
+    application_logs {
+      file_system_level = "Off" # Noncompliant
+      azure_blob_storage {
+        level = "Off"           # Noncompliant
       }
     }
   }
 }
 </pre>
-<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/mq_broker">MQ Brokers</a>, enable
-<code>audit</code> or <code>general</code>:</p>
-<pre>
-resource "aws_mq_broker" "example" {
-  logs {
-    audit   = true
-    general = true
-  }
-}
-</pre>
-<p>For Amazon <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/docdb_cluster">Amazon DocumentDB</a>:</p>
-<pre>
-resource "aws_docdb_cluster" "example" {
-  cluster_identifier              = "example"
-  enabled_cloudwatch_logs_exports = ["audit"]
-}
-</pre>
-<p>For Azure <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/app_service">App Services</a>:</p>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="3" data-diff-type="compliant">
 resource "azurerm_app_service" "example" {
  logs {
     http_logs {
@@ -220,8 +117,38 @@ resource "azurerm_app_service" "example" {
   }
 }
 </pre>
+<h2>How to fix it in GCP</h2>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because logging is not enabled for the resource, which prevents security and operational teams from detecting and
+investigating incidents.</p>
+<h4>Noncompliant code example</h4>
 <p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork/">VPC Subnetwork</a>:</p>
-<pre>
+<pre data-diff-id="4" data-diff-type="noncompliant">
+resource "google_compute_subnetwork" "example" { # Noncompliant
+  name          = "example"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.example.id
+}
+</pre>
+<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance/">SQL Database
+Instance</a>:</p>
+<pre data-diff-id="5" data-diff-type="noncompliant">
+resource "google_sql_database_instance" "example" {
+  name = "example"
+
+  settings { # Noncompliant
+    tier = "db-f1-micro"
+    ip_configuration {
+      require_ssl  = true
+      ipv4_enabled = true
+    }
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork/">VPC Subnetwork</a>:</p>
+<pre data-diff-id="4" data-diff-type="compliant">
 resource "google_compute_subnetwork" "example" {
   name          = "example"
   ip_cidr_range = "10.2.0.0/16"
@@ -237,7 +164,7 @@ resource "google_compute_subnetwork" "example" {
 </pre>
 <p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance/">SQL Database
 Instance</a>:</p>
-<pre>
+<pre data-diff-id="5" data-diff-type="compliant">
 resource "google_sql_database_instance" "example" {
   name             = "example"
 
@@ -265,18 +192,29 @@ resource "google_sql_database_instance" "example" {
   }
 }
 </pre>
-<p>For GCP <a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/container_cluster/">Kubernetes Engine (GKE)
-cluster</a>:</p>
-<pre>
-resource "google_container_cluster" "example" {
-  name               = "example"
-  logging_service    = "logging.googleapis.com/kubernetes"
-}
-</pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html">AWS Documentation</a> - Logging requests using server access
   logging</li>
+  <li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket">Terraform Registry</a> - aws_s3_bucket</li>
+  <li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage">Terraform Registry</a> -
+  aws_api_gateway_stage</li>
+  <li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/msk_cluster">Terraform Registry</a> - aws_msk_cluster</li>
+  <li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/mq_broker">Terraform Registry</a> - aws_mq_broker</li>
+  <li><a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/docdb_cluster">Terraform Registry</a> -
+  aws_docdb_cluster</li>
+  <li><a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/app_service">Terraform Registry</a> -
+  azurerm_app_service</li>
+  <li><a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork/">Terraform Registry</a> -
+  google_compute_subnetwork</li>
+  <li><a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance/">Terraform Registry</a> -
+  google_sql_database_instance</li>
+  <li><a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/container_cluster/">Terraform Registry</a> -
+  google_container_cluster</li>
+</ul>
+<h3>Standards</h3>
+<ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/778">CWE-778 - Insufficient Logging</a></li>
 </ul>
 

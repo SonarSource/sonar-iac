@@ -1,6 +1,6 @@
 {
-  "title": "Using unencrypted cloud storages is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Cloud storage encryption should not be disabled",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -8,13 +8,15 @@
     "attribute": "TRUSTWORTHY"
   },
   "status": "ready",
+  "quickfix": "unknown",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "10min"
   },
   "tags": [
     "cwe",
-    "azure"
+    "azure",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6388",
@@ -22,7 +24,7 @@
   "scope": "All",
   "securityStandards": {
     "CWE": [
-      311
+      312
     ],
     "PCI DSS 3.2": [
       "2.2",

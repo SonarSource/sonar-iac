@@ -1,76 +1,37 @@
-<p>Allowing anonymous access can reduce an organization’s ability to protect itself against attacks on its Azure resources.</p>
-<p>Security incidents may include disrupting critical functions, data theft, and additional Azure subscription costs due to resource overload.</p>
-<p>Using authentication coupled with fine-grained authorizations helps bring defense-in-depth and bring traceability to investigators of security
-incidents.</p>
-<p>Depending on the affected Azure resource, multiple authentication choices are possible: Active Directory Authentication, OpenID implementations
-(Google, Microsoft, etc.) or native Azure mechanisms.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>This Azure resource is essential for the information system infrastructure.</li>
-  <li>This Azure resource is essential for mission-critical functions.</li>
-  <li>This Azure resource stores or processes sensitive data.</li>
-  <li>Compliance policies require access to this resource to be authenticated.</li>
-</ul>
-<p>There is a risk if you answered yes to any of these questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Enable authentication in this Azure resource, and disable anonymous access.</p>
-<p>If only Basic Authentication is available, enable it.</p>
-<h2>Sensitive Code Example</h2>
-<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Services and equivalent</a>:</p>
+<p>Multiple Azure resource types support authentication configuration, and several allow anonymous access to be explicitly enabled or left
+unconfigured. Allowing anonymous access can expose sensitive data and operations to unauthorized users.</p>
+<h2>Why is this an issue?</h2>
+<p>Allowing anonymous access to Azure resources means that any request, regardless of origin, can interact with the resource without providing
+credentials. For services such as App Service, API Management, Data Factory linked services, Storage Accounts, and Redis Caches, unauthenticated
+access can expose sensitive data and operations to unauthorized users. Enabling authentication ensures that only verified identities can access these
+resources, and provides an audit trail for investigators of security incidents.</p>
+<h3>What is the potential impact?</h3>
+<p>If anonymous access is permitted, an attacker can read, modify, or delete data and trigger operations without authentication. Depending on the
+resource type, this can result in data breaches, unauthorized API calls, service disruption, or unexpected Azure subscription costs due to resource
+abuse.</p>
+<h2>How to fix it in Azure App Service</h2>
+<h3>Code examples</h3>
+<p>The following code allows anonymous access to the Azure resource, leaving it accessible to any caller without authentication.</p>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 resource "azurerm_linux_function_app" "example" {
   name = "example"
 
   auth_settings {
-    enabled = false # Sensitive
+    enabled = false # Noncompliant
   }
+}
+
+resource "azurerm_linux_function_app" "example2" {
+  name = "example2"
 
   auth_settings {
     enabled = true
-    unauthenticated_client_action = "AllowAnonymous" # Sensitive
+    unauthenticated_client_action = "AllowAnonymous" # Noncompliant
   }
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
-<pre data-diff-id="2" data-diff-type="noncompliant">
-resource "azurerm_api_management_api" "example" { # Sensitive, the openid_authentication block is missing
-  name = "example-api"
-}
-
-resource "azurerm_api_management" "example" {
-  sign_in {
-    enabled = false # Sensitive
-  }
-}
-</pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory</a> Linked Services:</p>
-<pre data-diff-id="3" data-diff-type="noncompliant">
-resource "azurerm_data_factory_linked_service_sftp" "example" {
-  authentication_type = "Anonymous"
-}
-</pre>
-<p>For <a href="https://azure.microsoft.com/en-us/product-categories/storage/">Storage Accounts</a>:</p>
-<pre data-diff-id="4" data-diff-type="noncompliant">
-resource "azurerm_storage_account" "example" {
-  allow_blob_public_access = true # Sensitive
-}
-
-resource "azurerm_storage_container" "example" {
-  container_access_type = "blob" # Sensitive
-}
-</pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/cache/">Redis Caches</a>:</p>
-<pre data-diff-id="5" data-diff-type="noncompliant">
-resource "azurerm_redis_cache" "example" {
-  name = "example-cache"
-
-  redis_configuration {
-    enable_authentication = false # Sensitive
-  }
-}
-</pre>
-<h2>Compliant Solution</h2>
-<p>For <a href="https://azure.microsoft.com/en-us/services/app-service/">App Services and equivalent</a>:</p>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 resource "azurerm_linux_function_app" "example" {
   name = "example"
@@ -81,7 +42,22 @@ resource "azurerm_linux_function_app" "example" {
   }
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/api-management/">API Management</a>:</p>
+<h2>How to fix it in Azure API Management</h2>
+<h3>Code examples</h3>
+<p>The following code allows anonymous access to the Azure resource, leaving it accessible to any caller without authentication.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+resource "azurerm_api_management_api" "example" { # Noncompliant: the openid_authentication block is missing
+  name = "example-api"
+}
+
+resource "azurerm_api_management" "example" {
+  sign_in {
+    enabled = false # Noncompliant
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
 <pre data-diff-id="2" data-diff-type="compliant">
 resource "azurerm_api_management_api" "example" {
   name = "example-api"
@@ -97,12 +73,21 @@ resource "azurerm_api_management" "example" {
   }
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/data-factory/">Data Factory</a> Linked Services:</p>
+<h2>How to fix it in Azure Data Factory Linked Service</h2>
+<h3>Code examples</h3>
+<p>The following code allows anonymous access to the Azure resource, leaving it accessible to any caller without authentication.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+resource "azurerm_data_factory_linked_service_sftp" "example" {
+  authentication_type = "Anonymous"
+}
+</pre>
+<h4>Compliant solution</h4>
 <pre data-diff-id="3" data-diff-type="compliant">
 resource "azurerm_data_factory_linked_service_sftp" "example" {
-  authentication_type = "Basic"
+  authentication_type = "PublicKey"
   username            = local.creds.username
-  password            = local.creds.password
+  private_key_content = local.creds.private_key
 }
 
 resource "azurerm_data_factory_linked_service_odata" "example" {
@@ -112,17 +97,43 @@ resource "azurerm_data_factory_linked_service_odata" "example" {
   }
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/product-categories/storage/">Storage Accounts</a>:</p>
+<h2>How to fix it in Azure Storage Accounts</h2>
+<h3>Code examples</h3>
+<p>The following code allows anonymous access to the Azure resource, leaving it accessible to any caller without authentication.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="4" data-diff-type="noncompliant">
+resource "azurerm_storage_account" "example" {
+  allow_blob_public_access = true # Noncompliant
+}
+
+resource "azurerm_storage_container" "example" {
+  container_access_type = "blob" # Noncompliant
+}
+</pre>
+<h4>Compliant solution</h4>
 <pre data-diff-id="4" data-diff-type="compliant">
 resource "azurerm_storage_account" "example" {
-  allow_blob_public_access = true
+  allow_blob_public_access = false
 }
 
 resource "azurerm_storage_container" "example" {
   container_access_type = "private"
 }
 </pre>
-<p>For <a href="https://azure.microsoft.com/en-us/services/cache/">Redis Caches</a>:</p>
+<h2>How to fix it in Azure Cache for Redis</h2>
+<h3>Code examples</h3>
+<p>The following code allows anonymous access to the Azure resource, leaving it accessible to any caller without authentication.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="5" data-diff-type="noncompliant">
+resource "azurerm_redis_cache" "example" {
+  name = "example-cache"
+
+  redis_configuration {
+    enable_authentication = false # Noncompliant
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
 <pre data-diff-id="5" data-diff-type="compliant">
 resource "azurerm_redis_cache" "example" {
   name = "example-cache"
@@ -132,7 +143,16 @@ resource "azurerm_redis_cache" "example" {
   }
 }
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://azure.microsoft.com/en-us/services/app-service/">Azure App Service</a></li>
+  <li><a href="https://azure.microsoft.com/en-us/services/api-management/">Azure API Management</a></li>
+  <li><a href="https://azure.microsoft.com/en-us/services/data-factory/">Azure Data Factory</a></li>
+  <li><a href="https://azure.microsoft.com/en-us/product-categories/storage/">Azure Storage Accounts</a></li>
+  <li><a href="https://azure.microsoft.com/en-us/services/cache/">Azure Cache for Redis</a></li>
+</ul>
+<h3>Standards</h3>
 <ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/668">CWE-668 - Exposure of Resource to Wrong Sphere</a></li>
 </ul>

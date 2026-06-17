@@ -1,17 +1,23 @@
 {
-  "title": "Using clear-text protocols is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Clear-text protocols should not be used",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
-      "SECURITY": "HIGH"
+      "SECURITY": "LOW"
     },
     "attribute": "COMPLETE"
   },
   "status": "ready",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
   "tags": [
-    "cwe"
+    "cwe",
+    "former-hotspot"
   ],
-  "defaultSeverity": "Critical",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5332",
   "sqKey": "S5332",
   "scope": "Main",
@@ -20,6 +26,8 @@
       200,
       319
     ],
+    "OWASP": [],
+    "OWASP Top 10 2021": [],
     "PCI DSS 3.2": [
       "4.1",
       "6.5.4"
@@ -28,6 +36,7 @@
       "4.2.1",
       "6.2.4"
     ],
+    "ASVS 4.0": [],
     "STIG ASD_V5R3": [
       "V-222397",
       "V-222534",
@@ -38,9 +47,6 @@
       "V-222597",
       "V-222598",
       "V-222599"
-    ],
-    "ASVS 4.0": [],
-    "OWASP": [],
-    "OWASP Top 10 2021": []
+    ]
   }
 }

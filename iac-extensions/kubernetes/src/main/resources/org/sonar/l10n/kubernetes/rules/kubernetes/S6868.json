@@ -1,18 +1,22 @@
 {
-  "title": "Allowing command execution is security sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Kubernetes roles should not allow command execution in pods",
+  "type": "VULNERABILITY",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
-  "tags": [],
-  "defaultSeverity": "Major",
+  "tags": [
+    "former-hotspot"
+  ],
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6868",
   "sqKey": "S6868",
   "scope": "All",
   "securityStandards": {
     "CWE": [
+      269,
+      272,
       284
     ]
   },
@@ -20,7 +24,7 @@
   "code": {
     "impacts": {
       "MAINTAINABILITY": "LOW",
-      "SECURITY": "MEDIUM"
+      "SECURITY": "LOW"
     },
     "attribute": "COMPLETE"
   }

@@ -1,67 +1,54 @@
-<p>Using <code>ENV</code> and <code>ARG</code> to handle secrets can lead to sensitive information being disclosed to an inappropriate sphere.</p>
-<p>The <code>ARG</code> and <code>ENV</code> instructions in a Dockerfile are used to configure the image build and the container environment
-respectively. Both can be used at image build time, during the execution of commands in the container, and <code>ENV</code> can also be used at
-runtime.</p>
-<p>In most cases, build-time and environment variables are used to propagate configuration items from the host to the image or container. A typical
-example for an environmental variable is the <code>PATH</code> variable, used to configure where system executables are searched for.</p>
-<p>Using <code>ARG</code> and <code>ENV</code> to propagate configuration entries that contain secrets causes a security risk. Indeed, in most cases,
-artifacts of those values are kept in the final image. The secret information leak can happen either in the container environment itself, the image
-metadata or the build environment logs.</p>
-<p>The concrete impact of such an issue highly depends on the secret’s purpose and the exposure sphere:</p>
+<p>Using <code>ENV</code> and <code>ARG</code> instructions in a Dockerfile to handle secrets can expose sensitive information through the image
+metadata, container environment, or build logs.</p>
+<h2>Why is this an issue?</h2>
+<p>The <code>ARG</code> and <code>ENV</code> instructions in a Dockerfile configure the image build and the container environment respectively. When
+either instruction is used to pass secrets, traces of those values are typically retained — in the image layer history, the container environment, or
+the build logs. Any party that gains access to the image or its build history can retrieve these values.</p>
+<h3>What is the potential impact?</h3>
+<p>The concrete impact depends on the nature of the exposed secret:</p>
 <ul>
-  <li>Financial impact if a paid service API key is disclosed and used.</li>
-  <li>Application compromise if an application’s secret, like a session signing key, is disclosed.</li>
-  <li>Infrastructure component takeover, if a system secret, like a remote access key, is leaked.</li>
+  <li>Financial damage can occur if a paid service API key is disclosed and used without authorization.</li>
+  <li>The application can be fully compromised if an application secret such as a session signing key is exposed.</li>
+  <li>Full infrastructure takeover becomes possible if a system secret such as a remote access key is leaked.</li>
 </ul>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The variable contains a value that should be kept confidential.</li>
-  <li>The container image or Dockerfile will be distributed to users who do not need to know the secret value.</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li>Use Buildkit’s secret mount options when secrets have to be used at build time.</li>
-  <li>For run time secret variables, best practices would recommend only setting them at runtime, for example with the <code>--env</code> option of
-  the <code>docker run</code> command.</li>
-</ul>
-<p>Note that, in both cases, the files exposing the secrets should be securely stored and not exposed to a large sphere. In most cases, using a secret
-vault or another similar component should be preferred. For example, <strong>Docker Swarm</strong> provides a <strong>secrets</strong> service that
-can be used to handle most confidential data.</p>
-<h2>Sensitive Code Example</h2>
-<pre>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 FROM example
-# Sensitive
-ARG ACCESS_TOKEN
-# Sensitive
-ENV ACCESS_TOKEN=${ACCESS_TOKEN}
+ARG ACCESS_TOKEN # Noncompliant
+ENV ACCESS_TOKEN=${ACCESS_TOKEN} # Noncompliant
 CMD /run.sh
 </pre>
-<h2>Compliant Solution</h2>
-<p>For build time secrets, use <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Buildkit’s secret mount type</a>
+<h4>Compliant solution</h4>
+<p>For runtime secrets, leave environment variables empty in the Dockerfile and inject their values at container start. Store secrets in an <a
+href="https://docs.docker.com/compose/env-file/">environment file</a> and start the container with the <a
+href="https://docs.docker.com/engine/reference/commandline/run/#env"><code>--env-file</code></a> argument:</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+FROM example
+ENV ACCESS_TOKEN=""
+CMD /run.sh
+</pre>
+<pre>
+docker run --env-file .env myImage
+</pre>
+<p>For build-time secrets, use <a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Buildkit’s secret mount type</a>
 instead:</p>
 <pre>
 FROM example
 RUN --mount=type=secret,id=build_secret ./installer.sh
 </pre>
-<p>For runtime secrets, leave the environment variables empty until runtime:</p>
-<pre>
-FROM example
-ENV ACCESS_TOKEN=""
-CMD /run.sh
-</pre>
-<p>Store the runtime secrets in an <a href="https://docs.docker.com/compose/env-file/">environment file</a> (such as <code>.env</code>) and then start
-the container with the <a href="https://docs.docker.com/engine/reference/commandline/run/#env"><code>--env-file</code></a> argument:</p>
-<pre>
-docker run --env-file .env myImage
-</pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
   <li><a href="https://docs.docker.com/engine/reference/builder/#env">Dockerfile reference</a> - ENV command</li>
   <li><a href="https://docs.docker.com/engine/reference/builder/#arg">Dockerfile reference</a> - ARG command</li>
   <li><a href="https://docs.docker.com/engine/reference/builder/#run---mounttypesecret">Dockerfile reference</a> - RUN command secrets mount
   points</li>
   <li><a href="https://docs.docker.com/engine/swarm/secrets/">Docker documentation</a> - Manage sensitive data with Docker secrets</li>
+</ul>
+<h3>Standards</h3>
+<ul>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/522">CWE-522 - Insufficiently Protected Credentials</a></li>
 </ul>
 
