@@ -31,12 +31,10 @@ runs:
       run: |
         rm .tool-versions || true
 
-    - name: Configure Claude Code permissions (user-level)
+    - name: Configure Claude Code permissions
       shell: bash
       run: |
-        mkdir -p ~/.claude
-        cat > ~/.claude/settings.json << 'EOF'
-        {
+        SETTINGS='{
           "permissions": {
             "allow": [
               "Bash(find *)",
@@ -62,8 +60,15 @@ runs:
               "WebFetch(*)"
             ]
           }
-        }
-        EOF
+        }'
+        # Write user-level settings (picked up by all claude processes regardless of CWD)
+        mkdir -p ~/.claude
+        echo "$SETTINGS" > ~/.claude/settings.json
+        # Clear any local overrides that could deny permissions saved from previous runs
+        rm -f ~/.claude/settings.local.json
+        # Write project-level settings (highest precedence, used by main session CWD = repo root)
+        mkdir -p .claude
+        echo "$SETTINGS" > .claude/settings.json
 
     - name: Record pre-Claude SHA
       id: pre-claude
