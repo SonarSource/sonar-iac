@@ -23,8 +23,6 @@ import java.util.regex.Pattern;
 public class IpRestrictedAdminAccessCheckUtils {
 
   public static final String MESSAGE = "Restrict IP addresses authorized to access administration services.";
-  public static final String ALL_IPV4 = "0.0.0.0/0";
-  public static final String ALL_IPV6 = "::/0";
   public static final int SSH_PORT = 22;
   public static final int RDP_PORT = 3389;
   public static final Set<String> SENSITIVE_PORTS = Set.of("*", String.valueOf(SSH_PORT), String.valueOf(RDP_PORT));

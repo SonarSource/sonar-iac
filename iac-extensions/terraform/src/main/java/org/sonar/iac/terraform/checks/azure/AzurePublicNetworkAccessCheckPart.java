@@ -21,11 +21,11 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.sonar.iac.common.checkdsl.ContextualTree;
-import org.sonar.iac.common.checks.network.IpAddressClassifier;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
+import org.sonarsource.analyzer.commons.appsec.IpAddressClassifier;
 
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static org.sonar.iac.terraform.checks.PublicNetworkAccessCheck.FIREWALL_MESSAGE;

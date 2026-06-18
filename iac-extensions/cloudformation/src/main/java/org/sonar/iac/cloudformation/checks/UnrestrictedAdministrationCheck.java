@@ -26,6 +26,7 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
+import org.sonarsource.analyzer.commons.appsec.IpAddressClassifier;
 
 @Rule(key = "S6321")
 public class UnrestrictedAdministrationCheck extends AbstractResourceCheck {
@@ -62,9 +63,9 @@ public class UnrestrictedAdministrationCheck extends AbstractResourceCheck {
 
   private static Optional<Tree> getDefaultRouteCidr(Tree rule) {
     Optional<Tree> optCidrIp = PropertyUtils.value(rule, "CidrIp")
-      .filter(c -> TextUtils.isValue(c, "0.0.0.0/0").isTrue());
+      .filter(c -> TextUtils.matchesValue(c, IpAddressClassifier::isUnrestrictedCidr).isTrue());
     Optional<Tree> optCidrIpv6 = PropertyUtils.value(rule, "CidrIpv6")
-      .filter(c -> TextUtils.isValue(c, "::/0").isTrue());
+      .filter(c -> TextUtils.matchesValue(c, IpAddressClassifier::isUnrestrictedCidr).isTrue());
     return optCidrIp.isPresent() ? optCidrIp : optCidrIpv6;
   }
 

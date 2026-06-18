@@ -30,9 +30,8 @@ import org.sonar.iac.terraform.api.tree.PrefixExpressionTree;
 import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
+import org.sonarsource.analyzer.commons.appsec.IpAddressClassifier;
 
-import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV4;
-import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV6;
 import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.MESSAGE;
 import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.rangeContainsSshOrRdpPort;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.SECONDARY_MSG;
@@ -90,14 +89,15 @@ public class AwsIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck {
 
   private static Optional<TupleTree> getDefaultRouteCidr(BlockTree ingress) {
     Optional<TupleTree> optCidrIp = PropertyUtils.value(ingress, "cidr_blocks", TupleTree.class)
-      .filter(c -> containsValue(c, ALL_IPV4));
+      .filter(AwsIpRestrictedAdminAccessCheckPart::containsUnrestrictedCidr);
     Optional<TupleTree> optCidrIpv6 = PropertyUtils.value(ingress, "ipv6_cidr_blocks", TupleTree.class)
-      .filter(c -> containsValue(c, ALL_IPV6));
+      .filter(AwsIpRestrictedAdminAccessCheckPart::containsUnrestrictedCidr);
 
     return optCidrIp.isPresent() ? optCidrIp : optCidrIpv6;
   }
 
-  private static boolean containsValue(TupleTree tupleTree, String value) {
-    return tupleTree.elements().trees().stream().anyMatch(t -> TextUtils.isValue(t, value).isTrue());
+  private static boolean containsUnrestrictedCidr(TupleTree tupleTree) {
+    return tupleTree.elements().trees().stream()
+      .anyMatch(t -> TextUtils.matchesValue(t, IpAddressClassifier::isUnrestrictedCidr).isTrue());
   }
 }

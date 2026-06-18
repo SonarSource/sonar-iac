@@ -17,7 +17,6 @@
 package org.sonar.iac.terraform.checks.azure;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -29,15 +28,14 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.TupleTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
+import org.sonarsource.analyzer.commons.appsec.IpAddressClassifier;
 
-import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV4;
-import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV6;
 import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.MESSAGE;
 import static org.sonar.iac.terraform.checks.IpRestrictedAdminAccessCheck.SECONDARY_MSG;
 
 public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck {
 
-  private static final Set<String> SENSITIVE_PREFIXES = Set.of("*", ALL_IPV4, ALL_IPV6);
+  private static final Predicate<String> IS_SENSITIVE_PREFIX = v -> IpAddressClassifier.isUnrestrictedCidr(v) || "*".equals(v);
 
   @Override
   protected void registerResourceChecks() {
@@ -73,7 +71,7 @@ public class AzureIpRestrictedAdminAccessCheckPart extends AbstractResourceCheck
   }
 
   private static Optional<ExpressionTree> sensitiveSourcePrefix(BlockTree rule) {
-    Predicate<ExpressionTree> isSensitivePrefix = prefixExpression -> TextUtils.matchesValue(prefixExpression, SENSITIVE_PREFIXES::contains).isTrue();
+    Predicate<ExpressionTree> isSensitivePrefix = prefixExpression -> TextUtils.matchesValue(prefixExpression, IS_SENSITIVE_PREFIX).isTrue();
 
     return PropertyUtils.get(rule, "source_address_prefix", AttributeTree.class)
       .map(AttributeTree::value)

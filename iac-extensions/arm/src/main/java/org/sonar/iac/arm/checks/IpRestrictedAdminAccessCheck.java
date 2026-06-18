@@ -35,14 +35,13 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils;
+import org.sonarsource.analyzer.commons.appsec.IpAddressClassifier;
 
-import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV4;
-import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.ALL_IPV6;
 import static org.sonar.iac.common.checks.policy.IpRestrictedAdminAccessCheckUtils.MESSAGE;
 
 @Rule(key = "S6321")
 public class IpRestrictedAdminAccessCheck extends AbstractArmResourceCheck {
-  private static final Set<String> SOURCE_ADDRESS_PREFIX_SENSITIVE = Set.of("*", ALL_IPV4, ALL_IPV6, "Internet");
+  private static final Predicate<String> IS_SENSITIVE_SOURCE_PREFIX = v -> IpAddressClassifier.isUnrestrictedCidr(v) || "*".equals(v) || "Internet".equals(v);
   private static final Set<String> SENSITIVE_PROTOCOL = Set.of("*", "TCP");
 
   @Override
@@ -109,8 +108,8 @@ public class IpRestrictedAdminAccessCheck extends AbstractArmResourceCheck {
       return TextUtils.isValue(direction, "Inbound").isTrue()
         && TextUtils.isValue(access, "Allow").isTrue()
         && TextUtils.matchesValue(protocol, str -> SENSITIVE_PROTOCOL.contains(str.toUpperCase(Locale.ROOT))).isTrue()
-        && (isSensitivePort(destinationPortRange) || isArrayWith(destinationPortRanges, this::isSensitivePort))
-        && (isSensitiveSourceAddressString(sourceAddressPrefix) || isArrayWith(sourceAddressPrefixes, this::isSensitiveSourceAddressString));
+        && (isSensitivePort(destinationPortRange) || isArrayWith(destinationPortRanges, ResourceWithIpRestrictedAdminAccessChecker::isSensitivePort))
+        && (isSensitiveSourceAddressString(sourceAddressPrefix) || isArrayWith(sourceAddressPrefixes, ResourceWithIpRestrictedAdminAccessChecker::isSensitiveSourceAddressString));
     }
 
     void reportIssue(CheckContext ctx) {
@@ -140,11 +139,11 @@ public class IpRestrictedAdminAccessCheck extends AbstractArmResourceCheck {
       return false;
     }
 
-    private boolean isSensitiveSourceAddressString(Tree value) {
-      return TextUtils.matchesValue(value, SOURCE_ADDRESS_PREFIX_SENSITIVE::contains).isTrue();
+    private static boolean isSensitiveSourceAddressString(Tree value) {
+      return TextUtils.matchesValue(value, IS_SENSITIVE_SOURCE_PREFIX).isTrue();
     }
 
-    private boolean isSensitivePort(Tree tree) {
+    private static boolean isSensitivePort(Tree tree) {
       return TextUtils.getValue(tree)
         .filter(IpRestrictedAdminAccessCheckUtils::rangeContainsSshOrRdpPort)
         .isPresent();

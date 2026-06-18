@@ -25,7 +25,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;
-import org.sonar.iac.common.checks.network.IpAddressClassifier;
+import org.sonarsource.analyzer.commons.appsec.IpAddressClassifier;
 
 public class IpAddressValidator {
 
