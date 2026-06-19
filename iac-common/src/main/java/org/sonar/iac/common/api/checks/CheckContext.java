@@ -81,4 +81,28 @@ public interface CheckContext {
    */
   <T extends HasTextRange> void reportIssue(List<T> toHighlight, String message);
 
+  /**
+   * Report an issue with a components as primary location, selecting which rule description context the UI should display.
+   * <p>
+   * The context key must match a context key of the rule's description (a {@code How to fix it in <X>} section, see
+   * {@code org.sonar.api.server.rule.Context#getKey()}). For example, an issue raised on an {@code npm} command can point the
+   * reader directly to the {@code npm} code examples.
+   *
+   * @param toHighlight the list of components to highlight
+   * @param message the message to report
+   * @param ruleDescriptionContextKey the key of the rule description context to highlight
+   */
+  <T extends HasTextRange> void reportIssue(List<T> toHighlight, String message, String ruleDescriptionContextKey);
+
+  /**
+   * Report an issue with a component as primary location and secondary locations, selecting which rule description context the UI
+   * should display. See {@link #reportIssue(List, String, String)} for details about the context key.
+   *
+   * @param toHighlight the component to highlight
+   * @param message the message to report
+   * @param secondaryLocations the list of secondary locations
+   * @param ruleDescriptionContextKey the key of the rule description context to highlight
+   */
+  void reportIssue(HasTextRange toHighlight, String message, List<SecondaryLocation> secondaryLocations, String ruleDescriptionContextKey);
+
 }

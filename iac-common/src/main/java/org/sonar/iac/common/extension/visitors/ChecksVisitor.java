@@ -105,9 +105,24 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
     }
 
     @Override
+    public <T extends HasTextRange> void reportIssue(List<T> toHighlight, String message, String ruleDescriptionContextKey) {
+      reportIssue(TextRanges.mergeElementsWithTextRange(toHighlight), message, List.of(), ruleDescriptionContextKey);
+    }
+
+    @Override
+    public void reportIssue(HasTextRange toHighlight, String message, List<SecondaryLocation> secondaryLocations, String ruleDescriptionContextKey) {
+      reportIssue(toHighlight.textRange(), message, secondaryLocations, ruleDescriptionContextKey);
+    }
+
+    @Override
     public void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+      reportIssue(textRange, message, secondaryLocations, null);
+    }
+
+    public void reportIssue(@Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations,
+      @Nullable String ruleDescriptionContextKey) {
       try {
-        currentCtx.reportIssue(ruleKey, textRange, message, secondaryLocations);
+        currentCtx.reportIssue(ruleKey, textRange, message, secondaryLocations, ruleDescriptionContextKey);
       } catch (Exception e) {
         e.setStackTrace(new StackTraceElement[0]);
         throw e;

@@ -186,6 +186,14 @@ public final class Verifier {
     compare(actualIssues, Collections.emptyList());
   }
 
+  /**
+   * Runs the check on the given tree and returns the raised issues, so that attributes not handled by the comment-based
+   * verification (such as the rule description context key) can be asserted directly.
+   */
+  public static List<Issue> scanAndCollectIssues(Tree root, Path path, IacCheck check) {
+    return runAnalysis(new TestContext(createVerifier(path, root)), check, root);
+  }
+
   private static List<Issue> runAnalysis(TestContext ctx, IacCheck check, Tree root) {
     check.initialize(ctx);
     ctx.scan(root);
@@ -315,11 +323,26 @@ public final class Verifier {
       reportIssue(TextRanges.mergeElementsWithTextRange(toHighlight), message, Collections.emptyList());
     }
 
-    // "`contains` method might be a performance bottleneck". Order of added issues is important; moreover, this is the test code.
-    @SuppressWarnings("java:S2250")
+    @Override
+    public <T extends HasTextRange> void reportIssue(List<T> toHighlight, String message, String ruleDescriptionContextKey) {
+      reportIssue(TextRanges.mergeElementsWithTextRange(toHighlight), message, Collections.emptyList(), ruleDescriptionContextKey);
+    }
+
+    @Override
+    public void reportIssue(HasTextRange toHighlight, String message, List<SecondaryLocation> secondaryLocations, String ruleDescriptionContextKey) {
+      reportIssue(toHighlight.textRange(), message, secondaryLocations, ruleDescriptionContextKey);
+    }
+
     @Override
     public void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
-      var issue = new Issue(textRange, message, secondaryLocations);
+      reportIssue(textRange, message, secondaryLocations, null);
+    }
+
+    // "`contains` method might be a performance bottleneck". Order of added issues is important; moreover, this is the test code.
+    @SuppressWarnings("java:S2250")
+    public void reportIssue(TextRange textRange, String message, List<SecondaryLocation> secondaryLocations,
+      @Nullable String ruleDescriptionContextKey) {
+      var issue = new Issue(textRange, message, secondaryLocations, ruleDescriptionContextKey);
       if (!raisedIssues.contains(issue)) {
         TextPointer start = textRange.start();
         TextPointer end = textRange.end();
@@ -367,11 +390,19 @@ public final class Verifier {
     private final TextRange textRange;
     private final String message;
     private final List<SecondaryLocation> secondaryLocations;
+    @Nullable
+    private final String ruleDescriptionContextKey;
 
     public Issue(TextRange textRange, @Nullable String message, List<SecondaryLocation> secondaryLocations) {
+      this(textRange, message, secondaryLocations, null);
+    }
+
+    public Issue(TextRange textRange, @Nullable String message, List<SecondaryLocation> secondaryLocations,
+      @Nullable String ruleDescriptionContextKey) {
       this.textRange = textRange;
       this.message = message;
       this.secondaryLocations = secondaryLocations;
+      this.ruleDescriptionContextKey = ruleDescriptionContextKey;
     }
 
     public Issue(TextRange textRange, @Nullable String message, SecondaryLocation secondaryLocation) {
@@ -384,6 +415,15 @@ public final class Verifier {
 
     public Issue(TextRange textRange) {
       this(textRange, null);
+    }
+
+    /**
+     * The rule description context key selected for this issue, or {@code null} if none was set.
+     * Not part of {@link #equals(Object)}/{@link #hashCode()} so that comment-based expected issues keep matching.
+     */
+    @Nullable
+    public String ruleDescriptionContextKey() {
+      return ruleDescriptionContextKey;
     }
 
     @Override

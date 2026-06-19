@@ -210,6 +210,24 @@ class InputFileContextTest {
   }
 
   @Test
+  void shouldSetRuleDescriptionContextKeyWhenProvided() {
+    inputFileContext.reportIssue(RuleKey.parse("s:42"), VALID_RANGE, "message", List.of(), "npm");
+
+    List<Issue> issues = new ArrayList<>(sensorContext.allIssues());
+    assertThat(issues).hasSize(1);
+    assertThat(issues.get(0).ruleDescriptionContextKey()).contains("npm");
+  }
+
+  @Test
+  void shouldNotSetRuleDescriptionContextKeyWhenNull() {
+    inputFileContext.reportIssue(RuleKey.parse("s:42"), VALID_RANGE, "message", List.of());
+
+    List<Issue> issues = new ArrayList<>(sensorContext.allIssues());
+    assertThat(issues).hasSize(1);
+    assertThat(issues.get(0).ruleDescriptionContextKey()).isEmpty();
+  }
+
+  @Test
   void shouldReportTwoIssuesEvenIfThyHaveTheSameHash() {
     var rule1 = RuleKey.of("kubernetes", "S6897");
     var textRange1 = TextRanges.range(10, 6, 10, 10);

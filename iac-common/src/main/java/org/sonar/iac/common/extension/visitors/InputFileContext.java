@@ -57,6 +57,11 @@ public class InputFileContext extends TreeContext {
   }
 
   public void reportIssue(RuleKey ruleKey, @Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations) {
+    reportIssue(ruleKey, textRange, message, secondaryLocations, null);
+  }
+
+  public void reportIssue(RuleKey ruleKey, @Nullable TextRange textRange, String message, List<SecondaryLocation> secondaryLocations,
+    @Nullable String ruleDescriptionContextKey) {
     // We avoid raising an issue on text ranges on which we already raised one. This is to avoid duplicate ones which might happen, for example,
     // with Yaml anchors SONARIAC-78.
     var raisedIssue = new RaisedIssue(ruleKey, textRange, secondaryLocations);
@@ -69,6 +74,10 @@ public class InputFileContext extends TreeContext {
       }
 
       issue.forRule(ruleKey).at(issueLocation);
+
+      if (ruleDescriptionContextKey != null) {
+        issue.setRuleDescriptionContextKey(ruleDescriptionContextKey);
+      }
 
       secondaryLocations.stream()
         .filter(secondary -> secondary != null && TextRanges.isValidAndNotEmpty(secondary.textRange))

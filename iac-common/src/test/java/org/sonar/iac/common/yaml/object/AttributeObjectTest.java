@@ -265,6 +265,16 @@ class AttributeObjectTest extends YamlTreeTest {
     public <T extends HasTextRange> void reportIssue(List<T> toHighlight, String message) {
       reportIssue(TextRanges.mergeElementsWithTextRange(toHighlight), message, Collections.emptyList());
     }
+
+    @Override
+    public <T extends HasTextRange> void reportIssue(List<T> toHighlight, String message, String ruleDescriptionContextKey) {
+      reportIssue(toHighlight, message);
+    }
+
+    @Override
+    public void reportIssue(HasTextRange toHighlight, String message, List<SecondaryLocation> secondaryLocations, String ruleDescriptionContextKey) {
+      reportIssue(toHighlight, message, secondaryLocations);
+    }
   }
 
   private static class TestIssue {
