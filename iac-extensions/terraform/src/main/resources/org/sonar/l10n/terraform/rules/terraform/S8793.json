@@ -1,0 +1,29 @@
+{
+  "title": "Database instances should not be publicly accessible",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "aws"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-8793",
+  "sqKey": "S8793",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      668
+    ]
+  },
+  "quickfix": "unknown"
+}

@@ -70,6 +70,7 @@ public class TerraformCheckList {
       DisabledSNSTopicEncryptionCheck.class,
       PrivilegeEscalationCheck.class,
       PrivilegePolicyCheck.class,
+      PubliclyAccessibleDatabaseCheck.class,
       PublicApiCheck.class,
       ResourceAccessPolicyCheck.class,
       ShortBackupRetentionCheck.class,

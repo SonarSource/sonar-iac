@@ -1,0 +1,42 @@
+<p>Amazon RDS database instances and Redshift clusters that are publicly accessible are exposed to the internet.</p>
+<h2>Why is this an issue?</h2>
+<p>When an Amazon RDS database instance or Redshift cluster is created with <code>publicly_accessible</code> set to <code>true</code>, AWS assigns it
+a public IP address and a publicly resolvable DNS name. Combined with a permissive security group, the database becomes reachable directly from the
+internet.</p>
+<p>A database is a high-value target that should sit on a private network segment reachable only from application tiers. Exposing it publicly removes
+a critical network boundary.</p>
+<h3>What is the potential impact?</h3>
+<p>Public exposure invites continuous scanning and credential-stuffing attempts against the database endpoint. It also increases the blast radius of
+any credential leak: a leaked secret can be used from anywhere on the internet rather than only from within the private network.</p>
+<h2>How to fix it</h2>
+<p>Set <code>publicly_accessible</code> to <code>false</code> so the database is only reachable from within the VPC, and rely on private connectivity
+such as VPN, VPC peering, or a bastion host for administrative access.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+resource "aws_db_instance" "example" {
+  engine              = "postgres"
+  instance_class      = "db.t3.micro"
+  publicly_accessible = true # Noncompliant
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+resource "aws_db_instance" "example" {
+  engine              = "postgres"
+  instance_class      = "db.t3.micro"
+  publicly_accessible = false
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li>AWS Documentation - <a
+  href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_VPC.WorkingWithRDSInstanceinaVPC.html#USER_VPC.Hiding">Hiding a DB instance in a
+  VPC from the internet</a></li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/668">CWE-668 - Exposure of Resource to Wrong Sphere</a></li>
+</ul>
+
