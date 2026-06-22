@@ -4,7 +4,7 @@ description: Fetch Claude API secrets, install Claude Code if not present, confi
 outputs:
   portkey-api-key:
     description: Portkey API key extracted from Vault
-    value: ${{ fromJSON(steps.secrets.outputs.vault).PORTKEY_API_KEY }}
+    value: ${{ fromJSON(steps.setup-claude-code.outputs.vault).PORTKEY_API_KEY }}
   pre-claude-sha:
     description: Git SHA recorded immediately before Claude Code runs
     value: ${{ steps.pre-claude.outputs.sha }}
@@ -12,7 +12,7 @@ outputs:
 runs:
   using: composite
   steps:
-    - id: secrets
+    - id: setup-claude-code
       uses: SonarSource/vault-action-wrapper@v3
       with:
         secrets: |
@@ -50,10 +50,25 @@ runs:
               "Bash(tail *)",
               "Bash(wc *)",
               "Bash(./gradlew *)",
+              "Bash(pipenv run rspec-tools *)",
+              "Bash(pipenv *)",
+              "Bash(pip3 install pipenv)",
               "Bash(python3 *)",
+              "Bash(git -C * fetch *)",
+              "Bash(git -C * checkout *)",
+              "Bash(git -C * add *)",
+              "Bash(git -C * commit *)",
+              "Bash(git -C * push *)",
+              "Bash(git -C * log *)",
+              "Bash(git -C * status *)",
               "Bash(git log *)",
               "Bash(git status *)",
               "Bash(git diff *)",
+              "Bash(git fetch *)",
+              "Bash(git checkout *)",
+              "Bash(git add *)",
+              "Bash(git commit *)",
+              "Bash(git push *)",
               "Bash(jq *)",
               "Write(**)",
               "Edit(**)",
