@@ -61,14 +61,17 @@ class InterpolatedStringImplTest extends BicepTreeModelTest {
     SoftAssertions.assertSoftly(softly -> {
       softly.assertThat(tree.value()).isEqualTo("ac");
       softly.assertThat(tree.children()).hasSize(3);
+      ArmTree child0 = (ArmTree) tree.children().get(0);
+      ArmTree child1 = (ArmTree) tree.children().get(1);
+      ArmTree child2 = (ArmTree) tree.children().get(2);
       softly.assertThat(tree.children().get(0)).isInstanceOf(InterpolatedStringLeftPiece.class);
-      softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(0)).getKind()).isInstanceOf(UnsupportedOperationException.class)
+      softly.assertThatThrownBy(child0::getKind).isInstanceOf(UnsupportedOperationException.class)
         .hasMessage("No kind for InterpolatedStringLeftPieceImpl");
       softly.assertThat(tree.children().get(1)).isInstanceOf(InterpolatedStringMiddlePiece.class);
-      softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(1)).getKind()).isInstanceOf(UnsupportedOperationException.class)
+      softly.assertThatThrownBy(child1::getKind).isInstanceOf(UnsupportedOperationException.class)
         .hasMessage("No kind for InterpolatedStringMiddlePieceImpl");
       softly.assertThat(tree.children().get(2)).isInstanceOf(InterpolatedStringRightPiece.class);
-      softly.assertThatThrownBy(() -> ((ArmTree) tree.children().get(2)).getKind()).isInstanceOf(UnsupportedOperationException.class)
+      softly.assertThatThrownBy(child2::getKind).isInstanceOf(UnsupportedOperationException.class)
         .hasMessage("No kind for InterpolatedStringRightPieceImpl");
       softly.assertThat(tree.getKind()).isEqualTo(ArmTree.Kind.INTERPOLATED_STRING);
     });

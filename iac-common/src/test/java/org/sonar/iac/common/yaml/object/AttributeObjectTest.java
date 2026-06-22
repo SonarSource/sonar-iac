@@ -37,7 +37,7 @@ class AttributeObjectTest extends YamlTreeTest {
   CheckContext checkContext = new TestContext();
 
   @BeforeEach
-  public void init() {
+  void init() {
     raisedIssues.clear();
   }
 

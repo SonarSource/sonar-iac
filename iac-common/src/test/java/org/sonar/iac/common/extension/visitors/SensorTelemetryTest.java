@@ -41,7 +41,7 @@ class SensorTelemetryTest {
   private SensorTelemetry sensorTelemetry;
 
   @BeforeEach
-  public void init() {
+  void init() {
     context = SensorContextTester.create(tempDir);
     var settings = new MapSettings();
     settings.setProperty("sonar.iac.duration.statistics", true);

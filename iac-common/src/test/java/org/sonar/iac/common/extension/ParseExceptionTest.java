@@ -48,7 +48,7 @@ class ParseExceptionTest {
   private InputFileContext inputFileContext;
 
   @BeforeEach
-  public void init() {
+  void init() {
     inputFileContext = createInputFileContextMock("TestFile.abc");
     inputFile = inputFileContext.inputFile;
   }
