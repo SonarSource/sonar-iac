@@ -21,7 +21,8 @@ import java.util.regex.Pattern;
 
 /**
  * This class define the PatternNot coming from
- * <a href="https://github.com/SonarSource/sonar-text-enterprise/blob/master/private/sonar-text-developer-plugin/src/main/resources/com/sonar/plugins/secrets/common/patternNot.yaml">
+ * <a href=
+ * "https://github.com/SonarSource/sonar-text-enterprise/blob/master/private/sonar-text-developer-plugin/src/main/resources/com/sonar/plugins/secrets/common/patternNot.yaml">
  * sonar-text</a>.
  * It is a set of pattern used to identify values that should not be considered as hardcoded credentials or secrets, in order to reduce FPs.
  */

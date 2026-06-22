@@ -70,14 +70,17 @@ public class YamlConverter implements IacYamlConverter<FileTree, YamlTree> {
   @Override
   public YamlTree convertScalar(ScalarNode scalarNode) {
     return new ScalarTreeImpl(scalarNode.getValue(), scalarStyleConvert(scalarNode.getScalarStyle()),
-      YamlTreeMetadata.fromNode(scalarNode));
+      YamlTreeMetadata.builder().fromNode(scalarNode).build());
   }
 
   @Override
   public TupleTree convertTuple(NodeTuple tuple) {
     YamlTree key = convert(tuple.getKeyNode());
     YamlTree value = convert(tuple.getValueNode());
-    return new TupleTreeImpl(key, value, YamlTreeMetadata.fromNodes("TUPLE", tuple.getKeyNode(), tuple.getValueNode()));
+    return new TupleTreeImpl(key, value, YamlTreeMetadata.builder()
+      .fromNodes(tuple.getKeyNode(), tuple.getValueNode())
+      .withTag("TUPLE")
+      .build());
   }
 
   @Override
@@ -87,7 +90,7 @@ public class YamlConverter implements IacYamlConverter<FileTree, YamlTree> {
     for (Node elementNode : sequenceNode.getValue()) {
       elements.add(convert(elementNode));
     }
-    return new SequenceTreeImpl(elements, YamlTreeMetadata.fromNode(sequenceNode));
+    return new SequenceTreeImpl(elements, YamlTreeMetadata.builder().fromNode(sequenceNode).build());
   }
 
   protected static ScalarTree.Style scalarStyleConvert(ScalarStyle style) {

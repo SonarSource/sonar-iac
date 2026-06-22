@@ -43,10 +43,12 @@ public final class PropertyUtils {
       Set<Trilean> elementTrileans = treeWithProperties.properties().stream()
         .map(element -> TextUtils.isValue(element.key(), key))
         .collect(Collectors.toSet());
-      if (elementTrileans.contains(Trilean.TRUE))
+      if (elementTrileans.contains(Trilean.TRUE)) {
         return Trilean.TRUE;
-      if (elementTrileans.contains(Trilean.UNKNOWN))
+      }
+      if (elementTrileans.contains(Trilean.UNKNOWN)) {
         return Trilean.UNKNOWN;
+      }
     }
     return Trilean.FALSE;
   }
