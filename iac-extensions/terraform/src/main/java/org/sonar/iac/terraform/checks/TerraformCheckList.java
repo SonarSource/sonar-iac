@@ -26,6 +26,7 @@ import org.sonar.iac.terraform.checks.azure.AnonymousAccessToResourceCheck;
 import org.sonar.iac.terraform.checks.azure.CertificateBasedAuthenticationCheck;
 import org.sonar.iac.terraform.checks.azure.HighPrivilegedRoleCheck;
 import org.sonar.iac.terraform.checks.azure.HigherPrivilegedRoleAssignmentCheck;
+import org.sonar.iac.terraform.checks.azure.KeyVaultPurgeProtectionCheck;
 import org.sonar.iac.terraform.checks.azure.ManagedIdentityCheck;
 import org.sonar.iac.terraform.checks.azure.ResourceSpecificAdminAccountCheck;
 import org.sonar.iac.terraform.checks.azure.RoleBasedAccessControlCheck;
@@ -87,6 +88,7 @@ public class TerraformCheckList {
       CertificateBasedAuthenticationCheck.class,
       HigherPrivilegedRoleAssignmentCheck.class,
       HighPrivilegedRoleCheck.class,
+      KeyVaultPurgeProtectionCheck.class,
       ManagedIdentityCheck.class,
       ResourceSpecificAdminAccountCheck.class,
       RoleBasedAccessControlCheck.class,

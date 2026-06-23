@@ -1,0 +1,29 @@
+{
+  "title": "Azure Key Vaults should enable purge protection",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "azure",
+    "cwe"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8847",
+  "sqKey": "S8847",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      693
+    ]
+  },
+  "quickfix": "unknown"
+}

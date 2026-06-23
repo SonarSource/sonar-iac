@@ -1,0 +1,57 @@
+<p>Azure Key Vault stores cryptographic keys, secrets, and certificates that protect other resources. Purge protection should be enabled to prevent
+the vault, or any of its objects, from being permanently deleted before the soft-delete retention period elapses.</p>
+<h2>Why is this an issue?</h2>
+<p>Azure Key Vault has a soft-delete feature that retains deleted vaults and objects for a configurable retention period, during which they can be
+recovered. However, soft-delete alone does not prevent a privileged user from permanently deleting (purging) the vault or its objects before that
+period expires.</p>
+<p>Purge protection closes this gap: once enabled, neither the vault nor its objects can be purged until the retention period has fully elapsed, even
+by an account with sufficient permissions.</p>
+<p>When the <code>purge_protection_enabled</code> attribute is absent, it defaults to <code>false</code>, leaving the vault unprotected against
+permanent deletion.</p>
+<h3>What is the potential impact?</h3>
+<p>A Key Vault typically holds the key-encryption keys, secrets, and certificates that secure other resources and data. Without purge protection, a
+compromised or malicious administrator account can delete the vault and immediately purge it, permanently destroying this material.</p>
+<h4>Irreversible data loss</h4>
+<p>Permanently destroying a key-encryption key renders every piece of data protected by it unrecoverable. Unlike a simple deletion, a purge cannot be
+undone and there is no recovery window, making this a destructive and irreversible action.</p>
+<h4>Sabotage and ransom</h4>
+<p>Permanent destruction of secrets and keys is a common objective in sabotage and ransom scenarios. An attacker who gains the required permissions
+can wipe out the cryptographic material an organization depends on, causing prolonged outages and potentially unrecoverable loss of business data.</p>
+<h2>How to fix it</h2>
+<p>Set <code>purge_protection_enabled</code> to <code>true</code> on the <code>azurerm_key_vault</code> resource.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+resource "azurerm_key_vault" "example" {
+  name                = "example-vault"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+  sku_name            = "standard" # Noncompliant: purge protection is not enabled
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+resource "azurerm_key_vault" "example" {
+  name                       = "example-vault"
+  location                   = azurerm_resource_group.example.location
+  resource_group_name        = azurerm_resource_group.example.name
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  sku_name                   = "standard"
+  purge_protection_enabled   = true
+  soft_delete_retention_days = 90
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li>Microsoft Azure Documentation - <a href="https://learn.microsoft.com/en-us/azure/key-vault/general/soft-delete-overview#purge-protection">Azure
+  Key Vault soft-delete - Purge protection</a></li>
+  <li>Terraform Registry - <a
+  href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault">azurerm_key_vault</a></li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/693">CWE-693 - Protection Mechanism Failure</a></li>
+</ul>
+
