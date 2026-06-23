@@ -308,3 +308,127 @@ resource "aws_s3_bucket_policy" "compliant_heredoc_denying_effect" {
 }
 POLICY
 }
+
+# === APPSEC-3298: condition blocks suppress the issue ===
+
+# Path 1 (HCL-native) — Allow + principals * scoped by condition: compliant
+data "aws_iam_policy_document" "compliant_allow_with_condition" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions   = ["kms:DescribeKey", "kms:Decrypt"]
+    resources = ["*"]
+
+    condition {
+      test     = "ArnLike"
+      values   = ["arn:aws:iam::123456789012:role/portal*"]
+      variable = "aws:PrincipalArn"
+    }
+  }
+}
+
+# Path 1 (HCL-native) — Deny + not_principals * scoped by condition: compliant
+data "aws_iam_policy_document" "compliant_deny_with_condition" {
+  statement {
+    effect = "Deny"
+
+    not_principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions   = ["s3:*"]
+    resources = ["*"]
+
+    condition {
+      test     = "StringNotEquals"
+      values   = ["123456789012"]
+      variable = "aws:PrincipalAccount"
+    }
+  }
+}
+
+# Path 1 (HCL-native) — wildcard without condition still raises
+data "aws_iam_policy_document" "noncompliant_no_condition" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = [
+        "*" # Noncompliant {{Make sure granting public access is safe here.}}
+      ]
+    }
+
+    actions   = ["kms:*"]
+    resources = ["*"]
+  }
+}
+
+# Path 1 (HCL-native) — per-statement isolation: conditioned statement is suppressed, unconditioned one still raises
+data "aws_iam_policy_document" "mixed_conditioned_and_unconditioned" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions   = ["kms:Decrypt"]
+    resources = ["*"]
+
+    condition {
+      test     = "ArnLike"
+      values   = ["arn:aws:iam::123456789012:role/portal*"]
+      variable = "aws:PrincipalArn"
+    }
+  }
+
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = [
+        "*" # Noncompliant {{Make sure granting public access is safe here.}}
+      ]
+    }
+
+    actions   = ["kms:*"]
+    resources = ["*"]
+  }
+}
+
+# Path 2 (jsonencode) — Allow + Principal * with Condition key: compliant
+resource "aws_s3_bucket_policy" "compliant_jsonencode_with_condition" {
+  bucket = aws_s3_bucket.example.id
+  policy = jsonencode({
+    Statement = [{
+      Effect    = "Allow"
+      Principal = "*"
+      Condition = {
+        IpAddress = { "aws:SourceIp" = "203.0.113.0/24" }
+      }
+    }]
+  })
+}
+
+# Path 2 (jsonencode) — Deny + NotPrincipal * with Condition key: compliant
+resource "aws_s3_bucket_policy" "compliant_jsonencode_deny_with_condition" {
+  bucket = aws_s3_bucket.example.id
+  policy = jsonencode({
+    Statement = [{
+      Effect       = "Deny"
+      NotPrincipal = { "AWS" = "*" }
+      Condition = {
+        StringNotEquals = { "aws:PrincipalOrgID" = "o-aa111bb222" }
+      }
+    }]
+  })
+}

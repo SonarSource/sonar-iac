@@ -86,6 +86,9 @@ public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
     public static Collection<InsecureStatement> findInsecureStatements(Policy policy) {
       List<InsecureStatement> result = new ArrayList<>();
       for (Statement statement : policy.statement()) {
+        if (statement.condition().isPresent()) {
+          continue;
+        }
         statement.effect()
           .filter(PolicyValidator::isAllowEffect)
           .ifPresent(effect -> statement.principal()
@@ -104,6 +107,9 @@ public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
       List<InsecureStatement> results = new ArrayList<>();
       for (StatementTree statement : nonResource.properties()) {
         if ("statement".equalsIgnoreCase(statement.key().value())) {
+          if (PropertyUtils.has(statement, "condition").isTrue()) {
+            continue;
+          }
           PropertyUtils.value(statement, "effect")
             .filter(PolicyValidator::isAllowEffect)
             .ifPresent(effect -> PropertyUtils.value(statement, "principals", BodyTree.class)
