@@ -16,22 +16,20 @@
  */
 package org.sonar.iac.common.predicates;
 
-import java.nio.file.Path;
-import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.iac.common.filesystem.FileSystemUtils;
-
-public class HelmProjectMemberPredicate implements FilePredicate {
-  private final SensorContext sensorContext;
-
-  public HelmProjectMemberPredicate(SensorContext sensorContext) {
-    this.sensorContext = sensorContext;
-  }
-
-  @Override
-  public boolean apply(InputFile inputFile) {
-    return FileSystemUtils.retrieveHelmProjectFolder(Path.of(inputFile.uri()), sensorContext.fileSystem()) != null;
-  }
-
+/**
+ * Describes the type of a YAML (or YAML-like) file as determined by {@link YamlFileTypeResolver}.
+ * Each file is resolved to exactly one type, which is then cached so that the various YAML based sensors don't have to
+ * re-evaluate the (potentially expensive) file predicates.
+ */
+public enum FileType {
+  KUBERNETES,
+  HELM,
+  JVM_CONFIG,
+  CLOUDFORMATION,
+  GITHUB_ACTIONS,
+  ANSIBLE,
+  AZURE_PIPELINES,
+  AZURE_RESOURCE_MANAGER,
+  // This value is used when the file does not match any of the known file predicates.
+  UNDETERMINED
 }

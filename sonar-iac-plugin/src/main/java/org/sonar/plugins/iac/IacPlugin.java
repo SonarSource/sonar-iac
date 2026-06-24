@@ -23,6 +23,8 @@ import org.sonar.iac.common.extension.IacProjectSensor;
 import org.sonar.iac.common.json.JsonEmptyBuiltInProfileDefinition;
 import org.sonar.iac.common.json.JsonFileFilter;
 import org.sonar.iac.common.json.JsonLanguage;
+import org.sonar.iac.common.predicates.YamlFileTypeCache;
+import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper;
 import org.sonar.iac.common.yaml.YamlEmptyBuiltInProfileDefinition;
 import org.sonar.iac.common.yaml.YamlLanguage;
@@ -51,6 +53,9 @@ public class IacPlugin implements Plugin {
     context.addExtension(JsonFileFilter.class);
     context.addExtension(JsonLanguage.getProperty());
 
+    context.addExtension(YamlFileTypeCache.class);
+    defineYamlFileTypeResolver(context);
+
     context.addExtension(DefaultAnalysisWarningsWrapper.class);
 
     if (shouldDefineJsonYamlEmptyBuiltInProfileDefinition()) {
@@ -64,6 +69,12 @@ public class IacPlugin implements Plugin {
   // All extensions specific to the community editions that can be override in other editions
   protected void specificExtensions(Context context) {
     DockerExtension.defineSpecific(context);
+  }
+
+  // Registers the YAML file type resolver. Overridden by the enterprise plugin to register the resolver that is also
+  // aware of the enterprise-only file types (Ansible).
+  protected void defineYamlFileTypeResolver(Context context) {
+    context.addExtension(YamlFileTypeResolver.class);
   }
 
   protected boolean shouldDefineJsonYamlEmptyBuiltInProfileDefinition() {

@@ -22,11 +22,10 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 class AzurePipelinesFilePredicateTest {
 
@@ -36,7 +35,8 @@ class AzurePipelinesFilePredicateTest {
   @ParameterizedTest
   @MethodSource
   void shouldDetectAzurePipelinesFile(String content, boolean expectedMatch) {
-    var predicate = new AzurePipelinesFilePredicate(false, mock(DurationStatistics.Timer.class));
+    var predicates = SensorContextTester.create(tempDir).fileSystem().predicates();
+    var predicate = new AzurePipelinesFilePredicate(predicates, false);
     assertThat(predicate.accept(IacTestUtils.inputFile("pipeline.yaml", tempDir, content, "yaml"))).isEqualTo(expectedMatch);
   }
 

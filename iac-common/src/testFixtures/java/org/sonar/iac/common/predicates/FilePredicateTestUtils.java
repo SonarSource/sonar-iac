@@ -39,8 +39,16 @@ public class FilePredicateTestUtils {
     when(inputFile.charset()).thenReturn(StandardCharsets.UTF_8);
     when(inputFile.toString()).thenReturn(filename);
     when(inputFile.path()).thenReturn(Path.of(path));
+    when(inputFile.uri()).thenReturn(Path.of(path).toUri());
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.relativePath()).thenReturn(path);
+    return inputFile;
+  }
+
+  public static InputFile newInputFileMock(String path, String validContent, String language, InputFile.Type type) throws IOException {
+    InputFile inputFile = newInputFileMock(path, validContent);
+    when(inputFile.language()).thenReturn(language);
+    when(inputFile.type()).thenReturn(type);
     return inputFile;
   }
 }

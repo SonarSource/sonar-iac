@@ -37,8 +37,8 @@ import org.sonar.iac.common.extension.SonarRuntimeUtils;
 import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonar.iac.common.predicates.GithubActionsFilePredicate;
-import org.sonar.iac.common.predicates.KubernetesOrHelmFilePredicate;
+import org.sonar.iac.common.predicates.FileType;
+import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.yaml.AbstractYamlLanguageSensor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 import org.sonar.iac.helm.HelmEvaluator;
@@ -65,21 +65,24 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
   private final ProjectContextImpl projectContextImpl;
   private HelmProcessor helmProcessor;
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
+  private final YamlFileTypeResolver yamlFileTypeResolver;
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmEvaluator helmEvaluator, KustomizationInfoProvider kustomizationInfoProvider,
-    IacProjectSensor projectSensor) {
-    this(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, helmEvaluator, null, kustomizationInfoProvider, projectSensor);
+    YamlFileTypeResolver yamlFileTypeResolver, IacProjectSensor projectSensor) {
+    this(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, helmEvaluator, null, kustomizationInfoProvider,
+      yamlFileTypeResolver, projectSensor);
   }
 
   // Constructor for SonarLint
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmEvaluator helmEvaluator, @Nullable SonarLintFileListener sonarLintFileListener,
-    KustomizationInfoProvider kustomizationInfoProvider, IacProjectSensor projectSensor) {
+    KustomizationInfoProvider kustomizationInfoProvider, YamlFileTypeResolver yamlFileTypeResolver, IacProjectSensor projectSensor) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, KubernetesCheckList.checks(), projectSensor);
     this.helmEvaluator = helmEvaluator;
     this.sonarLintFileListener = sonarLintFileListener;
     this.kustomizationInfoProvider = kustomizationInfoProvider;
+    this.yamlFileTypeResolver = yamlFileTypeResolver;
     if (sonarLintFileListener != null) {
       projectContextImpl = sonarLintFileListener.getProjectContext();
     } else {
@@ -154,14 +157,7 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
 
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
-    var predicates = sensorContext.fileSystem().predicates();
-    var githubActionsFilePredicate = new GithubActionsFilePredicate(predicates, isExtendedLoggingEnabled(sensorContext),
-      statistics.timer("KubernetesNotGithubActionsFilePredicate"));
-    var kubernetesOrHelmFilePredicate = new KubernetesOrHelmFilePredicate(sensorContext, isExtendedLoggingEnabled(sensorContext),
-      statistics.timer("KubernetesOrHelmFilePredicate"));
-    return predicates.and(
-      predicates.not(githubActionsFilePredicate),
-      kubernetesOrHelmFilePredicate);
+    return yamlFileTypeResolver.getFilePredicate(statistics, FileType.KUBERNETES, FileType.HELM);
   }
 
   @Override

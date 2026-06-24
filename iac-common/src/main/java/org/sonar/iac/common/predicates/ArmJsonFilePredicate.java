@@ -14,32 +14,39 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.iac.arm.plugin;
+package org.sonar.iac.common.predicates;
 
 import java.util.Arrays;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.iac.common.extension.AbstractTimedFilePredicate;
-import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.api.config.Configuration;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
 
-public class ArmJsonFilePredicate extends AbstractTimedFilePredicate {
+import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.JSON_LANGUAGE_KEY;
+
+public class ArmJsonFilePredicate extends AbstractTimedFilePredicate implements YamlFileTypePredicate {
   public static final String ARM_JSON_FILE_IDENTIFIER_KEY = "sonar.azureresourcemanager.file.identifier";
   public static final String ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE = "https://schema.management.azure.com/schemas/,http://schema.management.azure.com/schemas/";
   private final FilePredicate delegate;
 
-  public ArmJsonFilePredicate(SensorContext sensorContext, boolean enablePredicateDebugLogs, DurationStatistics.Timer timer) {
-    super(timer);
-    String[] stringArray = sensorContext.config().getStringArray(ARM_JSON_FILE_IDENTIFIER_KEY);
-    var identifiers = Arrays.stream(stringArray)
+  public ArmJsonFilePredicate(FilePredicates predicates, Configuration config, boolean enablePredicateDebugLogs) {
+    var identifiers = Arrays.stream(config.getStringArray(ARM_JSON_FILE_IDENTIFIER_KEY))
       .filter(s -> !s.isBlank()).toList();
-
-    this.delegate = new FileIdentificationPredicate(identifiers, enablePredicateDebugLogs);
+    // Azure Resource Manager templates are JSON only (Bicep is matched by its own language by the sensor), so the
+    // language is checked here to keep this predicate inert for the other (YAML) file types handled by the resolver.
+    this.delegate = predicates.and(
+      predicates.hasLanguage(JSON_LANGUAGE_KEY),
+      new FileIdentificationPredicate(identifiers, enablePredicateDebugLogs));
   }
 
   @Override
   protected boolean accept(InputFile inputFile) {
     return delegate.apply(inputFile);
+  }
+
+  @Override
+  public FileType fileType() {
+    return FileType.AZURE_RESOURCE_MANAGER;
   }
 }

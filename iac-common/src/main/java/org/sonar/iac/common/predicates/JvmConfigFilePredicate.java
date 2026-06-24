@@ -22,13 +22,11 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
-import org.sonar.iac.common.extension.AbstractTimedFilePredicate;
-import org.sonar.iac.common.extension.DurationStatistics;
 
-public class JvmConfigFilePredicate extends AbstractTimedFilePredicate {
+public class JvmConfigFilePredicate extends AbstractTimedFilePredicate implements YamlFileTypePredicate {
   private static final Logger LOG = LoggerFactory.getLogger(JvmConfigFilePredicate.class);
   public static final String JVM_CONFIG_FILE_PATTERNS_KEY = "sonar.java.jvmframeworkconfig.file.patterns";
   public static final String JVM_CONFIG_FILE_PATTERNS_DEFAULT_VALUE = "**/src/main/resources/**/*app*.properties," +
@@ -37,13 +35,11 @@ public class JvmConfigFilePredicate extends AbstractTimedFilePredicate {
   private final FilePredicate delegate;
   private final boolean enablePredicateDebugLogs;
 
-  public JvmConfigFilePredicate(SensorContext sensorContext, boolean enablePredicateDebugLogs, DurationStatistics.Timer timer) {
-    super(timer);
+  public JvmConfigFilePredicate(FilePredicates predicates, Configuration config, boolean enablePredicateDebugLogs) {
     this.enablePredicateDebugLogs = enablePredicateDebugLogs;
-    var fileSystem = sensorContext.fileSystem();
-    var patterns = getFilePatterns(sensorContext.config());
-    this.delegate = fileSystem.predicates().and(
-      fileSystem.predicates().matchesPathPatterns(patterns),
+    var patterns = getFilePatterns(config);
+    this.delegate = predicates.and(
+      predicates.matchesPathPatterns(patterns),
       new ProfileNameFilePredicate());
   }
 
@@ -54,6 +50,11 @@ public class JvmConfigFilePredicate extends AbstractTimedFilePredicate {
       LOG.debug("Identified as JVM Config file: {}", inputFile);
     }
     return matches;
+  }
+
+  @Override
+  public FileType fileType() {
+    return FileType.JVM_CONFIG;
   }
 
   static String[] getFilePatterns(Configuration config) {

@@ -28,6 +28,8 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.predicates.YamlFileTypeCache;
+import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
@@ -147,7 +149,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     settings.setProperty("sonar.iac.duration.statistics", "true");
 
     analyze(sensor(checkFactory()), validFile());
-    assertThat(durationStatisticLog()).contains("CloudFormationFilePredicate", "CloudFormationNotGithubActionsFilePredicate");
+    assertThat(durationStatisticLog()).contains("CloudFormationFilePredicate", "GithubActionsFilePredicate");
     verifyLinesOfCodeTelemetry(1);
   }
 
@@ -162,8 +164,9 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
   @Override
   protected CloudformationSensor sensor(CheckFactory checkFactory) {
+    var yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
     return new CloudformationSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter,
-      new CloudformationLanguage(), projectSensor);
+      new CloudformationLanguage(), yamlFileTypeResolver, projectSensor);
   }
 
   @Override

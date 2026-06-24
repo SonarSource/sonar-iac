@@ -22,8 +22,8 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinition.ConfigScope;
 
-import static org.sonar.iac.arm.plugin.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE;
-import static org.sonar.iac.arm.plugin.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_KEY;
+import static org.sonar.iac.common.predicates.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE;
+import static org.sonar.iac.common.predicates.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_KEY;
 
 public class ArmSettings {
 

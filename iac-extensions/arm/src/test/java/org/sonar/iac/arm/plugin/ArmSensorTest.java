@@ -35,14 +35,16 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.predicates.YamlFileTypeCache;
+import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.iac.arm.plugin.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE;
-import static org.sonar.iac.arm.plugin.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_KEY;
 import static org.sonar.iac.common.extension.IacSensor.EXTENDED_LOGGING_PROPERTY_NAME;
+import static org.sonar.iac.common.predicates.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE;
+import static org.sonar.iac.common.predicates.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_KEY;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
 
 class ArmSensorTest extends ExtensionSensorTest {
@@ -97,8 +99,9 @@ class ArmSensorTest extends ExtensionSensorTest {
 
   @Override
   protected ArmSensor sensor(CheckFactory checkFactory) {
+    var yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
     return new ArmSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter,
-      new ArmLanguage(new MapSettings().asConfig()), projectSensor);
+      new ArmLanguage(new MapSettings().asConfig()), yamlFileTypeResolver, projectSensor);
   }
 
   private ArmSensor sensor(String... rules) {
@@ -146,7 +149,8 @@ class ArmSensorTest extends ExtensionSensorTest {
 
   @Override
   protected void verifyDebugMessages(List<String> logs) {
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
+    // The shared YamlFileTypeResolver also logs the evaluation of the other predicates (e.g. CloudFormation's
+    // "File without identifier"), so we only assert the meaningful messages are present rather than their exact position.
     String message1 = """
       while scanning a quoted scalar
        in reader, line 1, column 1:
@@ -157,12 +161,8 @@ class ArmSensorTest extends ExtensionSensorTest {
           "a'
              ^
       """;
-    String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'error.json:1:1'" +
-      System.lineSeparator() +
-      "\tat org.sonar.iac.common";
-    assertThat(logTester.logs(Level.DEBUG).get(0)).isEqualTo(message1);
-    assertThat(logTester.logs(Level.DEBUG).get(1)).startsWith(message2);
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
+    assertThat(logs).contains(message1);
+    assertThat(logs).anyMatch(log -> log.startsWith("org.sonar.iac.common.extension.ParseException: Cannot parse 'error.json:1:1'"));
   }
 
   @Test
@@ -199,9 +199,9 @@ class ArmSensorTest extends ExtensionSensorTest {
     assertThat(context.allIssues()).isEmpty();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).hasSize(1);
-    assertThat(logs.get(0))
-      .startsWith("File without any identifiers").endsWith("parserError.json");
+    // The CloudFormation predicate of the shared resolver also logs its own "File without identifier" message, so we only
+    // assert the Azure Resource Manager predicate failure is present.
+    assertThat(logs).anyMatch(log -> log.startsWith("File without any identifiers") && log.endsWith("parserError.json"));
     verifyLinesOfCodeTelemetry(0);
   }
 

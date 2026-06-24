@@ -88,7 +88,9 @@ class JvmConfigFilePredicateTest {
   @ParameterizedTest
   @MethodSource
   void shouldCorrectlyMatchFiles(String filename, boolean shouldMatch) {
-    var predicate = new JvmConfigFilePredicate(SensorContextTester.create(tempDir), true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
+    var sensorContext = SensorContextTester.create(tempDir);
+    var predicate = new JvmConfigFilePredicate(sensorContext.fileSystem().predicates(), sensorContext.config(), true);
+    predicate.applyTimers(new DurationStatistics(mock(Configuration.class)));
     var inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.relativePath()).thenReturn("src/main/resources/" + filename);
@@ -103,7 +105,9 @@ class JvmConfigFilePredicateTest {
 
   @Test
   void shouldNotLogWhenExtendedLoggingDisabled() {
-    var predicate = new JvmConfigFilePredicate(SensorContextTester.create(tempDir), false, new DurationStatistics(mock(Configuration.class)).timer("timer"));
+    var sensorContext = SensorContextTester.create(tempDir);
+    var predicate = new JvmConfigFilePredicate(sensorContext.fileSystem().predicates(), sensorContext.config(), false);
+    predicate.applyTimers(new DurationStatistics(mock(Configuration.class)));
     var inputFile = mock(InputFile.class);
     var filename = "application.properties";
     when(inputFile.filename()).thenReturn(filename);

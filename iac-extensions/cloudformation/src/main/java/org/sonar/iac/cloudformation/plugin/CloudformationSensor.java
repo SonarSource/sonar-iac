@@ -27,11 +27,13 @@ import org.sonar.iac.cloudformation.parser.CloudformationParser;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacProjectSensor;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
-import org.sonar.iac.common.predicates.CloudFormationFilePredicate;
-import org.sonar.iac.common.predicates.GithubActionsFilePredicate;
+import org.sonar.iac.common.predicates.FileType;
+import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.yaml.AbstractYamlLanguageSensor;
 
 public class CloudformationSensor extends AbstractYamlLanguageSensor {
+
+  private final YamlFileTypeResolver yamlFileTypeResolver;
 
   public CloudformationSensor(
     SonarRuntime sonarRuntime,
@@ -39,19 +41,15 @@ public class CloudformationSensor extends AbstractYamlLanguageSensor {
     CheckFactory checkFactory,
     NoSonarFilter noSonarFilter,
     CloudformationLanguage language,
+    YamlFileTypeResolver yamlFileTypeResolver,
     IacProjectSensor projectSensor) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, CloudformationCheckList.checks(), projectSensor);
+    this.yamlFileTypeResolver = yamlFileTypeResolver;
   }
 
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
-    var predicates = sensorContext.fileSystem().predicates();
-    var githubActionsFilePredicate = new GithubActionsFilePredicate(predicates, isExtendedLoggingEnabled(sensorContext),
-      statistics.timer("CloudFormationNotGithubActionsFilePredicate"));
-    var cloudFormationFilePredicate = new CloudFormationFilePredicate(sensorContext, isExtendedLoggingEnabled(sensorContext), statistics.timer("CloudFormationFilePredicate"));
-    return predicates.and(
-      predicates.not(githubActionsFilePredicate),
-      cloudFormationFilePredicate);
+    return yamlFileTypeResolver.getFilePredicate(statistics, FileType.CLOUDFORMATION);
   }
 
   @Override

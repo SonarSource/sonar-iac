@@ -39,15 +39,19 @@ import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.predicates.FileType;
+import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.yaml.AbstractYamlLanguageSensor;
 
 public class ArmSensor extends AbstractYamlLanguageSensor {
 
+  private final YamlFileTypeResolver yamlFileTypeResolver;
   private ArmParserStatistics armParserStatistics;
 
   public ArmSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, ArmLanguage language, IacProjectSensor projectSensor) {
+    NoSonarFilter noSonarFilter, ArmLanguage language, YamlFileTypeResolver yamlFileTypeResolver, IacProjectSensor projectSensor) {
     super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, ArmCheckList.checks(), projectSensor);
+    this.yamlFileTypeResolver = yamlFileTypeResolver;
   }
 
   @Override
@@ -82,7 +86,7 @@ public class ArmSensor extends AbstractYamlLanguageSensor {
 
   @Override
   protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
-    return new ArmJsonFilePredicate(sensorContext, isExtendedLoggingEnabled(sensorContext), statistics.timer(ArmJsonFilePredicate.class.getSimpleName()));
+    return yamlFileTypeResolver.getFilePredicate(statistics, FileType.AZURE_RESOURCE_MANAGER);
   }
 
   @Override

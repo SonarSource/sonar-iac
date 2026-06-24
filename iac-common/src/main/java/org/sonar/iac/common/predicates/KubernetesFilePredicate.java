@@ -20,31 +20,52 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.extension.YamlIdentifierFilePredicate;
+import org.sonar.iac.common.languages.IacLanguage;
 
-public class KubernetesFilePredicate implements FilePredicate {
+import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.YAML_LANGUAGE_KEY;
+
+/**
+ * Matches plain Kubernetes manifests: a YAML (or Kubernetes language) file whose content carries the Kubernetes
+ * identifiers (apiVersion, kind, metadata). Helm project files are matched separately by {@link HelmFilePredicate}.
+ */
+public class KubernetesFilePredicate extends AbstractTimedFilePredicate implements YamlFileTypePredicate {
   private static final Logger LOG = LoggerFactory.getLogger(KubernetesFilePredicate.class);
-
-  private final FilePredicate predicate;
   // https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields
   private static final Set<String> IDENTIFIER_PATTERNS = Set.of("^apiVersion", "^kind", "^metadata");
+
+  private final FilePredicate identifierPredicate;
+  private final FilePredicate delegate;
   private final boolean enablePredicateDebugLogs;
 
-  public KubernetesFilePredicate(boolean enablePredicateDebugLogs) {
-    predicate = new YamlIdentifierFilePredicate(IDENTIFIER_PATTERNS);
+  public KubernetesFilePredicate(FileSystem fileSystem, boolean enablePredicateDebugLogs) {
+    var predicates = fileSystem.predicates();
+    this.identifierPredicate = new YamlIdentifierFilePredicate(IDENTIFIER_PATTERNS);
     this.enablePredicateDebugLogs = enablePredicateDebugLogs;
+    this.delegate = predicates.and(
+      predicates.hasLanguages(YAML_LANGUAGE_KEY, IacLanguage.KUBERNETES.getKey()),
+      this::hasKubernetesIdentifier);
   }
 
-  @Override
-  public boolean apply(InputFile inputFile) {
-    if (predicate.apply(inputFile)) {
+  private boolean hasKubernetesIdentifier(InputFile inputFile) {
+    if (identifierPredicate.apply(inputFile)) {
       return true;
     }
-
     if (enablePredicateDebugLogs) {
       LOG.debug("File without Kubernetes identifier: {}", inputFile);
     }
     return false;
+  }
+
+  @Override
+  protected boolean accept(InputFile inputFile) {
+    return delegate.apply(inputFile);
+  }
+
+  @Override
+  public FileType fileType() {
+    return FileType.KUBERNETES;
   }
 }

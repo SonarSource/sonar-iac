@@ -17,23 +17,21 @@
 package org.sonar.iac.common.predicates;
 
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.iac.common.extension.DurationStatistics;
 
-public class TplHelmFilePredicate implements FilePredicate {
+/**
+ * A {@link FilePredicate} that, when it matches a file, identifies it as being of a given {@link FileType}.
+ * {@link YamlFileTypeResolver} applies such predicates in order and maps the first match to its {@link #fileType()},
+ * which removes the need to pair each predicate with its file type externally.
+ */
+public interface YamlFileTypePredicate extends FilePredicate {
 
-  private final FilePredicate delegate;
+  FileType fileType();
 
-  public TplHelmFilePredicate(SensorContext sensorContext) {
-    FilePredicates predicates = sensorContext.fileSystem().predicates();
-    delegate = predicates.and(
-      predicates.matchesPathPattern("**/templates/*.tpl"),
-      new HelmProjectMemberPredicate(sensorContext));
-  }
-
-  @Override
-  public boolean apply(InputFile inputFile) {
-    return delegate.apply(inputFile);
-  }
+  /**
+   * Binds this predicate to the timers of the given {@link DurationStatistics} for the current sensor execution. It must
+   * be called before {@link #apply(InputFile)}, so that the same predicate instance can be reused across executions.
+   */
+  void applyTimers(DurationStatistics durationStatistics);
 }

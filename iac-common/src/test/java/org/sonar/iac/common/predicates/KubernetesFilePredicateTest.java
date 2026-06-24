@@ -16,10 +16,9 @@
  */
 package org.sonar.iac.common.predicates;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -28,11 +27,16 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.of;
+import static org.mockito.Mockito.mock;
 
 class KubernetesFilePredicateTest {
 
@@ -40,6 +44,8 @@ class KubernetesFilePredicateTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   @TempDir
   Path tempDir;
+  private SensorContext context;
+  private final DurationStatistics durationStatistics = new DurationStatistics(mock(Configuration.class));
   private static final String POD_SPEC = """
     apiVersion: v1
     kind: Pod
@@ -47,10 +53,21 @@ class KubernetesFilePredicateTest {
       name: my-pod
     """;
 
+  @BeforeEach
+  void setUp() {
+    context = SensorContextTester.create(tempDir);
+  }
+
+  private KubernetesFilePredicate newPredicate(boolean enablePredicateDebugLogs) {
+    var predicate = new KubernetesFilePredicate(context.fileSystem(), enablePredicateDebugLogs);
+    predicate.applyTimers(durationStatistics);
+    return predicate;
+  }
+
   @ParameterizedTest
   @MethodSource
   void shouldDetectKubernetesFile(String content, boolean shouldMatch) {
-    var predicate = new KubernetesFilePredicate(true);
+    var predicate = newPredicate(true);
     assertThat(predicate.apply(IacTestUtils.inputFile("test.yaml", tempDir, content, "kubernetes"))).isEqualTo(shouldMatch);
 
     if (shouldMatch) {
@@ -63,20 +80,18 @@ class KubernetesFilePredicateTest {
   @ParameterizedTest
   @ValueSource(strings = {"yaml", "kubernetes"})
   void shouldMatchKubernetesFileWithLanguage(String language) {
-    var predicate = new KubernetesFilePredicate(true);
+    var predicate = newPredicate(true);
 
     var matches = predicate.apply(IacTestUtils.inputFile("test.yaml", tempDir, POD_SPEC, language));
 
     assertThat(matches).isTrue();
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {"templates/my-pod.yaml", "values.yaml"})
-  void shouldNotMatchHelmYamlFile(String path) throws IOException {
-    var predicate = new KubernetesFilePredicate(true);
-    Files.createFile(tempDir.resolve("Chart.yaml"));
+  @Test
+  void shouldNotMatchNonYamlFileWithKubernetesContent() {
+    var predicate = newPredicate(true);
 
-    var matches = predicate.apply(IacTestUtils.inputFile(path, tempDir, "", "yaml"));
+    var matches = predicate.apply(IacTestUtils.inputFile("test.txt", tempDir, POD_SPEC, "text"));
 
     assertThat(matches).isFalse();
   }
@@ -113,7 +128,7 @@ class KubernetesFilePredicateTest {
 
   @Test
   void shouldNotLogWhenDebugDisabled() {
-    var predicateNoLog = new KubernetesFilePredicate(false);
+    var predicateNoLog = newPredicate(false);
     assertThat(predicateNoLog.apply(IacTestUtils.inputFile("test.yaml", tempDir, "apiVersion: v1", "kubernetes"))).isFalse();
     assertThat(logTester.logs(Level.DEBUG)).isEmpty();
   }

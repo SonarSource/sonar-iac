@@ -30,6 +30,10 @@ dependencies {
     api(libs.minimaljson)
     api(libs.snakeyaml)
     api(libs.slf4j.api)
+    api(libs.sonar.lint.plugin.api) {
+        // sonar-plugin-api is provided by the platform at runtime
+        exclude(group = "org.sonarsource.api.plugin", module = "sonar-plugin-api")
+    }
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)

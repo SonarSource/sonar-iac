@@ -35,10 +35,8 @@ import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
-import org.sonar.iac.common.predicates.CloudFormationFilePredicate;
-import org.sonar.iac.common.predicates.GithubActionsFilePredicate;
-import org.sonar.iac.common.predicates.JvmConfigFilePredicate;
-import org.sonar.iac.common.predicates.KubernetesOrHelmFilePredicate;
+import org.sonar.iac.common.predicates.FileType;
+import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.yaml.YamlLanguage;
 import org.sonar.iac.jvmframeworkconfig.checks.common.CommonConfigCheckList;
 import org.sonar.iac.jvmframeworkconfig.checks.micronaut.MicronautConfigCheckList;
@@ -58,9 +56,10 @@ public class JvmFrameworkConfigSensor extends IacSensor {
   private final Checks<IacCheck> micronautConfigChecks;
   private final Checks<IacCheck> quarkusConfigChecks;
   final JvmFrameworkConfigTelemetryVisitor telemetryVisitor;
+  private final YamlFileTypeResolver yamlFileTypeResolver;
 
   public JvmFrameworkConfigSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter,
-    CheckFactory checkFactory, IacProjectSensor projectSensor) {
+    CheckFactory checkFactory, YamlFileTypeResolver yamlFileTypeResolver, IacProjectSensor projectSensor) {
     // The Java language is registered by the sonar-java plugin. However, for the sensor we only need language key and name, and don't
     // need to rely on the SQ extension.
     // Mechanisms of dependency injection between SQ and SL can differ, and the `org.sonar.plugins.java.Java` language is available only
@@ -81,6 +80,7 @@ public class JvmFrameworkConfigSensor extends IacSensor {
     quarkusConfigChecks = checkFactory.create(JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY);
     quarkusConfigChecks.addAnnotatedChecks(QuarkusConfigCheckList.checks());
     telemetryVisitor = new JvmFrameworkConfigTelemetryVisitor();
+    this.yamlFileTypeResolver = yamlFileTypeResolver;
   }
 
   @Override
@@ -112,10 +112,7 @@ public class JvmFrameworkConfigSensor extends IacSensor {
 
   @Override
   protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
-    var fileSystem = sensorContext.fileSystem();
-    return fileSystem.predicates().and(
-      new JvmConfigFilePredicate(sensorContext, isExtendedLoggingEnabled(sensorContext), statistics.timer("JvmConfigFilePredicate")),
-      notMatchedByAnotherYamlSensor(sensorContext, statistics));
+    return yamlFileTypeResolver.getFilePredicate(statistics, FileType.JVM_CONFIG);
   }
 
   @Override
@@ -139,17 +136,6 @@ public class JvmFrameworkConfigSensor extends IacSensor {
   @Override
   protected String getActivationSettingKey() {
     return JvmFrameworkConfigSettings.ACTIVATION_KEY;
-  }
-
-  private static FilePredicate notMatchedByAnotherYamlSensor(SensorContext sensorContext, DurationStatistics statistics) {
-    // We don't have a good criterion to match Spring YAML files, so at least we do not want to overlap with YAML files analyzed by
-    // other sensors: CloudFormation and Kubernetes.
-    var fileSystem = sensorContext.fileSystem();
-    return fileSystem.predicates().not(
-      fileSystem.predicates().or(
-        new GithubActionsFilePredicate(sensorContext.fileSystem().predicates(), false, statistics.timer("JvmNotGithubActionsFilePredicate")),
-        new KubernetesOrHelmFilePredicate(sensorContext, false, statistics.timer("JvmNotKubernetesOrHelmFilePredicate")),
-        new CloudFormationFilePredicate(sensorContext, false, statistics.timer("JvmNotCloudFormationFilePredicate"))));
   }
 
   public static boolean isYamlFile(InputFileContext inputFileContext) {

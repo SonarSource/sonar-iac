@@ -22,11 +22,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.iac.common.extension.AbstractTimedFilePredicate;
-import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.YamlIdentifierFilePredicate;
 
-public class GithubActionsFilePredicate extends AbstractTimedFilePredicate {
+public class GithubActionsFilePredicate extends AbstractTimedFilePredicate implements YamlFileTypePredicate {
 
   private static final Logger LOG = LoggerFactory.getLogger(GithubActionsFilePredicate.class);
   private static final String[] WORKFLOW_FILE_PATTERNS = new String[] {"**/.github/workflows/*.yaml", "**/.github/workflows/*.yml"};
@@ -37,8 +35,7 @@ public class GithubActionsFilePredicate extends AbstractTimedFilePredicate {
   private final FilePredicate delegate;
   private final boolean enablePredicateDebugLogs;
 
-  public GithubActionsFilePredicate(FilePredicates predicates, boolean enablePredicateDebugLogs, DurationStatistics.Timer timer) {
-    super(timer);
+  public GithubActionsFilePredicate(FilePredicates predicates, boolean enablePredicateDebugLogs) {
     this.enablePredicateDebugLogs = enablePredicateDebugLogs;
     var actionFilePredicate = predicates.and(
       predicates.matchesPathPatterns(METADATA_FILE_PATTERNS),
@@ -55,5 +52,10 @@ public class GithubActionsFilePredicate extends AbstractTimedFilePredicate {
       LOG.debug("Identified as Github file: {}", inputFile);
     }
     return matches;
+  }
+
+  @Override
+  public FileType fileType() {
+    return FileType.GITHUB_ACTIONS;
   }
 }

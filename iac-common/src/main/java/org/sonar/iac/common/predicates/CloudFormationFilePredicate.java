@@ -18,24 +18,31 @@ package org.sonar.iac.common.predicates;
 
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.iac.common.extension.AbstractTimedFilePredicate;
-import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.api.config.Configuration;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
 
-public class CloudFormationFilePredicate extends AbstractTimedFilePredicate {
+public class CloudFormationFilePredicate extends AbstractTimedFilePredicate implements YamlFileTypePredicate {
   public static final String CLOUDFORMATION_FILE_IDENTIFIER_KEY = "sonar.cloudformation.file.identifier";
   public static final String CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE = "AWSTemplateFormatVersion";
   private final FilePredicate delegate;
 
-  public CloudFormationFilePredicate(SensorContext sensorContext, boolean shouldLogPredicateFailure, DurationStatistics.Timer timer) {
-    super(timer);
-    this.delegate = new FileIdentificationPredicate(sensorContext.config().get(CLOUDFORMATION_FILE_IDENTIFIER_KEY).orElse(""),
+  public CloudFormationFilePredicate(Configuration config, boolean shouldLogPredicateFailure) {
+    // Fall back to the default identifier when the property is absent (e.g. tests or programmatic setups where the
+    // PropertyDefinition default is not applied), so the predicate does not degrade to matching every file. An
+    // explicitly cleared identifier is returned by Configuration.get as a present empty string, so it still bypasses
+    // this fallback and keeps the documented "no identifier means analyze all files" behavior.
+    this.delegate = new FileIdentificationPredicate(
+      config.get(CLOUDFORMATION_FILE_IDENTIFIER_KEY).orElse(CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE),
       shouldLogPredicateFailure);
   }
 
   @Override
   protected boolean accept(InputFile inputFile) {
     return delegate.apply(inputFile);
+  }
+
+  @Override
+  public FileType fileType() {
+    return FileType.CLOUDFORMATION;
   }
 }

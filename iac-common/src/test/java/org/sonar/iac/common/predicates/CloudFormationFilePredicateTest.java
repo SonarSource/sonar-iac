@@ -50,7 +50,8 @@ class CloudFormationFilePredicateTest {
   @ParameterizedTest
   @MethodSource
   void shouldMatchCloudFormationFile(String content, boolean shouldMatch) {
-    var predicate = new CloudFormationFilePredicate(context, true, new DurationStatistics(mock(Configuration.class)).timer("timer"));
+    var predicate = new CloudFormationFilePredicate(context.config(), true);
+    predicate.applyTimers(new DurationStatistics(mock(Configuration.class)));
     var matches = predicate.apply(IacTestUtils.inputFile("test.yaml", tempDir, content, "cloudformation"));
     assertThat(matches).isEqualTo(shouldMatch);
   }

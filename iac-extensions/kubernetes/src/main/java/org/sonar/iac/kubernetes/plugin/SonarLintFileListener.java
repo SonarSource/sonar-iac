@@ -30,7 +30,9 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.analyzer.Analyzer;
-import org.sonar.iac.common.predicates.KubernetesOrHelmFilePredicate;
+import org.sonar.iac.common.predicates.FileType;
+import org.sonar.iac.common.predicates.YamlFileTypeCache;
+import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
@@ -63,10 +65,14 @@ public class SonarLintFileListener implements ModuleFileListener {
     analyzer = createAnalyzerForUpdatingProjectContext(List.of(new ProjectContextEnricherVisitor(projectContext)), statistics, helmProcessor, this);
 
     if (!initialized) {
-      // The analysis is executed for the first time by SonarLint, the content of all relevant files has to be stored in inputFilesContents
-      var predicate = new KubernetesOrHelmFilePredicate(sensorContext, true, statistics.timer("SonarLintFileListener.KubernetesOrHelmFilePredicate"));
+      // The analysis is executed for the first time by SonarLint, the content of all relevant files has to be stored in inputFilesContents.
+      // This listener is MODULE-scoped and cannot inject the per-analysis YamlFileTypeResolver, so it builds a transient one to select the
+      // same Kubernetes and Helm files the KubernetesSensor analyzes. It uses its own cache (not the shared engine cache) because here only
+      // a community resolver can be built, which would misclassify enterprise-only files and poison the cache for the enterprise sensors.
+      var yamlFileTypeResolver = new YamlFileTypeResolver(sensorContext.fileSystem(), sensorContext.config(), new YamlFileTypeCache());
+      var kubernetesOrHelmPredicate = yamlFileTypeResolver.getFilePredicate(statistics, FileType.KUBERNETES, FileType.HELM);
       var inputFiles = moduleFileSystem.files()
-        .filter(predicate::apply)
+        .filter(kubernetesOrHelmPredicate::apply)
         .toList();
 
       inputFilesContents = inputFiles.stream()

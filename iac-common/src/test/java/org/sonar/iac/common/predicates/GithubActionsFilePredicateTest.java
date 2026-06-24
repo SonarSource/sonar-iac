@@ -47,7 +47,8 @@ class GithubActionsFilePredicateTest {
   @BeforeEach
   void setUp() {
     var sensorContext = SensorContextTester.create(tempDir);
-    predicateNoLog = new GithubActionsFilePredicate(sensorContext.fileSystem().predicates(), false, new DurationStatistics(mock(Configuration.class)).timer("test"));
+    predicateNoLog = new GithubActionsFilePredicate(sensorContext.fileSystem().predicates(), false);
+    predicateNoLog.applyTimers(new DurationStatistics(mock(Configuration.class)));
   }
 
   private static final String VALID_FULL_ACTION_CONTENT = """
@@ -150,7 +151,8 @@ class GithubActionsFilePredicateTest {
   @Test
   void shouldLogDebugMessageWhenEnabled() throws IOException {
     var sensorContext = SensorContextTester.create(tempDir);
-    var predicateWithLog = new GithubActionsFilePredicate(sensorContext.fileSystem().predicates(), true, new DurationStatistics(mock(Configuration.class)).timer("test"));
+    var predicateWithLog = new GithubActionsFilePredicate(sensorContext.fileSystem().predicates(), true);
+    predicateWithLog.applyTimers(new DurationStatistics(mock(Configuration.class)));
     var inputFile = newInputFileMock(".github/workflows/deploy.yaml", "");
 
     assertThat(predicateWithLog.apply(inputFile)).isTrue();
