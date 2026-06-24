@@ -1,0 +1,29 @@
+{
+  "title": "GCP Cloud Storage buckets should enforce uniform bucket-level access",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "gcp"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8857",
+  "sqKey": "S8857",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      732
+    ]
+  },
+  "quickfix": "unknown"
+}

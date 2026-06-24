@@ -44,6 +44,7 @@ import org.sonar.iac.terraform.checks.gcp.ExcessivePermissionsCheck;
 import org.sonar.iac.terraform.checks.gcp.HighPrivilegedRolesOnWorkloadResourcesCheck;
 import org.sonar.iac.terraform.checks.gcp.LoadBalancerSslPolicyCheck;
 import org.sonar.iac.terraform.checks.gcp.PublicAccessCheck;
+import org.sonar.iac.terraform.checks.gcp.UniformBucketLevelAccessCheck;
 import org.sonar.iac.terraform.checks.gcp.UnversionedStorageBucketCheck;
 
 public class TerraformCheckList {
@@ -109,6 +110,7 @@ public class TerraformCheckList {
       LoadBalancerSslPolicyCheck.class,
       PublicAccessCheck.class,
       ShortLogRetentionCheck.class,
+      UniformBucketLevelAccessCheck.class,
       UnversionedStorageBucketCheck.class,
 
       // commons

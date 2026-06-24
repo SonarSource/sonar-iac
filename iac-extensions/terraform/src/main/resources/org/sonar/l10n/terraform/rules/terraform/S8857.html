@@ -1,0 +1,42 @@
+<p>GCP Cloud Storage supports two access-control systems: fine-grained per-object ACLs and IAM. When both are active, legacy object ACLs can
+silently grant access that bypasses IAM policies, including making individual objects world-readable even when the bucket IAM policy looks locked
+down.</p>
+<h2>Why is this an issue?</h2>
+<p>Per-object ACLs are hard to audit at scale, so a single object can leak sensitive data without any change to the bucket policy, and access reviews
+can miss ACL-granted permissions. Uniform bucket-level access disables object ACLs and makes IAM the single source of truth. This rule raises an issue
+when a <code>google_storage_bucket</code> resource does not enable uniform bucket-level access.</p>
+<h3>What is the potential impact?</h3>
+<p>When uniform bucket-level access is not enforced, object-level ACLs remain active and can grant permissions that bypass the bucket IAM policy. A
+single misconfigured ACL can expose sensitive data publicly while the bucket IAM policy still appears restrictive. Reviewing access becomes
+significantly harder, as permissions are scattered across individual objects rather than centralized in IAM.</p>
+<h2>How to fix it</h2>
+<p>Set <code>uniform_bucket_level_access</code> to <code>true</code> on the <code>google_storage_bucket</code> resource to disable object ACLs and
+rely exclusively on IAM.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+resource "google_storage_bucket" "example" { # Noncompliant
+  name     = "example-bucket"
+  location = "US"
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+resource "google_storage_bucket" "example" {
+  name                        = "example-bucket"
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://cloud.google.com/storage/docs/uniform-bucket-level-access">GCP documentation</a> - Uniform bucket-level access</li>
+  <li><a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket#uniform_bucket_level_access">Terraform
+  documentation</a> - google_storage_bucket uniform_bucket_level_access</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/732">CWE-732 - Incorrect Permission Assignment for Critical Resource</a></li>
+</ul>
+
