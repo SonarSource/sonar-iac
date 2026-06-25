@@ -50,8 +50,8 @@ object ActionlintRulesGenerator {
         "workflow-call"
     )
 
-    // Rules that are security hotspots
-    private val securityHotspots = listOf(
+    // Rules that are security vulnerabilities
+    private val vulnerabilities = listOf(
         "credentials"
     )
 
@@ -155,7 +155,7 @@ object ActionlintRulesGenerator {
     private fun classifyRule(ruleId: String): List<String> {
         val type = when {
             bugs.contains(ruleId) -> "BUG"
-            securityHotspots.contains(ruleId) -> "SECURITY_HOTSPOT"
+            vulnerabilities.contains(ruleId) -> "VULNERABILITY"
             else -> "CODE_SMELL"
         }
 
@@ -168,7 +168,7 @@ object ActionlintRulesGenerator {
 
         val (attribute, softwareQuality, qualityImpact) = when (type) {
             "BUG" -> Triple("LOGICAL", "RELIABILITY", "HIGH")
-            "SECURITY_HOTSPOT" -> Triple("TRUSTWORTHY", "SECURITY", "MEDIUM")
+            "VULNERABILITY" -> Triple("TRUSTWORTHY", "SECURITY", "MEDIUM")
             "CODE_SMELL" -> when (severity) {
                 "INFO", "MINOR" -> Triple("CONVENTIONAL", "MAINTAINABILITY", "LOW")
                 else -> Triple("CONVENTIONAL", "MAINTAINABILITY", "MEDIUM")

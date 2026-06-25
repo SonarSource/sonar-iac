@@ -168,7 +168,7 @@ object TfLintRulesGenerator {
         ruleset: String,
         ruleId: String,
     ): List<String> {
-        val securityHotspots = listOf(
+        val vulnerabilities = listOf(
             "terraform_module_pinned_source",
             "terraform_module_version",
             "terraform_required_providers"
@@ -192,7 +192,7 @@ object TfLintRulesGenerator {
         )
 
         return when {
-            securityHotspots.any { ruleId.contains(it) } -> listOf("SECURITY_HOTSPOT", "TRUSTWORTHY", "SECURITY", "MEDIUM")
+            vulnerabilities.any { ruleId.contains(it) } -> listOf("VULNERABILITY", "TRUSTWORTHY", "SECURITY", "MEDIUM")
             ruleset == "terraform" || codeSmells.any { ruleId.contains(it) } ->
                 listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "MEDIUM")
             else -> listOf("BUG", "LOGICAL", "RELIABILITY", "MEDIUM")

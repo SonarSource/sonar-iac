@@ -47,8 +47,8 @@ object SpectralRulesGenerator {
         "arazzo-no-script-tags-in-markdown"
     )
 
-    private val securityHotspotMediumComplete = listOf<String>(
-        // Add security hotspot rules here
+    private val vulnerabilityMediumComplete = listOf<String>(
+        // Add security vulnerability rules here
     )
 
     private val codeSmellsLowClear = listOf(
@@ -319,8 +319,8 @@ object SpectralRulesGenerator {
             vulnerabilityHighTrustworthy.contains(id) ->
                 listOf("VULNERABILITY", "TRUSTWORTHY", "SECURITY", "HIGH")
 
-            securityHotspotMediumComplete.contains(id) ->
-                listOf("SECURITY_HOTSPOT", "COMPLETE", "SECURITY", "MEDIUM")
+            vulnerabilityMediumComplete.contains(id) ->
+                listOf("VULNERABILITY", "COMPLETE", "SECURITY", "MEDIUM")
 
             codeSmellsLowClear.contains(id) ->
                 listOf("CODE_SMELL", "CLEAR", "MAINTAINABILITY", "LOW")

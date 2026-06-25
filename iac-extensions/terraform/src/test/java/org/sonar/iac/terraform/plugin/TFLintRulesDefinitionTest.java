@@ -31,6 +31,7 @@ import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.rules.CleanCodeAttribute.CONVENTIONAL;
 import static org.sonar.api.rules.CleanCodeAttribute.LOGICAL;
+import static org.sonar.api.rules.CleanCodeAttribute.TRUSTWORTHY;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
@@ -88,12 +89,11 @@ class TFLintRulesDefinitionTest {
       } else if (ruleType == BUG) {
         assertThat(cleanCodeAttribute).isEqualTo(LOGICAL);
         assertThat(impacts).containsOnly(Map.entry(SoftwareQuality.RELIABILITY, Severity.MEDIUM));
-      } else if (ruleType == SECURITY_HOTSPOT) {
-        // Security Hotspots do not have a clean code attribute or impacts
-        assertThat(cleanCodeAttribute).isNull();
-        assertThat(impacts).isEmpty();
       } else if (ruleType == VULNERABILITY) {
-        throw new IllegalStateException("No rule should have type VULNERABILITY");
+        assertThat(cleanCodeAttribute).isEqualTo(TRUSTWORTHY);
+        assertThat(impacts).containsOnly(Map.entry(SoftwareQuality.SECURITY, Severity.MEDIUM));
+      } else if (ruleType == SECURITY_HOTSPOT) {
+        throw new IllegalStateException("No rule should have type SECURITY_HOTSPOT");
       }
     }
   }

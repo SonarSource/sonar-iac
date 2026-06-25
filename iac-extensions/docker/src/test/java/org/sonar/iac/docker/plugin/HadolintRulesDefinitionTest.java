@@ -30,6 +30,7 @@ import org.sonar.iac.common.reports.AbstractExternalRulesDefinition;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.rules.CleanCodeAttribute.CONVENTIONAL;
 import static org.sonar.api.rules.CleanCodeAttribute.LOGICAL;
+import static org.sonar.api.rules.CleanCodeAttribute.TRUSTWORTHY;
 import static org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions.assertExistingRepository;
 import static org.sonar.iac.common.testing.AbstractExternalRulesDefinitionAssertions.assertNoRepositoryIsDefined;
 import static org.sonar.iac.common.testing.IacTestUtils.SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION;
@@ -84,9 +85,9 @@ class HadolintRulesDefinitionTest {
     assertThat(bug.cleanCodeAttribute()).isEqualTo(LOGICAL);
     assertThat(bug.defaultImpacts()).containsOnly(Map.entry(SoftwareQuality.RELIABILITY, Severity.HIGH));
 
-    RulesDefinition.Rule hotspot = repository.rule("DL3002");
-    assertThat(hotspot.name()).isEqualTo("Last user should not be root.");
-    assertThat(hotspot.cleanCodeAttribute()).isNull();
-    assertThat(hotspot.defaultImpacts()).isEmpty();
+    RulesDefinition.Rule vulnerability = repository.rule("DL3002");
+    assertThat(vulnerability.name()).isEqualTo("Last user should not be root.");
+    assertThat(vulnerability.cleanCodeAttribute()).isEqualTo(TRUSTWORTHY);
+    assertThat(vulnerability.defaultImpacts()).containsOnly(Map.entry(SoftwareQuality.SECURITY, Severity.MEDIUM));
   }
 }

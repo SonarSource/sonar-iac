@@ -54,7 +54,7 @@
     "tags": ["hadolint"],
     "description": "This issue is raised by the rule \"DL3002\" from \"Hadolint\". This is not an issue raised by Sonar analyzers.<br/>",
     "constantDebtMinutes": 5,
-    "type": "SECURITY_HOTSPOT",
+    "type": "VULNERABILITY",
     "severity": "MAJOR",
     "code": {
       "attribute": "TRUSTWORTHY",

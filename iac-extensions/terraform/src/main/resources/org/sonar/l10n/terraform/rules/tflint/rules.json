@@ -141,7 +141,7 @@
     "tags": ["tflint"],
     "description": "This issue is raised by the rule [terraform_module_pinned_source] from \"TFLint\". This is not an issue raised by Sonar analyzers.<br/><br/>TFLint Message: Disallow specifying a git or mercurial repository as a module source without pinning to a version",
     "constantDebtMinutes": 5,
-    "type": "SECURITY_HOTSPOT",
+    "type": "VULNERABILITY",
     "code": {
       "attribute": "TRUSTWORTHY",
       "impacts": {
@@ -171,7 +171,7 @@
     "tags": ["tflint"],
     "description": "This issue is raised by the rule [terraform_module_version] from \"TFLint\". This is not an issue raised by Sonar analyzers.<br/><br/>TFLint Message: Checks that Terraform modules sourced from a registry specify a version",
     "constantDebtMinutes": 5,
-    "type": "SECURITY_HOTSPOT",
+    "type": "VULNERABILITY",
     "code": {
       "attribute": "TRUSTWORTHY",
       "impacts": {
@@ -201,7 +201,7 @@
     "tags": ["tflint"],
     "description": "This issue is raised by the rule [terraform_required_providers] from \"TFLint\". This is not an issue raised by Sonar analyzers.<br/><br/>TFLint Message: Require that all providers have version constraints through required_providers",
     "constantDebtMinutes": 5,
-    "type": "SECURITY_HOTSPOT",
+    "type": "VULNERABILITY",
     "code": {
       "attribute": "TRUSTWORTHY",
       "impacts": {

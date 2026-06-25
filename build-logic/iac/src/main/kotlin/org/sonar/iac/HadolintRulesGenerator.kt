@@ -55,7 +55,7 @@ object HadolintRulesGenerator {
         "SC1087"
     )
 
-    private val securityHotspots = listOf("DL3002")
+    private val vulnerabilities = listOf("DL3002")
 
     /**
      * Extract all Hadolint and ShellCheck rules by parsing the README table.
@@ -174,7 +174,7 @@ object HadolintRulesGenerator {
     ): List<String> {
         val type = when {
             bugs.contains(ruleId) -> "BUG"
-            securityHotspots.contains(ruleId) -> "SECURITY_HOTSPOT"
+            vulnerabilities.contains(ruleId) -> "VULNERABILITY"
             else -> "CODE_SMELL"
         }
 
@@ -192,7 +192,7 @@ object HadolintRulesGenerator {
 
         val (attribute, softwareQuality, qualityImpact) = when (type) {
             "BUG" -> Triple("LOGICAL", "RELIABILITY", "HIGH")
-            "SECURITY_HOTSPOT" -> Triple("TRUSTWORTHY", "SECURITY", "MEDIUM")
+            "VULNERABILITY" -> Triple("TRUSTWORTHY", "SECURITY", "MEDIUM")
             "CODE_SMELL" -> when (severity) {
                 "INFO", "MINOR" -> Triple("CONVENTIONAL", "MAINTAINABILITY", "LOW")
                 else -> Triple("CONVENTIONAL", "MAINTAINABILITY", "MEDIUM")

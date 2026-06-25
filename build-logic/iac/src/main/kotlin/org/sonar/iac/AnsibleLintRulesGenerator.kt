@@ -259,10 +259,10 @@ object AnsibleLintRulesGenerator {
     private val vulnerabilityHighTrustworthy = listOf("no-log-password")
 
     // Similar to: https://sonarsource.github.io/rspec/#/rspec/S6430
-    private val securityHotspotMediumComplete = listOf("partial-become")
+    private val vulnerabilityMediumComplete = listOf("partial-become")
 
     // Similar to: https://sonarsource.github.io/rspec/#/rspec/S2612
-    private val securityHotspotMediumConventional = listOf("no-same-owner", "risky-file-permissions")
+    private val vulnerabilityMediumConventional = listOf("no-same-owner", "risky-file-permissions")
 
     // Similar to: https://sonarsource.github.io/rspec/#/rspec/S1155/java
     private val codeSmellsLowClear = listOf(
@@ -380,10 +380,10 @@ object AnsibleLintRulesGenerator {
                 listOf("BUG", "LOGICAL", "RELIABILITY", "MEDIUM")
             vulnerabilityHighTrustworthy.contains(id) || vulnerabilityHighTrustworthy.contains(idNoBrackets) ->
                 listOf("VULNERABILITY", "TRUSTWORTHY", "SECURITY", "HIGH")
-            securityHotspotMediumComplete.contains(id) || securityHotspotMediumComplete.contains(idNoBrackets) ->
-                listOf("SECURITY_HOTSPOT", "COMPLETE", "SECURITY", "MEDIUM")
-            securityHotspotMediumConventional.contains(id) || securityHotspotMediumConventional.contains(idNoBrackets) ->
-                listOf("SECURITY_HOTSPOT", "CONVENTIONAL", "SECURITY", "MEDIUM")
+            vulnerabilityMediumComplete.contains(id) || vulnerabilityMediumComplete.contains(idNoBrackets) ->
+                listOf("VULNERABILITY", "COMPLETE", "SECURITY", "MEDIUM")
+            vulnerabilityMediumConventional.contains(id) || vulnerabilityMediumConventional.contains(idNoBrackets) ->
+                listOf("VULNERABILITY", "CONVENTIONAL", "SECURITY", "MEDIUM")
             codeSmellsLowClear.contains(id) || codeSmellsLowClear.contains(idNoBrackets) ->
                 listOf("CODE_SMELL", "CLEAR", "MAINTAINABILITY", "LOW")
             codeSmellsHighClear.contains(id) || codeSmellsHighClear.contains(idNoBrackets) ->
