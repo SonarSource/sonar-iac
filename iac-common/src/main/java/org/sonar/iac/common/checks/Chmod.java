@@ -63,6 +63,10 @@ public class Chmod {
     return permissions.rights.contains(right);
   }
 
+  public boolean hasAnyPermission() {
+    return !permissions.rights.isEmpty();
+  }
+
   /**
    * Class dedicated to store permissions in the chmod way: <a href="https://linux.die.net/man/1/chmod">man chmod</a>
    */
