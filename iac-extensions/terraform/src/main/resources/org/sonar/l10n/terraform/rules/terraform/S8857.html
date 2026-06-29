@@ -1,6 +1,5 @@
-<p>GCP Cloud Storage supports two access-control systems: fine-grained per-object ACLs and IAM. When both are active, legacy object ACLs can
-silently grant access that bypasses IAM policies, including making individual objects world-readable even when the bucket IAM policy looks locked
-down.</p>
+<p>GCP Cloud Storage supports two access-control systems: fine-grained per-object ACLs and IAM. When both are active, legacy object ACLs can silently
+grant access that bypasses IAM policies, including making individual objects world-readable even when the bucket IAM policy looks locked down.</p>
 <h2>Why is this an issue?</h2>
 <p>Per-object ACLs are hard to audit at scale, so a single object can leak sensitive data without any change to the bucket policy, and access reviews
 can miss ACL-granted permissions. Uniform bucket-level access disables object ACLs and makes IAM the single source of truth. This rule raises an issue
