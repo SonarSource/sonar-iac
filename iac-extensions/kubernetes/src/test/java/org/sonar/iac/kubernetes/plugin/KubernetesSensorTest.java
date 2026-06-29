@@ -588,22 +588,23 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   }
 
   @Test
-  void shouldAnalyzeAndLogKustomizeFiles() {
+  void shouldNotAnalyzeKustomizationFilesAsKubernetes() {
+    // Files named kustomization.yaml/.yml resolve to KUSTOMIZE (handled by the Kustomization sensor), so the Kubernetes
+    // sensor does not analyze them even when they carry Kubernetes content (SONARIAC-2859).
     InputFile kustomizeHelm = inputFile("templates/kustomization.yaml", "{{ some helm code }}\n" + K8S_IDENTIFIERS);
     InputFile kustomizeK8s = inputFile("templates/kustomization.yml", K8S_IDENTIFIERS);
 
     analyze(sensor(), kustomizeHelm, kustomizeK8s);
-    assertNSourceFileIsParsed(2);
-    // helm file is not parseable, only kustomize file is counted
-    verifyLinesOfCodeTelemetry(3);
+    assertNoSourceFileIsParsed();
+    verifyLinesOfCodeTelemetry(0);
   }
 
   @Test
   void shouldStoreTelemetry() {
-    var kustomizeHelm = inputFile("templates/kustomization.yaml", "{{ some helm code }}\n" + K8S_IDENTIFIERS);
-    var kustomizeK8s = inputFile("templates/kustomization.yml", K8S_IDENTIFIERS);
+    var helmFile = inputFile("templates/deployment.yaml", "{{ some helm code }}\n" + K8S_IDENTIFIERS);
+    var k8sFile = inputFile("templates/deployment.yml", K8S_IDENTIFIERS);
 
-    analyze(context, sensor(), kustomizeHelm, kustomizeK8s);
+    analyze(context, sensor(), helmFile, k8sFile);
     // the helm files throws a parsing error and is not counted towards loc
     verifyLinesOfCodeTelemetry(3);
   }
@@ -630,7 +631,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldInitSonarLintFileListener() {
-    var inputFile = inputFile("templates/kustomization.yaml", K8S_IDENTIFIERS);
+    var inputFile = inputFile("templates/pod.yaml", K8S_IDENTIFIERS);
 
     analyze(sensorSonarLint(), inputFile);
 
@@ -639,7 +640,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldSkipKubernetesFileInGithubActionsWorkflowFolder() {
-    var k8sFileInWorkflowFolder = inputFile("templates/.github/workflows/kustomization.yml", K8S_IDENTIFIERS);
+    var k8sFileInWorkflowFolder = inputFile("templates/.github/workflows/pod.yml", K8S_IDENTIFIERS);
 
     analyze(sensor(), k8sFileInWorkflowFolder);
     assertNoSourceFileIsParsed();
@@ -650,10 +651,10 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   void shouldLogPredicateInDurationStatistics() {
     settings.setProperty("sonar.iac.duration.statistics", "true");
 
-    InputFile kustomizeHelm = inputFile("templates/kustomization.yaml", "{{ some helm code }}\n" + K8S_IDENTIFIERS);
-    InputFile kustomizeK8s = inputFile("templates/kustomization.yml", K8S_IDENTIFIERS);
+    InputFile helmFile = inputFile("templates/deployment.yaml", "{{ some helm code }}\n" + K8S_IDENTIFIERS);
+    InputFile k8sFile = inputFile("templates/deployment.yml", K8S_IDENTIFIERS);
 
-    analyze(sensor(), kustomizeHelm, kustomizeK8s);
+    analyze(sensor(), helmFile, k8sFile);
     assertThat(durationStatisticLog()).contains("HelmFilePredicate", "KubernetesFilePredicate", "GithubActionsFilePredicate");
   }
 

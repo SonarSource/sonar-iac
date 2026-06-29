@@ -51,6 +51,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public class YamlFileTypeResolver {
   public static final String EXTENDED_LOGGING_PROPERTY_NAME = "sonar.internal.iac.extendedLogging";
 
+  protected final KustomizationFilePredicate kustomizationFilePredicate;
   protected final KubernetesFilePredicate kubernetesFilePredicate;
   protected final HelmFilePredicate helmFilePredicate;
   protected final JvmConfigFilePredicate jvmConfigFilePredicate;
@@ -78,6 +79,7 @@ public class YamlFileTypeResolver {
     List<YamlFileTypePredicate> additionalFilePredicates) {
     var extendedLoggingEnabled = isExtendedLoggingEnabled(config);
     this.yamlFileTypeCache = yamlFileTypeCache;
+    this.kustomizationFilePredicate = new KustomizationFilePredicate(extendedLoggingEnabled);
     this.kubernetesFilePredicate = new KubernetesFilePredicate(fileSystem, extendedLoggingEnabled);
     this.helmFilePredicate = new HelmFilePredicate(fileSystem, extendedLoggingEnabled);
     this.jvmConfigFilePredicate = new JvmConfigFilePredicate(fileSystem.predicates(), config, extendedLoggingEnabled);
@@ -102,6 +104,11 @@ public class YamlFileTypeResolver {
    */
   private List<YamlFileTypePredicate> computeFilePredicatesOrder(List<YamlFileTypePredicate> additionalFilePredicates) {
     var order = new ArrayList<YamlFileTypePredicate>(List.of(
+      // Kustomize files are identified by file name and resolved first: a kustomization.yaml/.yml is a Kustomize entry
+      // point, not a deployable manifest, so it is classified as KUSTOMIZE even when it also carries Kubernetes content
+      // (apiVersion/kind/metadata). This keeps it handled by the Kustomization sensor and out of every content based
+      // sensor - including Azure Pipelines, which would otherwise match its `resources:` key (SONARIAC-2859).
+      kustomizationFilePredicate,
       // Cheap filepath checks (content is only read in the rare action.yml case). GitHub Actions files always take precedence.
       githubActionsFilePredicate,
       // Helm is checked before plain Kubernetes: a Helm template that also carries Kubernetes content must resolve to

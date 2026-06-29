@@ -17,7 +17,6 @@
 package org.sonar.iac.kubernetes.plugin.kustomization;
 
 import java.net.URI;
-import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -28,9 +27,12 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.resources.Language;
+import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacProjectSensor;
 import org.sonar.iac.common.extension.TogglableSensor;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
+import org.sonar.iac.common.predicates.FileType;
+import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.kubernetes.plugin.KubernetesLanguage;
 import org.sonar.iac.kubernetes.plugin.KubernetesSettings;
@@ -40,18 +42,20 @@ import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.YAML_LANGUAGE
 @DependedUpon("KustomizationSensor")
 public class KustomizationSensor extends TogglableSensor {
   private static final Logger LOG = LoggerFactory.getLogger(KustomizationSensor.class);
-  private static final Set<String> KUSTOMIZATION_FILE_NAMES = Set.of("kustomization.yaml", "kustomization.yml");
   public static final String KUSTOMIZATION_SENSOR_NAME = "IaC Kustomization Sensor";
 
   private final KustomizationAnalyzer kustomizationAnalyzer;
   private final Language language;
   private final KustomizationInfoProvider kustomizationInfoProvider;
+  private final YamlFileTypeResolver yamlFileTypeResolver;
   private final SensorTelemetry sensorTelemetry;
 
-  public KustomizationSensor(KustomizationInfoProvider kustomizationInfoProvider, KubernetesLanguage language, IacProjectSensor projectSensor) {
+  public KustomizationSensor(KustomizationInfoProvider kustomizationInfoProvider, KubernetesLanguage language,
+    YamlFileTypeResolver yamlFileTypeResolver, IacProjectSensor projectSensor) {
     this.kustomizationInfoProvider = kustomizationInfoProvider;
     this.kustomizationAnalyzer = new KustomizationAnalyzer(new YamlParser());
     this.language = language;
+    this.yamlFileTypeResolver = yamlFileTypeResolver;
     this.sensorTelemetry = projectSensor.getSensorTelemetry();
   }
 
@@ -73,10 +77,12 @@ public class KustomizationSensor extends TogglableSensor {
       .forEach(inputFile -> processKustomizationFile(context, inputFile));
   }
 
-  private static FilePredicate getFilePredicate(SensorContext context) {
+  private FilePredicate getFilePredicate(SensorContext context) {
     var predicates = context.fileSystem().predicates();
-    return predicates
-      .and(predicates.hasType(InputFile.Type.MAIN), KustomizationSensor::isKustomizationFile);
+    var statistics = new DurationStatistics(context.config());
+    return predicates.and(
+      predicates.hasType(InputFile.Type.MAIN),
+      yamlFileTypeResolver.getFilePredicate(statistics, FileType.KUSTOMIZE));
   }
 
   private void addTelemetry(SensorContext sensorContext) {
@@ -98,10 +104,6 @@ public class KustomizationSensor extends TogglableSensor {
   @Override
   protected String getActivationSettingKey() {
     return KubernetesSettings.ACTIVATION_KEY;
-  }
-
-  private static boolean isKustomizationFile(InputFile f) {
-    return f.isFile() && KUSTOMIZATION_FILE_NAMES.contains(f.filename().toLowerCase(Locale.ROOT));
   }
 
   private void processKustomizationFile(SensorContext context, InputFile inputFile) {

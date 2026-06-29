@@ -24,6 +24,7 @@ package org.sonar.iac.common.predicates;
 public enum FileType {
   KUBERNETES,
   HELM,
+  KUSTOMIZE,
   JVM_CONFIG,
   CLOUDFORMATION,
   GITHUB_ACTIONS,

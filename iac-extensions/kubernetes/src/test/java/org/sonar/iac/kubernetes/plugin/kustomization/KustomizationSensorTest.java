@@ -31,6 +31,8 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.iac.common.predicates.YamlFileTypeCache;
+import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.kubernetes.plugin.KubernetesLanguage;
 import org.sonar.iac.kubernetes.plugin.KubernetesSettings;
 
@@ -59,7 +61,8 @@ class KustomizationSensorTest {
     context.setSettings(settings);
     kustomizationInfoProvider = new KustomizationInfoProvider();
     projectSensor = new org.sonar.iac.common.extension.IacProjectSensor(context.config());
-    sensor = new KustomizationSensor(kustomizationInfoProvider, new KubernetesLanguage(), projectSensor);
+    var yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
+    sensor = new KustomizationSensor(kustomizationInfoProvider, new KubernetesLanguage(), yamlFileTypeResolver, projectSensor);
   }
 
   @Test
@@ -158,6 +161,24 @@ class KustomizationSensorTest {
 
     sensor.execute(context);
 
+    assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).isEmpty();
+  }
+
+  @Test
+  void shouldProcessKustomizationFileEvenWhenItLooksLikeAKubernetesManifest() {
+    // A kustomization.yaml is always handled by the Kustomization sensor (it resolves to KUSTOMIZE), even when its
+    // content looks like a Kubernetes manifest (apiVersion/kind/metadata) and not like a kustomization (SONARIAC-2859).
+    var inputFile = createInputFile("kustomization.yaml", """
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: myapp
+      """);
+    context.fileSystem().add(inputFile);
+
+    sensor.execute(context);
+
+    assertThat(kustomizationInfoProvider.kustomizationFilesCount()).isEqualTo(1);
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).isEmpty();
   }
 

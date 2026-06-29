@@ -23,6 +23,8 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -67,6 +69,7 @@ class YamlFileTypeResolverTest {
       FileType.CLOUDFORMATION, yamlFileTypeResolver.getFilePredicate(durationStatistics(), FileType.CLOUDFORMATION),
       FileType.KUBERNETES, yamlFileTypeResolver.getFilePredicate(durationStatistics(), FileType.KUBERNETES),
       FileType.HELM, yamlFileTypeResolver.getFilePredicate(durationStatistics(), FileType.HELM),
+      FileType.KUSTOMIZE, yamlFileTypeResolver.getFilePredicate(durationStatistics(), FileType.KUSTOMIZE),
       FileType.JVM_CONFIG, yamlFileTypeResolver.getFilePredicate(durationStatistics(), FileType.JVM_CONFIG),
       FileType.GITHUB_ACTIONS, yamlFileTypeResolver.getFilePredicate(durationStatistics(), FileType.GITHUB_ACTIONS),
       FileType.AZURE_RESOURCE_MANAGER, yamlFileTypeResolver.getFilePredicate(durationStatistics(), FileType.AZURE_RESOURCE_MANAGER));
@@ -80,9 +83,15 @@ class YamlFileTypeResolverTest {
   }
 
   // Kubernetes predicate tests
-  @Test
-  void shouldMatchKubernetesPredicate() throws IOException {
-    var inputFile = newInputFileMock("file.yaml", VALID_KUBERNETES_CONTENT, "kubernetes", InputFile.Type.MAIN);
+  @ParameterizedTest
+  @ValueSource(strings = {
+    // a plain Kubernetes manifest
+    "file.yaml",
+    // a JVM config path also resolves to Kubernetes, as the JVM config predicate defers to Kubernetes
+    "src/main/resources/vars/application-prod.yaml"
+  })
+  void shouldMatchKubernetesPredicateRegardlessOfFileName(String path) throws IOException {
+    var inputFile = newInputFileMock(path, VALID_KUBERNETES_CONTENT, "kubernetes", InputFile.Type.MAIN);
     assertInputFileMatchedOnlyBy(inputFile, FileType.KUBERNETES);
   }
 
@@ -90,6 +99,23 @@ class YamlFileTypeResolverTest {
   void shouldMatchKubernetesPredicateOverCloudFormationPredicate() throws IOException {
     var inputFile = newInputFileMock("file.yaml", "%s%n%s".formatted(VALID_KUBERNETES_CONTENT, VALID_CLOUDFORMATION_CONTENT), "kubernetes", InputFile.Type.MAIN);
     assertInputFileMatchedOnlyBy(inputFile, FileType.KUBERNETES);
+  }
+
+  // Kustomize predicate tests
+  @Test
+  void shouldMatchKustomizationPredicate() throws IOException {
+    // A kustomization.yaml carries a `resources:` key that would otherwise be picked up by content based predicates;
+    // it is resolved to KUSTOMIZE based on its file name (SONARIAC-2859).
+    var inputFile = newInputFileMock("kustomization.yaml", "resources:\n  - deployment.yaml");
+    assertInputFileMatchedOnlyBy(inputFile, FileType.KUSTOMIZE);
+  }
+
+  @Test
+  void shouldMatchKustomizationPredicateOverKubernetesPredicate() throws IOException {
+    // The Kustomize predicate is resolved first, so a kustomization.yaml is classified as KUSTOMIZE even when it also
+    // carries genuine Kubernetes content (apiVersion/kind/metadata), rather than being analyzed as a Kubernetes manifest.
+    var inputFile = newInputFileMock("kustomization.yaml", VALID_KUBERNETES_CONTENT, "kubernetes", InputFile.Type.MAIN);
+    assertInputFileMatchedOnlyBy(inputFile, FileType.KUSTOMIZE);
   }
 
   // Helm predicate tests
@@ -114,13 +140,6 @@ class YamlFileTypeResolverTest {
     // file-type detection was centralized (the JVM config sensor used to defer to CloudFormation).
     var inputFile = newInputFileMock("src/main/resources/vars/application-prod.yaml", VALID_CLOUDFORMATION_CONTENT);
     assertInputFileMatchedOnlyBy(inputFile, FileType.CLOUDFORMATION);
-  }
-
-  @Test
-  void shouldMatchKubernetesPredicateOverJvmConfigPredicate() throws IOException {
-    // Likewise, the JVM config sensor used to defer to Kubernetes.
-    var inputFile = newInputFileMock("src/main/resources/vars/application-prod.yaml", VALID_KUBERNETES_CONTENT, "kubernetes", InputFile.Type.MAIN);
-    assertInputFileMatchedOnlyBy(inputFile, FileType.KUBERNETES);
   }
 
   // Github Actions predicate tests
