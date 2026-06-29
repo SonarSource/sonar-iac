@@ -86,7 +86,6 @@ class ArmParserTest {
     ignoreException(() -> parser.parse("{{{", bicepFileContext()));
 
     assertThat(addArmStatistics(statistics))
-      .containsEntry("iac.azureresourcemanager.files.count", "2")
       .containsEntry("iac.azureresourcemanager.files.json.count", "1")
       .containsEntry("iac.azureresourcemanager.files.json.parsed", "0")
       .containsEntry("iac.azureresourcemanager.files.bicep.count", "1")

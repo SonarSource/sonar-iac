@@ -27,6 +27,7 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 public class SingleFileAnalyzer extends AbstractAnalyzer {
@@ -44,14 +45,18 @@ public class SingleFileAnalyzer extends AbstractAnalyzer {
     var progressReport = new ProgressReport("Progress of the " + languageName + " analysis", PROGRESS_REPORT_PERIOD_MILLIS);
     progressReport.start(filenames);
 
+    var languageKey = IacLanguage.createFromLanguage(languageName).getKey();
+    initializeTelemetryForLanguage(languageKey);
+
     for (InputFile inputFile : inputFiles) {
       if (sensorContext.isCancelled()) {
         progressReport.cancel();
         return false;
       }
       var inputFileContext = createInputFileContext(sensorContext, inputFile, languageName);
+      recordFileCount(languageKey);
       try {
-        analyseFile(inputFileContext);
+        analyseFile(inputFileContext, languageKey);
       } catch (ParseException e) {
         reportParseError(e, inputFileContext);
       }
@@ -61,14 +66,14 @@ public class SingleFileAnalyzer extends AbstractAnalyzer {
     return true;
   }
 
-  private void analyseFile(InputFileContext inputFileContext) {
+  private void analyseFile(InputFileContext inputFileContext, String languageKey) {
     var content = readContent(inputFileContext);
     if (content == null) {
       return;
     }
 
     Tree tree = statistics.time("Parse", () -> parse(content, inputFileContext));
-
+    recordFileParsed(languageKey);
     visit(visitors, inputFileContext, tree);
   }
 }

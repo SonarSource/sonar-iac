@@ -48,7 +48,6 @@ public class ArmParserStatistics {
     if (jsonFileCount + bicepFileCount == 0) {
       return;
     }
-    sensorTelemetry.addNumericalMeasure("azureresourcemanager.files.count", (long) jsonFileCount + bicepFileCount);
     sensorTelemetry.addNumericalMeasure("azureresourcemanager.files.json.count", jsonFileCount);
     sensorTelemetry.addNumericalMeasure("azureresourcemanager.files.bicep.count", bicepFileCount);
     sensorTelemetry.addNumericalMeasure("azureresourcemanager.files.json.parsed", jsonParsedFileCount);

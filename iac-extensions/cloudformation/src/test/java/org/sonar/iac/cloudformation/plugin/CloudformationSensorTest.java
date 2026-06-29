@@ -221,4 +221,24 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.DEBUG).get(1)).startsWith(message2);
     assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
   }
+
+  @Test
+  void shouldReportFilesCountAndParsedWhenAllFilesParseSuccessfully() {
+    analyze(sensor(),
+      inputFile("template1.yaml", "AWSTemplateFormatVersion: 2010-09-09"),
+      inputFile("template2.yaml", "AWSTemplateFormatVersion: 2010-09-09"));
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.cloudformation.files.count", "2")
+      .containsEntry("iac.cloudformation.files.parsed", "2");
+  }
+
+  @Test
+  void shouldReportFilesCountAndParsedWhenSomeFilesFail() {
+    analyze(sensor(), validFile(), fileWithParsingError());
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.cloudformation.files.count", "2")
+      .containsEntry("iac.cloudformation.files.parsed", "1");
+  }
 }

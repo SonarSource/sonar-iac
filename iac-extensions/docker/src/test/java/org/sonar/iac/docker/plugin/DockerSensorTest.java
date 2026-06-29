@@ -338,4 +338,22 @@ class DockerSensorTest extends ExtensionSensorTest {
       new DockerLanguage(new MapSettings().asConfig()),
       projectSensor);
   }
+
+  @Test
+  void shouldReportFilesCountAndParsedWhenAllFilesParseSuccessfully() {
+    analyze(sensor(), inputFile("file1.dockerfile", "FROM ubuntu:20.04"), inputFile("file2.dockerfile", "FROM ubuntu:20.04"));
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.docker.files.count", "2")
+      .containsEntry("iac.docker.files.parsed", "2");
+  }
+
+  @Test
+  void shouldReportFilesCountAndParsedWhenSomeFilesFail() {
+    analyze(sensor(), inputFile("valid.dockerfile", "FROM ubuntu:20.04"), inputFile("error.dockerfile", "FOOBAR"));
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.docker.files.count", "2")
+      .containsEntry("iac.docker.files.parsed", "1");
+  }
 }

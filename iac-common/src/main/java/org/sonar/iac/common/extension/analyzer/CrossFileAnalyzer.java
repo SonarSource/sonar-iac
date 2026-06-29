@@ -28,6 +28,7 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 public class CrossFileAnalyzer extends AbstractAnalyzer {
@@ -56,6 +57,9 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
       .map(inputFile -> createInputFileContext(sensorContext, inputFile, languageName))
       .toList();
 
+    var languageKey = IacLanguage.createFromLanguage(languageName).getKey();
+    initializeTelemetryForLanguage(languageKey);
+
     // Parse files
     List<FileWithAst> filesWithAst = new ArrayList<>();
     for (InputFileContext inputFileContext : inputFileContextList) {
@@ -64,11 +68,13 @@ public class CrossFileAnalyzer extends AbstractAnalyzer {
         return false;
       }
 
+      recordFileCount(languageKey);
       try {
         var content = readContent(inputFileContext);
         if (content != null) {
           Tree tree = statistics.time("Parse", () -> parse(content, inputFileContext));
           filesWithAst.add(new FileWithAst(inputFileContext, tree));
+          recordFileParsed(languageKey);
         }
       } catch (ParseException e) {
         reportParseError(e, inputFileContext);

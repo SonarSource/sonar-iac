@@ -84,7 +84,19 @@ public abstract class AbstractAnalyzer implements Analyzer {
   public void reportParseError(ParseException exception, InputFileContext inputFileContext) {
     logParsingError(exception);
     inputFileContext.reportParseError(repositoryKey, exception.getPosition());
-    sensorTelemetry.addNumericalMeasure(inputFileContext.language.getKey() + ".parse_failures_count", 1);
+  }
+
+  protected void initializeTelemetryForLanguage(String languageKey) {
+    sensorTelemetry.addNumericalMeasure(languageKey + ".files.count", 0);
+    sensorTelemetry.addNumericalMeasure(languageKey + ".files.parsed", 0);
+  }
+
+  protected void recordFileCount(String languageKey) {
+    sensorTelemetry.addNumericalMeasure(languageKey + ".files.count", 1);
+  }
+
+  protected void recordFileParsed(String languageKey) {
+    sensorTelemetry.addNumericalMeasure(languageKey + ".files.parsed", 1);
   }
 
   protected void visit(List<TreeVisitor<InputFileContext>> visitors, InputFileContext inputFileContext, Tree tree) {

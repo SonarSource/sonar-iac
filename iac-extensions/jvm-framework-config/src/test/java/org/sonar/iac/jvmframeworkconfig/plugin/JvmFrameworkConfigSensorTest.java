@@ -243,6 +243,26 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.DEBUG).stream().filter(s -> !s.contains("Reporting telemetry"))).isEmpty();
   }
 
+  @Test
+  void shouldReportFilesCountAndParsedWhenAllFilesParseSuccessfully() {
+    analyze(sensor(checkFactory()),
+      inputFile(PATH_PREFIX + "application.properties", "server.port=8080"),
+      inputFile(PATH_PREFIX + "application-prod.properties", "server.port=8080"));
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.java.files.count", "2")
+      .containsEntry("iac.java.files.parsed", "2");
+  }
+
+  @Test
+  void shouldReportFilesCountAndParsedWhenSomeFilesFail() {
+    analyze(sensor(checkFactory()), validFile(), fileWithParsingError());
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.java.files.count", "2")
+      .containsEntry("iac.java.files.parsed", "1");
+  }
+
   private InputFile emptyFileInResources(String filename) {
     return inputFile(PATH_PREFIX + filename, "");
   }

@@ -793,6 +793,26 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertThat(logTester.logs(Level.DEBUG)).hasSize(5);
   }
 
+  @Test
+  void shouldReportFilesCountAndParsedWhenAllFilesParseSuccessfully() {
+    analyze(sensor(),
+      inputFile("templates/file_1.yaml", K8S_IDENTIFIERS),
+      inputFile("templates/file_2.yaml", K8S_IDENTIFIERS));
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.kubernetes.files.count", "2")
+      .containsEntry("iac.kubernetes.files.parsed", "2");
+  }
+
+  @Test
+  void shouldReportFilesCountAndParsedWhenSomeFilesFail() {
+    analyze(sensor(),
+      inputFile("templates/valid.yaml", K8S_IDENTIFIERS),
+      inputFile("templates/invalid.yaml", "a: b: c\n" + K8S_IDENTIFIERS));
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.kubernetes.files.count", "2")
+      .containsEntry("iac.kubernetes.files.parsed", "1");
+  }
+
   private KubernetesSensor sonarLintSensor(String... rules) {
     var slfl = mock(SonarLintFileListener.class);
     when(slfl.getProjectContext()).thenReturn(new ProjectContextImpl());

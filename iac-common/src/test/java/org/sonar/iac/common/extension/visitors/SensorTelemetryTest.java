@@ -108,7 +108,6 @@ class SensorTelemetryTest {
 
   static Stream<Arguments> provideFileSizeMetricTestData() {
     return Stream.of(
-      Arguments.of(Arrays.asList(10L, 3L, 7L, 11L), "iac.language.files.count", "4"),
       Arguments.of(Arrays.asList(10L, 3L, 7L, 11L, 8L), "iac.language.files.medianSize", "8"),
       Arguments.of(Arrays.asList(10L, 3L, 7L, 11L, 8L), "iac.language.files.largestFiles", "[11, 10, 8, 7, 3]"));
   }
@@ -120,7 +119,6 @@ class SensorTelemetryTest {
     sensorTelemetry.addFileSize("language", 5L);
 
     assertThat(sensorTelemetry.getTelemetry())
-      .containsEntry("iac.language.files.count", "3")
       .containsEntry("iac.language.files.medianSize", "10");
   }
 

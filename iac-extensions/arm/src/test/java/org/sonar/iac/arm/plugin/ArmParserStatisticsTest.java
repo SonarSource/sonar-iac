@@ -31,7 +31,7 @@ class ArmParserStatisticsTest {
   void shouldNotReportTelemetryWhenNoFiles() {
     var telemetryProperties = addArmStatistics(statistics);
 
-    assertThat(telemetryProperties).doesNotContainKey("iac.azureresourcemanager.files.count");
+    assertThat(telemetryProperties).isEmpty();
   }
 
   @Test
@@ -40,7 +40,6 @@ class ArmParserStatisticsTest {
     statistics.recordFileEnd(jsonFileContext());
 
     assertThat(addArmStatistics(statistics))
-      .containsEntry("iac.azureresourcemanager.files.count", "1")
       .containsEntry("iac.azureresourcemanager.files.json.count", "1")
       .containsEntry("iac.azureresourcemanager.files.json.parsed", "1")
       .containsEntry("iac.azureresourcemanager.files.bicep.count", "0")
@@ -53,7 +52,6 @@ class ArmParserStatisticsTest {
     statistics.recordFileEnd(bicepFileContext());
 
     assertThat(addArmStatistics(statistics))
-      .containsEntry("iac.azureresourcemanager.files.count", "1")
       .containsEntry("iac.azureresourcemanager.files.json.count", "0")
       .containsEntry("iac.azureresourcemanager.files.json.parsed", "0")
       .containsEntry("iac.azureresourcemanager.files.bicep.count", "1")
@@ -67,7 +65,6 @@ class ArmParserStatisticsTest {
     statistics.recordFileStart(jsonFileContext());
 
     assertThat(addArmStatistics(statistics))
-      .containsEntry("iac.azureresourcemanager.files.count", "3")
       .containsEntry("iac.azureresourcemanager.files.json.count", "2")
       .containsEntry("iac.azureresourcemanager.files.bicep.count", "1");
   }

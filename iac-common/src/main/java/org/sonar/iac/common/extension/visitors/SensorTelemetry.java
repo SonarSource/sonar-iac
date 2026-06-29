@@ -107,7 +107,6 @@ public class SensorTelemetry {
     booleanMeasures.forEach((key, value) -> telemetry.put(key, Boolean.TRUE.equals(value) ? "1" : "0"));
     linesOfCodePerLanguage.forEach((language, loc) -> telemetry.put(KEY_PREFIX + language + ".loc", String.valueOf(loc)));
     fileSizesPerLanguage.forEach((language, sizes) -> {
-      telemetry.put(KEY_PREFIX + language + ".files.count", String.valueOf(sizes.size()));
       telemetry.put(KEY_PREFIX + language + ".files.medianSize", String.valueOf(calculateMedian(new ArrayList<>(sizes))));
       telemetry.put(KEY_PREFIX + language + ".files.largestFiles", String.valueOf(getLargestNumbers(sizes, 20)));
     });

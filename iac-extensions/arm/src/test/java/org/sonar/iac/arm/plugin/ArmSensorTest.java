@@ -230,10 +230,28 @@ class ArmSensorTest extends ExtensionSensorTest {
 
     assertThat(context.getTelemetryProperties())
       .containsEntry("iac.azureresourcemanager.files.count", "2")
+      .containsEntry("iac.azureresourcemanager.files.parsed", "2")
       .containsEntry("iac.azureresourcemanager.files.json.count", "1")
       .containsEntry("iac.azureresourcemanager.files.json.parsed", "1")
       .containsEntry("iac.azureresourcemanager.files.bicep.count", "1")
       .containsEntry("iac.azureresourcemanager.files.bicep.parsed", "1");
+  }
+
+  @Test
+  void shouldReportFilesCountAndParsedCountWhenSomeFilesFail() {
+    InputFile validBicepFile = IacTestUtils.inputFile(
+      "valid.bicep",
+      baseDir.toPath(),
+      "param environmentName string",
+      "azureresourcemanager");
+    InputFile failingJsonFile = inputFile("failing.json",
+      "{\"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\" INVALID");
+
+    analyze(sensor(), validBicepFile, failingJsonFile);
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.azureresourcemanager.files.count", "2")
+      .containsEntry("iac.azureresourcemanager.files.parsed", "1");
   }
 
   @Test

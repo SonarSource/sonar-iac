@@ -124,13 +124,53 @@ abstract class AbstractAnalyzerTest {
   }
 
   @Test
-  void shouldCountParseFailuresInTelemetry() {
+  void shouldTrackFilesCountAndParsedOnSuccessInTelemetry() {
+    Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
+
+    analyzer.analyseFiles(context, List.of(fileWithContent, fileWithContent), "terraform");
+
+    assertThat(sensorTelemetry.getTelemetry())
+      .containsEntry("iac.terraform.files.count", "2")
+      .containsEntry("iac.terraform.files.parsed", "2");
+  }
+
+  @Test
+  void shouldTrackFilesCountAndParsedOnParseFailureInTelemetry() {
     when(parser.parse(anyString(), any(InputFileContext.class))).thenThrow(new ParseException("Parse error", null, null));
     Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
 
     analyzer.analyseFiles(context, List.of(fileWithContent, fileWithContent), "terraform");
 
-    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.terraform.parse_failures_count", "2");
+    assertThat(sensorTelemetry.getTelemetry())
+      .containsEntry("iac.terraform.files.count", "2")
+      .containsEntry("iac.terraform.files.parsed", "0");
+  }
+
+  @Test
+  void shouldTrackFilesCountAndParsedOnEmptyFileInTelemetry() {
+    Analyzer analyzer = analyzer(Collections.emptyList(), checksVisitor);
+    analyzer.analyseFiles(context, List.of(emptyFile), "terraform");
+    assertThat(sensorTelemetry.getTelemetry())
+      .containsEntry("iac.terraform.files.count", "1")
+      .containsEntry("iac.terraform.files.parsed", "0");
+  }
+
+  @Test
+  void shouldCountFileAsParsedEvenWhenVisitorFailsInFailFastMode() {
+    TreeVisitor<InputFileContext> visitorFail = mock(TreeVisitor.class);
+    doThrow(new RuntimeException("Visitor failed"))
+      .when(visitorFail).scan(any(InputFileContext.class), any(Tree.class));
+    MapSettings settings = new MapSettings();
+    settings.setProperty(IacSensor.FAIL_FAST_PROPERTY_NAME, true);
+    context.setSettings(settings);
+    Analyzer analyzer = analyzer(List.of(visitorFail), checksVisitor);
+    List<InputFile> files = List.of(fileWithContent);
+
+    assertThatThrownBy(() -> analyzer.analyseFiles(context, files, "terraform"))
+      .isInstanceOf(IllegalStateException.class);
+
+    assertThat(sensorTelemetry.getTelemetry())
+      .containsEntry("iac.terraform.files.parsed", "1");
   }
 
   @Test

@@ -169,4 +169,22 @@ class TerraformSensorTest extends ExtensionSensorTest {
 
     assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
   }
+
+  @Test
+  void shouldReportFilesCountAndParsedWhenAllFilesParseSuccessfully() {
+    analyze(sensor(), inputFile("file1.tf", "a {}"), inputFile("file2.tf", "a {}"));
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.terraform.files.count", "2")
+      .containsEntry("iac.terraform.files.parsed", "2");
+  }
+
+  @Test
+  void shouldReportFilesCountAndParsedWhenSomeFilesFail() {
+    analyze(sensor(), validFile(), fileWithParsingError());
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.terraform.files.count", "2")
+      .containsEntry("iac.terraform.files.parsed", "1");
+  }
 }
