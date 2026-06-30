@@ -19,6 +19,7 @@ package org.sonar.iac.arm.checks;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import org.sonar.iac.arm.checkdsl.ContextualProperty;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;
@@ -126,19 +127,41 @@ class PublicNetworkAccessKeyCheckPart extends AbstractArmResourceCheck {
   }
 
   private static Consumer<ContextualResource> checkPublicNetworkAccess() {
-    return resource -> resource.property(PUBLIC_NETWORK_ACCESS_PROPERTY)
-      .reportIf(PublicNetworkAccessKeyCheckPart::isSensitivePublicNetworkAccess, PUBLIC_NETWORK_ACCESS_MESSAGE);
+    return ifMissingAclDeny(resource -> resource.property(PUBLIC_NETWORK_ACCESS_PROPERTY)
+      .reportIf(PublicNetworkAccessKeyCheckPart::isSensitivePublicNetworkAccess, PUBLIC_NETWORK_ACCESS_MESSAGE));
   }
 
   private static Consumer<ContextualResource> checkPublicNetworkAccessSimplified() {
-    return resource -> resource.property(PUBLIC_NETWORK_ACCESS_PROPERTY)
-      .reportIf(PublicNetworkAccessKeyCheckPart::isSensitivePublicNetworkAccessSimplified, PUBLIC_NETWORK_ACCESS_MESSAGE);
+    return ifMissingAclDeny(resource -> resource.property(PUBLIC_NETWORK_ACCESS_PROPERTY)
+      .reportIf(PublicNetworkAccessKeyCheckPart::isSensitivePublicNetworkAccessSimplified, PUBLIC_NETWORK_ACCESS_MESSAGE));
   }
 
   private static Consumer<ContextualResource> checkPublicNetworkAccessSimplifiedIn(String objectName) {
-    return resource -> resource.object(objectName)
+    return ifMissingAclDeny(resource -> resource.object(objectName)
       .property(PUBLIC_NETWORK_ACCESS_PROPERTY)
-      .reportIf(PublicNetworkAccessKeyCheckPart::isSensitivePublicNetworkAccessSimplified, PUBLIC_NETWORK_ACCESS_MESSAGE);
+      .reportIf(PublicNetworkAccessKeyCheckPart::isSensitivePublicNetworkAccessSimplified, PUBLIC_NETWORK_ACCESS_MESSAGE));
+  }
+
+  /**
+   * Wraps a {@code publicNetworkAccess} consumer so it runs only when the resource does not already carry an ACL
+   * {@code defaultAction = 'Deny'}.
+   */
+  private static Consumer<ContextualResource> ifMissingAclDeny(Consumer<ContextualResource> then) {
+    return resource -> {
+      if (!hasAclDeny(resource)) {
+        then.accept(resource);
+      }
+    };
+  }
+
+  private static boolean hasAclDeny(ContextualResource resource) {
+    return isDeny(resource.object("networkAcls").property("defaultAction"))
+      || isDeny(resource.object("networkACLs").property("defaultAction"))
+      || isDeny(resource.object("siteConfig").property("ipSecurityRestrictionsDefaultAction"));
+  }
+
+  private static boolean isDeny(ContextualProperty property) {
+    return TextUtils.matchesValue(property.valueOrNull(), "Deny"::equals).isTrue();
   }
 
   private static boolean isSensitivePublicNetworkAccess(Tree tree) {

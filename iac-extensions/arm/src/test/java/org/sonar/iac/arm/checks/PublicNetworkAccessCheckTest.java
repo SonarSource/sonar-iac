@@ -47,6 +47,21 @@ class PublicNetworkAccessCheckTest {
     BicepVerifier.verify("PublicNetworkAccessCheckTest/publicNetworkAccess/hostPools.bicep", CHECK);
   }
 
+  @Test
+  void shouldNotRaiseWhenAclDefaultActionDenyJson() {
+    ArmVerifier.verify("PublicNetworkAccessCheckTest/publicNetworkAccess/aclDefaultActionDeny.json",
+      CHECK,
+      issue(69, 8, 69, 40, MESSAGE_PUBLIC_NETWORK_ACCESS),
+      issue(77, 8, 77, 40, MESSAGE_PUBLIC_NETWORK_ACCESS),
+      issue(88, 8, 88, 40, MESSAGE_PUBLIC_NETWORK_ACCESS),
+      issue(99, 8, 99, 40, MESSAGE_PUBLIC_NETWORK_ACCESS));
+  }
+
+  @Test
+  void shouldNotRaiseWhenAclDefaultActionDenyBicep() {
+    BicepVerifier.verify("PublicNetworkAccessCheckTest/publicNetworkAccess/aclDefaultActionDeny.bicep", CHECK);
+  }
+
   static Stream<String> listResourcesPublicNetworkAccessSimplified() {
     return Stream.of(
       "Microsoft.AgFoodPlatform/farmBeats",

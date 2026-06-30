@@ -1,0 +1,106 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2023-05-01",
+      "name": "Compliant: networkAcls.defaultAction Deny",
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "networkAcls": {
+          "defaultAction": "Deny",
+          "ipRules": [
+            { "value": "203.0.113.0/24" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.SignalRService/signalR",
+      "apiVersion": "2023-02-01",
+      "name": "Compliant: networkACLs.defaultAction Deny",
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "networkACLs": {
+          "defaultAction": "Deny"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-09-01",
+      "name": "Compliant: siteConfig.ipSecurityRestrictionsDefaultAction Deny",
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "siteConfig": {
+          "ipSecurityRestrictionsDefaultAction": "Deny",
+          "ipSecurityRestrictions": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-09-01",
+      "name": "Compliant: publicNetworkAccess nested in siteConfig with ipSecurityRestrictionsDefaultAction Deny",
+      "properties": {
+        "siteConfig": {
+          "publicNetworkAccess": "Enabled",
+          "ipSecurityRestrictionsDefaultAction": "Deny"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DesktopVirtualization/hostPools",
+      "apiVersion": "2023-09-05",
+      "name": "Compliant: broader sensitive value with networkAcls.defaultAction Deny",
+      "properties": {
+        "publicNetworkAccess": "EnabledForSessionHostsOnly",
+        "networkAcls": {
+          "defaultAction": "Deny"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.SignalRService/signalR",
+      "apiVersion": "2023-02-01",
+      "name": "Noncompliant: no ACL block",
+      "properties": {
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2023-05-01",
+      "name": "Noncompliant: networkAcls.defaultAction Allow",
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "networkAcls": {
+          "defaultAction": "Allow"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "Noncompliant: networkAcls without defaultAction",
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "networkAcls": {
+          "ipRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-09-01",
+      "name": "Noncompliant: siteConfig without ipSecurityRestrictionsDefaultAction",
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "siteConfig": {
+          "ipSecurityRestrictions": []
+        }
+      }
+    }
+  ]
+}
