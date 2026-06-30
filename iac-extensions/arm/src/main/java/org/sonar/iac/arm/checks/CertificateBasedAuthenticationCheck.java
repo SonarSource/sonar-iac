@@ -47,6 +47,13 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   private static final String MESSAGE_USE_CERT_AUTH = "Use client certificate authentication for this resource.";
   private static final String MESSAGE_PROVIDE_CERT_LIST = "Provide a list of certificates to enable client certificate authentication.";
 
+  private static final String CTX_APP_SERVICE = "azure_app_service";
+  private static final String CTX_SIGNALR_SERVICE = "azure_signalr_service";
+  private static final String CTX_CONTAINER_APPS = "azure_container_apps";
+  private static final String CTX_API_MANAGEMENT = "azure_api_management";
+  private static final String CTX_DATA_FACTORY = "azure_data_factory";
+  private static final String CTX_CONTAINER_REGISTRY = "azure_container_registry";
+
   private static final Set<String> SENSITIVE_LINKED_SERVICES_TYPE = Set.of("Web", "HttpServer");
   private static final Set<String> SENSITIVE_PIPELINES_TYPE = Set.of("WebActivity", "WebHook");
   private static final Set<String> SENSITIVE_PIPELINES_AUTHENTICATION_TYPE = Set.of("Basic", "ServicePrincipal");
@@ -54,8 +61,8 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
   @Override
   protected void registerResourceConsumer() {
     register("Microsoft.ApiManagement/service/gateways/hostnameConfigurations", resource -> resource.property("negotiateClientCertificate")
-      .reportIf(isFalse(), MESSAGE_ENABLE_CERT_AUTH)
-      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY));
+      .reportIf(isFalse(), MESSAGE_ENABLE_CERT_AUTH, CTX_API_MANAGEMENT)
+      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY, CTX_API_MANAGEMENT));
     register("Microsoft.App/containerApps", CertificateBasedAuthenticationCheck::checkContainerApps);
     register("Microsoft.ContainerRegistry/registries/tokens", CertificateBasedAuthenticationCheck::checkRegistriesTokens);
     register("Microsoft.DataFactory/factories/linkedservices", CertificateBasedAuthenticationCheck::checkLinkedServices);
@@ -85,19 +92,19 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
       return;
     }
     ingress.property("clientCertificateMode")
-      .reportIf(isValue("accept"::equals), MESSAGE_REQUIRE_CLIENT_CERTS)
-      .reportIf(isValue("ignore"::equals), MESSAGE_ENABLE_CERT_AUTH)
-      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY);
+      .reportIf(isValue("accept"::equals), MESSAGE_REQUIRE_CLIENT_CERTS, CTX_CONTAINER_APPS)
+      .reportIf(isValue("ignore"::equals), MESSAGE_ENABLE_CERT_AUTH, CTX_CONTAINER_APPS)
+      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY, CTX_CONTAINER_APPS);
   }
 
   private static void checkRegistriesTokens(ContextualResource resource) {
     ContextualMap<ContextualObject, ObjectExpression> credentials = resource.object("credentials");
     if (credentials.isPresent()) {
       credentials.property("certificates")
-        .reportIf(isEmptyArray(), MESSAGE_PROVIDE_CERT_LIST)
-        .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY);
+        .reportIf(isEmptyArray(), MESSAGE_PROVIDE_CERT_LIST, CTX_CONTAINER_REGISTRY)
+        .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY, CTX_CONTAINER_REGISTRY);
       credentials.property("passwords")
-        .reportIf(isArrayWithValues(), MESSAGE_USE_CERT_AUTH);
+        .reportIf(isArrayWithValues(), MESSAGE_USE_CERT_AUTH, CTX_CONTAINER_REGISTRY);
     }
   }
 
@@ -107,7 +114,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
 
     if (type.is(isValue(SENSITIVE_LINKED_SERVICES_TYPE::contains))
       && authenticationType.is(isValue(str -> !"ClientCertificate".equals(str)))) {
-      authenticationType.report(MESSAGE_USE_CERT_AUTH, type.toSecondary("Service type"));
+      authenticationType.report(MESSAGE_USE_CERT_AUTH, List.of(type.toSecondary("Service type")), CTX_DATA_FACTORY);
     }
   }
 
@@ -140,11 +147,11 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
       return;
     }
     resource.property(CLIENT_CERTIFICATE_ENABLED_PROPERTY)
-      .reportIf(isFalse(), MESSAGE_ENABLE_CERT_AUTH)
-      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY);
+      .reportIf(isFalse(), MESSAGE_ENABLE_CERT_AUTH, CTX_APP_SERVICE)
+      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY, CTX_APP_SERVICE);
     resource.property("clientCertMode")
-      .reportIf(isValue(str -> !"Required".equals(str)), MESSAGE_REQUIRE_CLIENT_CERTS)
-      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY);
+      .reportIf(isValue(str -> !"Required".equals(str)), MESSAGE_REQUIRE_CLIENT_CERTS, CTX_APP_SERVICE)
+      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY, CTX_APP_SERVICE);
   }
 
   private static void checkWebSitesSlots(ContextualResource resource) {
@@ -152,9 +159,9 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
       return;
     }
     resource.property(CLIENT_CERTIFICATE_ENABLED_PROPERTY)
-      .reportIf(isFalse(), MESSAGE_ENABLE_CERT_AUTH);
+      .reportIf(isFalse(), MESSAGE_ENABLE_CERT_AUTH, CTX_APP_SERVICE);
     resource.property("clientCertMode")
-      .reportIf(isValue(str -> !"Required".equals(str)), MESSAGE_REQUIRE_CLIENT_CERTS);
+      .reportIf(isValue(str -> !"Required".equals(str)), MESSAGE_REQUIRE_CLIENT_CERTS, CTX_APP_SERVICE);
   }
 
   private static void checkPipelines(ContextualResource resource) {
@@ -164,7 +171,7 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
 
       if (type.is(isValue(SENSITIVE_PIPELINES_TYPE::contains))
         && authenticationType.is(isValue(SENSITIVE_PIPELINES_AUTHENTICATION_TYPE::contains))) {
-        authenticationType.report(MESSAGE_USE_CERT_AUTH, type.toSecondary("Pipeline type"));
+        authenticationType.report(MESSAGE_USE_CERT_AUTH, List.of(type.toSecondary("Pipeline type")), CTX_DATA_FACTORY);
       }
     });
   }
@@ -174,8 +181,8 @@ public class CertificateBasedAuthenticationCheck extends AbstractArmResourceChec
       return;
     }
     resource.object("tls").property(CLIENT_CERTIFICATE_ENABLED_PROPERTY)
-      .reportIf(isFalse(), MESSAGE_ENABLE_CERT_AUTH)
-      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY);
+      .reportIf(isFalse(), MESSAGE_ENABLE_CERT_AUTH, CTX_SIGNALR_SERVICE)
+      .reportIfAbsent(MESSAGE_SET_CERT_PROPERTY, CTX_SIGNALR_SERVICE);
   }
 
   private static boolean isResourceVersionEqualsOrAfter(ContextualResource resource, String version) {

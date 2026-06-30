@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.terraform.checks.azure;
 
+import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -32,6 +33,10 @@ public class CertificateBasedAuthenticationCheck extends AbstractResourceCheck {
   private static final String MESSAGE_REQUIRE_CLIENT_CERTS = "Require client certificates for this resource.";
   private static final String MESSAGE_SET_CERT_PROPERTY = "Set \"%s\" to enable client certificate authentication.";
   private static final String MESSAGE_USE_CERT_AUTH = "Use client certificate authentication for this resource.";
+
+  private static final String CTX_APP_SERVICE = "azure_app_service";
+  private static final String CTX_CONTAINER_APPS = "azure_container_apps";
+  private static final String CTX_DATA_FACTORY = "azure_data_factory";
 
   private static final String DEFAULT_CLIENT_CERT_MODE = "client_certificate_mode";
   private static final String DEFAULT_CLIENT_CERT_ENABLED = "client_certificate_enabled";
@@ -82,9 +87,9 @@ public class CertificateBasedAuthenticationCheck extends AbstractResourceCheck {
   private static void checkCertEnabledAndMode(CheckContext ctx, BlockTree resource) {
     var optCertEnabled = PropertyUtils.get(resource, CLIENT_CERT_ENABLED, AttributeTree.class);
     if (optCertEnabled.isEmpty()) {
-      reportResource(ctx, resource, MESSAGE_SET_CERT_PROPERTY.formatted(DEFAULT_CLIENT_CERT_ENABLED));
+      reportResource(ctx, resource, MESSAGE_SET_CERT_PROPERTY.formatted(DEFAULT_CLIENT_CERT_ENABLED), CTX_APP_SERVICE);
     } else if (TextUtils.isValueFalse(optCertEnabled.get().value())) {
-      ctx.reportIssue(optCertEnabled.get(), MESSAGE_ENABLE_CERT_AUTH);
+      ctx.reportIssue(optCertEnabled.get(), MESSAGE_ENABLE_CERT_AUTH, List.of(), CTX_APP_SERVICE);
     } else {
       checkCertMode(ctx, resource);
     }
@@ -93,13 +98,13 @@ public class CertificateBasedAuthenticationCheck extends AbstractResourceCheck {
   private static void checkCertMode(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, CLIENT_CERT_MODE, AttributeTree.class)
       .ifPresentOrElse(
-        m -> reportSensitiveValue(ctx, m, "Optional", MESSAGE_REQUIRE_CLIENT_CERTS),
-        () -> reportResource(ctx, resource, MESSAGE_SET_CERT_PROPERTY.formatted(DEFAULT_CLIENT_CERT_MODE)));
+        m -> reportSensitiveValue(ctx, m, "Optional", MESSAGE_REQUIRE_CLIENT_CERTS, CTX_APP_SERVICE),
+        () -> reportResource(ctx, resource, MESSAGE_SET_CERT_PROPERTY.formatted(DEFAULT_CLIENT_CERT_MODE), CTX_APP_SERVICE));
   }
 
   private static void checkLinkedServices(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "authentication_type", AttributeTree.class)
-      .ifPresent(m -> reportSensitiveValue(ctx, m, "Basic", MESSAGE_USE_CERT_AUTH));
+      .ifPresent(m -> reportSensitiveValue(ctx, m, "Basic", MESSAGE_USE_CERT_AUTH, CTX_DATA_FACTORY));
   }
 
   private static void checkContainerApp(CheckContext ctx, BlockTree resource) {
@@ -111,10 +116,10 @@ public class CertificateBasedAuthenticationCheck extends AbstractResourceCheck {
       PropertyUtils.get(ingress, DEFAULT_CLIENT_CERT_MODE, AttributeTree.class)
         .ifPresentOrElse(
           mode -> {
-            reportSensitiveValue(ctx, mode, "ignore", MESSAGE_ENABLE_CERT_AUTH);
-            reportSensitiveValue(ctx, mode, "accept", MESSAGE_REQUIRE_CLIENT_CERTS);
+            reportSensitiveValue(ctx, mode, "ignore", MESSAGE_ENABLE_CERT_AUTH, CTX_CONTAINER_APPS);
+            reportSensitiveValue(ctx, mode, "accept", MESSAGE_REQUIRE_CLIENT_CERTS, CTX_CONTAINER_APPS);
           },
-          () -> ctx.reportIssue(ingress.key(), MESSAGE_SET_CERT_PROPERTY.formatted(DEFAULT_CLIENT_CERT_MODE)));
+          () -> ctx.reportIssue(ingress.key(), MESSAGE_SET_CERT_PROPERTY.formatted(DEFAULT_CLIENT_CERT_MODE), List.of(), CTX_CONTAINER_APPS));
     });
   }
 }

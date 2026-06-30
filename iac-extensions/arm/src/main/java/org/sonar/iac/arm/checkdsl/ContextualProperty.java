@@ -61,6 +61,22 @@ public class ContextualProperty extends ContextualPropertyTree<ContextualPropert
     return super.reportIfAbsent(message, secondaries);
   }
 
+  @Override
+  public ContextualProperty reportIfAbsent(String message, String ruleDescriptionContextKey) {
+    if (isResourceReferencing().isTrue()) {
+      return this;
+    }
+    return super.reportIfAbsent(message, ruleDescriptionContextKey);
+  }
+
+  @Override
+  public ContextualProperty reportIfAbsent(String message, List<SecondaryLocation> secondaries, String ruleDescriptionContextKey) {
+    if (isResourceReferencing().isTrue()) {
+      return this;
+    }
+    return super.reportIfAbsent(message, secondaries, ruleDescriptionContextKey);
+  }
+
   @CheckForNull
   public Expression valueOrNull() {
     if (tree != null) {

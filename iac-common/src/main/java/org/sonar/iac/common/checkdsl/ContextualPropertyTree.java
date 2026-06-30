@@ -39,6 +39,13 @@ public abstract class ContextualPropertyTree<S extends ContextualPropertyTree<S,
     return (S) this;
   }
 
+  public S reportIf(Predicate<E> predicate, String message, String ruleDescriptionContextKey) {
+    if (tree != null && predicate.test((E) tree.value())) {
+      return report(message, List.of(), ruleDescriptionContextKey);
+    }
+    return (S) this;
+  }
+
   public boolean is(Predicate<E> predicate) {
     if (tree != null) {
       return predicate.test((E) tree.value());

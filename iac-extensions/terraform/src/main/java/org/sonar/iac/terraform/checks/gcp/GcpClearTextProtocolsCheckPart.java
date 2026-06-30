@@ -24,12 +24,14 @@ import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 
 public class GcpClearTextProtocolsCheckPart extends AbstractNewResourceCheck {
 
+  private static final String CTX_GCP_LOAD_BALANCERS = "gcp_load_balancers";
+
   @Override
   protected void registerResourceConsumer() {
     register("google_compute_region_backend_service", resource -> resource
       .attribute("protocol")
-      .reportIf(equalTo("HTTP"), MESSAGE_CLEAR_TEXT)
-      .reportIfAbsent(MESSAGE_OMITTING));
+      .reportIf(equalTo("HTTP"), MESSAGE_CLEAR_TEXT, CTX_GCP_LOAD_BALANCERS)
+      .reportIfAbsent(MESSAGE_OMITTING, CTX_GCP_LOAD_BALANCERS));
   }
 
 }

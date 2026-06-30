@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.cloudformation.checks;
 
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
@@ -35,6 +36,13 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
 
   public static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";
   public static final String MESSAGE_OMITTING_FORMAT = "Omitting \"%s\" enables clear-text traffic. Make sure it is safe here.";
+
+  private static final String CTX_MSK = "amazon_msk";
+  private static final String CTX_OPENSEARCH = "aws_opensearch";
+  private static final String CTX_LOAD_BALANCING = "aws_elastic_load_balancing";
+  private static final String CTX_ECS = "amazon_ecs";
+  private static final String CTX_ELASTICACHE = "amazon_elasticache";
+  private static final String CTX_KINESIS = "aws_kinesis";
 
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
@@ -58,33 +66,33 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
       .flatMap(e -> PropertyUtils.value(e, "EncryptionInTransit", MappingTree.class))
       .ifPresent(e -> {
         checkClientBroker(ctx, e);
-        reportOnFalseProperty(ctx, e, "InCluster", MESSAGE_CLEAR_TEXT);
+        reportOnFalseProperty(ctx, e, "InCluster", MESSAGE_CLEAR_TEXT, CTX_MSK);
       });
   }
 
   private static void checkClientBroker(CheckContext ctx, MappingTree e) {
     PropertyUtils.value(e, "ClientBroker", ScalarTree.class)
       .filter(clientBroker -> !"TLS".equals(clientBroker.value()))
-      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, MESSAGE_CLEAR_TEXT));
+      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, MESSAGE_CLEAR_TEXT, List.of(), CTX_MSK));
   }
 
   private static void checkSearchDomain(CheckContext ctx, Resource resource) {
     PropertyUtils.value(resource.properties(), "NodeToNodeEncryptionOptions")
-      .ifPresentOrElse(v -> reportOnFalseProperty(ctx, v, "Enabled", MESSAGE_CLEAR_TEXT),
-        () -> reportResource(ctx, resource, omittingMessage("NodeToNodeEncryptionOptions")));
+      .ifPresentOrElse(v -> reportOnFalseProperty(ctx, v, "Enabled", MESSAGE_CLEAR_TEXT, CTX_OPENSEARCH),
+        () -> reportResource(ctx, resource, omittingMessage("NodeToNodeEncryptionOptions"), CTX_OPENSEARCH));
 
     PropertyUtils.get(resource.properties(), "DomainEndpointOptions")
       .ifPresentOrElse(v -> checkDomainEnforceHttp(ctx, v),
-        () -> reportResource(ctx, resource, omittingMessage("DomainEndpointOptions")));
+        () -> reportResource(ctx, resource, omittingMessage("DomainEndpointOptions"), CTX_OPENSEARCH));
   }
 
   private static void checkDomainEnforceHttp(CheckContext ctx, PropertyTree domainEndpointOptions) {
     String enforceHTTPSKey = "EnforceHTTPS";
     if (PropertyUtils.isMissing(domainEndpointOptions.value(), enforceHTTPSKey)) {
-      ctx.reportIssue(domainEndpointOptions.key(), omittingMessage(enforceHTTPSKey));
+      ctx.reportIssue(domainEndpointOptions.key(), omittingMessage(enforceHTTPSKey), List.of(), CTX_OPENSEARCH);
     }
 
-    reportOnFalseProperty(ctx, domainEndpointOptions.value(), enforceHTTPSKey, MESSAGE_CLEAR_TEXT);
+    reportOnFalseProperty(ctx, domainEndpointOptions.value(), enforceHTTPSKey, MESSAGE_CLEAR_TEXT, CTX_OPENSEARCH);
   }
 
   private static void checkLoadBalancingListener(CheckContext ctx, Resource resource) {
@@ -99,7 +107,7 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     }
 
     if (defaultActions.get().elements().stream().anyMatch(a -> isFixedResponseOrForwardAction(a) || isRedirectToHttpAction(a))) {
-      ctx.reportIssue(rootProtocol.get(), MESSAGE_CLEAR_TEXT);
+      ctx.reportIssue(rootProtocol.get(), MESSAGE_CLEAR_TEXT, List.of(), CTX_LOAD_BALANCING);
     }
   }
 
@@ -126,24 +134,24 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
 
     Optional<Tree> transitEncryption = PropertyUtils.value(configuration.get().value(), "TransitEncryption");
     if (transitEncryption.isPresent() && TextUtils.isValue(transitEncryption.get(), "DISABLED").isTrue()) {
-      ctx.reportIssue(transitEncryption.get(), MESSAGE_CLEAR_TEXT);
+      ctx.reportIssue(transitEncryption.get(), MESSAGE_CLEAR_TEXT, List.of(), CTX_ECS);
     } else if (transitEncryption.isEmpty()) {
-      ctx.reportIssue(configuration.get().key(), omittingMessage("TransitEncryption"));
+      ctx.reportIssue(configuration.get().key(), omittingMessage("TransitEncryption"), List.of(), CTX_ECS);
     }
   }
 
   private static void checkESReplicationGroup(CheckContext ctx, Resource resource) {
     String encryptionPropertyKey = "TransitEncryptionEnabled";
     if (PropertyUtils.isMissing(resource.properties(), encryptionPropertyKey)) {
-      reportResource(ctx, resource, omittingMessage(encryptionPropertyKey));
+      reportResource(ctx, resource, omittingMessage(encryptionPropertyKey), CTX_ELASTICACHE);
     } else {
-      reportOnFalseProperty(ctx, resource.properties(), encryptionPropertyKey, MESSAGE_CLEAR_TEXT);
+      reportOnFalseProperty(ctx, resource.properties(), encryptionPropertyKey, MESSAGE_CLEAR_TEXT, CTX_ELASTICACHE);
     }
   }
 
   private static void checkKinesisStream(CheckContext ctx, Resource resource) {
     if (PropertyUtils.isMissing(resource.properties(), "StreamEncryption")) {
-      reportResource(ctx, resource, omittingMessage("StreamEncryption"));
+      reportResource(ctx, resource, omittingMessage("StreamEncryption"), CTX_KINESIS);
     }
   }
 
@@ -151,6 +159,12 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     PropertyUtils.value(tree, propertyName, ScalarTree.class)
       .filter(TextUtils::isValueFalse)
       .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, message));
+  }
+
+  private static void reportOnFalseProperty(CheckContext ctx, @Nullable Tree tree, String propertyName, String message, String ruleDescriptionContextKey) {
+    PropertyUtils.value(tree, propertyName, ScalarTree.class)
+      .filter(TextUtils::isValueFalse)
+      .ifPresent(v -> ctx.reportIssue(v, message, List.of(), ruleDescriptionContextKey));
   }
 
   private static String omittingMessage(String domainEndpointOptions) {

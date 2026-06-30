@@ -62,6 +62,25 @@ public abstract class ContextualTree<S extends ContextualTree<S, T>, T extends T
     return (S) this;
   }
 
+  public S report(String message, List<SecondaryLocation> secondaries, String ruleDescriptionContextKey) {
+    HasTextRange toHighlight = toHighlight();
+    if (toHighlight != null) {
+      ctx.reportIssue(toHighlight, message, secondaries, ruleDescriptionContextKey);
+    }
+    return (S) this;
+  }
+
+  public S reportIfAbsent(String message, String ruleDescriptionContextKey) {
+    return reportIfAbsent(message, List.of(), ruleDescriptionContextKey);
+  }
+
+  public S reportIfAbsent(String message, List<SecondaryLocation> secondaries, String ruleDescriptionContextKey) {
+    if (tree == null && parent != null) {
+      parent.report(String.format(message, name), secondaries, ruleDescriptionContextKey);
+    }
+    return (S) this;
+  }
+
   @CheckForNull
   public SecondaryLocation toSecondary(String message) {
     HasTextRange toHighlight = toHighlight();

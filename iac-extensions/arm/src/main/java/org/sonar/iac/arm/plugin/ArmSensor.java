@@ -30,13 +30,13 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.arm.checks.ArmCheckList;
 import org.sonar.iac.arm.parser.ArmParser;
+import org.sonar.iac.arm.visitors.ArmChecksVisitor;
 import org.sonar.iac.arm.visitors.ArmHighlightingVisitor;
 import org.sonar.iac.arm.visitors.ArmSymbolVisitor;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacProjectSensor;
 import org.sonar.iac.common.extension.SonarRuntimeUtils;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
-import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.predicates.FileType;
@@ -105,7 +105,7 @@ public class ArmSensor extends AbstractYamlLanguageSensor {
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
     visitors.add(new ArmSymbolVisitor());
-    visitors.add(new ChecksVisitor(checks, statistics));
+    visitors.add(new ArmChecksVisitor(checks, statistics));
     if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
       visitors.add(new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
       visitors.add(new ArmHighlightingVisitor());

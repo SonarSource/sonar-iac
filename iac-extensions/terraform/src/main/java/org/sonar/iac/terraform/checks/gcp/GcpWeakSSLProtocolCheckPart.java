@@ -26,16 +26,18 @@ import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.notEqualT
 
 public class GcpWeakSSLProtocolCheckPart extends AbstractNewResourceCheck {
 
+  private static final String CTX_GCP_LOAD_BALANCERS = "gcp_load_balancers";
+
   @Override
   protected void registerResourceConsumer() {
     register("google_compute_ssl_policy",
       resource -> {
         AttributeSymbol minTlsVersion = resource.attribute("min_tls_version");
-        minTlsVersion.reportIf(equalTo("TLS_1_0").or(equalTo("TLS_1_1")), WEAK_SSL_MESSAGE);
+        minTlsVersion.reportIf(equalTo("TLS_1_0").or(equalTo("TLS_1_1")), WEAK_SSL_MESSAGE, CTX_GCP_LOAD_BALANCERS);
         if (minTlsVersion.isAbsent()) {
           AttributeSymbol profile = resource.attribute("profile");
           if (profile.isAbsent() || profile.is(notEqualTo("RESTRICTED"))) {
-            minTlsVersion.reportIfAbsent(OMITTING_WEAK_SSL_MESSAGE);
+            minTlsVersion.reportIfAbsent(OMITTING_WEAK_SSL_MESSAGE, CTX_GCP_LOAD_BALANCERS);
           }
         }
       });

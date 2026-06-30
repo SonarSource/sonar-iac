@@ -69,6 +69,22 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
     return this;
   }
 
+  @Override
+  public ContextualMap<ContextualResource, ResourceDeclaration> reportIfAbsent(String message, String ruleDescriptionContextKey) {
+    if (parent != null && parent instanceof ContextualResource contextualResource && !contextualResource.isReferencingResource()) {
+      super.reportIfAbsent(message, ruleDescriptionContextKey);
+    }
+    return this;
+  }
+
+  @Override
+  public ContextualMap<ContextualResource, ResourceDeclaration> reportIfAbsent(String message, List<SecondaryLocation> secondaries, String ruleDescriptionContextKey) {
+    if (parent != null && parent instanceof ContextualResource contextualResource && !contextualResource.isReferencingResource()) {
+      super.reportIfAbsent(message, secondaries, ruleDescriptionContextKey);
+    }
+    return this;
+  }
+
   public boolean isReferencingResource() {
     return tree != null && tree.existing() != null;
   }

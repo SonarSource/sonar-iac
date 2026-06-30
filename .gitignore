@@ -65,3 +65,6 @@ iac-extensions/jvm-framework-config/src/main/antlr/PropertiesLexer.tokens
 CLAUDE.local.md
 .claude/settings.json
 .claude/settings.local.json
+
+# Some AI workflows clone rspec locally as submodule and it should be ignored
+rspec

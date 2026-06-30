@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.terraform.checks.aws;
 
+import java.util.List;
 import java.util.Set;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
@@ -31,6 +32,11 @@ import static org.sonar.iac.terraform.checks.ClearTextProtocolsCheck.MESSAGE_OMI
 public class AwsClearTextProtocolsCheckPart extends AbstractResourceCheck {
 
   private static final Set<String> SENSITIVE_LB_DEFAULT_ACTION_TYPES = Set.of("fixed-response", "forward");
+  private static final String CTX_OPENSEARCH = "aws_opensearch";
+  private static final String CTX_LOAD_BALANCING = "aws_elastic_load_balancing";
+  private static final String CTX_ELASTICACHE = "amazon_elasticache";
+  private static final String CTX_ECS = "amazon_ecs";
+  private static final String CTX_KINESIS = "aws_kinesis";
 
   @Override
   protected void registerResourceChecks() {
@@ -60,15 +66,21 @@ public class AwsClearTextProtocolsCheckPart extends AbstractResourceCheck {
 
   private static void checkOSDomain(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class)
-      .ifPresent(t -> reportOnFalseProperty(ctx, t, "enforce_https", MESSAGE_CLEAR_TEXT));
+      .ifPresent(t -> reportOnFalseProperty(ctx, t, "enforce_https", MESSAGE_CLEAR_TEXT, CTX_OPENSEARCH));
 
-    PropertyUtils.get(resource, "node_to_node_encryption", BlockTree.class).ifPresentOrElse(encryption -> reportOnFalseProperty(ctx, encryption, "enabled", MESSAGE_CLEAR_TEXT),
-      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "node_to_node_encryption")));
+    PropertyUtils.get(resource, "node_to_node_encryption", BlockTree.class).ifPresentOrElse(
+      encryption -> reportOnFalseProperty(ctx, encryption, "enabled", MESSAGE_CLEAR_TEXT, CTX_OPENSEARCH),
+      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "node_to_node_encryption"), CTX_OPENSEARCH));
   }
 
   private static void reportOnFalseProperty(CheckContext ctx, Tree tree, String propertyName, String message) {
     PropertyUtils.get(tree, propertyName, AttributeTree.class)
       .ifPresent(inCluster -> reportOnFalse(ctx, inCluster, message));
+  }
+
+  private static void reportOnFalseProperty(CheckContext ctx, Tree tree, String propertyName, String message, String ruleDescriptionContextKey) {
+    PropertyUtils.get(tree, propertyName, AttributeTree.class)
+      .ifPresent(attr -> reportOnFalse(ctx, attr, message, ruleDescriptionContextKey));
   }
 
   private static void checkLbListener(CheckContext ctx, BlockTree resource) {
@@ -80,7 +92,7 @@ public class AwsClearTextProtocolsCheckPart extends AbstractResourceCheck {
   private static void checkLbDefaultAction(CheckContext ctx, BlockTree resource, Tree rootProtocol) {
     if (PropertyUtils.getAll(resource, "default_action", BlockTree.class).stream()
       .anyMatch(defaultAction -> isInsecureRedirect(defaultAction) || isSensitiveAction(defaultAction))) {
-      ctx.reportIssue(rootProtocol, MESSAGE_CLEAR_TEXT);
+      ctx.reportIssue(rootProtocol, MESSAGE_CLEAR_TEXT, List.of(), CTX_LOAD_BALANCING);
     }
   }
 
@@ -98,8 +110,9 @@ public class AwsClearTextProtocolsCheckPart extends AbstractResourceCheck {
   }
 
   private static void checkESReplicationGroup(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "transit_encryption_enabled", AttributeTree.class).ifPresentOrElse(encryption -> reportOnFalse(ctx, encryption, MESSAGE_CLEAR_TEXT),
-      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "transit_encryption_enabled")));
+    PropertyUtils.get(resource, "transit_encryption_enabled", AttributeTree.class).ifPresentOrElse(
+      encryption -> reportOnFalse(ctx, encryption, MESSAGE_CLEAR_TEXT, CTX_ELASTICACHE),
+      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "transit_encryption_enabled"), CTX_ELASTICACHE));
   }
 
   private static void checkEcsTaskDefinition(CheckContext ctx, BlockTree resource) {
@@ -108,12 +121,14 @@ public class AwsClearTextProtocolsCheckPart extends AbstractResourceCheck {
   }
 
   private static void checkEscVolumeConfig(CheckContext ctx, BlockTree config) {
-    PropertyUtils.get(config, "transit_encryption", AttributeTree.class).ifPresentOrElse(encryption -> reportSensitiveValue(ctx, encryption, "DISABLED", MESSAGE_CLEAR_TEXT),
-      () -> ctx.reportIssue(config.key(), String.format(MESSAGE_OMITTING, "transit_encryption")));
+    PropertyUtils.get(config, "transit_encryption", AttributeTree.class).ifPresentOrElse(
+      encryption -> reportSensitiveValue(ctx, encryption, "DISABLED", MESSAGE_CLEAR_TEXT, CTX_ECS),
+      () -> ctx.reportIssue(config.key(), String.format(MESSAGE_OMITTING, "transit_encryption"), List.of(), CTX_ECS));
   }
 
   private static void checkKinesisStream(CheckContext ctx, BlockTree resource) {
-    PropertyUtils.get(resource, "encryption_type", AttributeTree.class).ifPresentOrElse(encryption -> reportSensitiveValue(ctx, encryption, "NONE", MESSAGE_CLEAR_TEXT),
-      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "encryption_type")));
+    PropertyUtils.get(resource, "encryption_type", AttributeTree.class).ifPresentOrElse(
+      encryption -> reportSensitiveValue(ctx, encryption, "NONE", MESSAGE_CLEAR_TEXT, CTX_KINESIS),
+      () -> reportResource(ctx, resource, String.format(MESSAGE_OMITTING, "encryption_type"), CTX_KINESIS));
   }
 }

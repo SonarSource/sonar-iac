@@ -38,6 +38,11 @@ public class ContextualListTree<S extends ContextualListTree<S, T, E>, T extends
     return (S) this;
   }
 
+  public S reportItemIf(Predicate<E> predicate, String message, String ruleDescriptionContextKey) {
+    items.stream().filter(predicate).forEach(item -> ctx.reportIssue(item, message, List.of(), ruleDescriptionContextKey));
+    return (S) this;
+  }
+
   public S reportIfEmpty(String message, SecondaryLocation... secondaryLocations) {
     if (isEmpty()) {
       report(message, secondaryLocations);

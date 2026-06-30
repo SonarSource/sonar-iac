@@ -98,4 +98,8 @@ public abstract class AbstractResourceCheck implements IacCheck {
   protected static void reportResource(CheckContext ctx, Resource resource, String message) {
     ctx.reportIssue(resource.type, message);
   }
+
+  protected static void reportResource(CheckContext ctx, Resource resource, String message, String ruleDescriptionContextKey) {
+    ctx.reportIssue(resource.type, message, List.of(), ruleDescriptionContextKey);
+  }
 }

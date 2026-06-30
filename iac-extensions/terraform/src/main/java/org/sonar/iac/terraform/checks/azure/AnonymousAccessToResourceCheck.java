@@ -37,6 +37,12 @@ public class AnonymousAccessToResourceCheck extends AbstractResourceCheck {
   private static final String AUTHORIZING_ANONYMOUS_MESSAGE = "Make sure that authorizing anonymous access is safe here.";
   private static final String AUTHORIZING_POTENTIAL_ANONYMOUS_MESSAGE = "Make sure that authorizing potential anonymous access is safe here.";
 
+  private static final String CTX_APP_SERVICE = "azure_app_service";
+  private static final String CTX_API_MANAGEMENT = "azure_api_management";
+  private static final String CTX_DATA_FACTORY_LINKED_SERVICE = "azure_data_factory_linked_service";
+  private static final String CTX_CACHE_FOR_REDIS = "azure_cache_for_redis";
+  private static final String CTX_STORAGE_ACCOUNTS = "azure_storage_accounts";
+
   @Override
   protected void registerResourceChecks() {
     register(AnonymousAccessToResourceCheck::checkResourceAuthSettings, "azurerm_app_service",
@@ -68,7 +74,7 @@ public class AnonymousAccessToResourceCheck extends AbstractResourceCheck {
   private static void checkResourceAuthSettings(CheckContext ctx, BlockTree resource) {
     List<BlockTree> authSettings = PropertyUtils.getAll(resource, "auth_settings", BlockTree.class);
     if (authSettings.isEmpty()) {
-      reportResource(ctx, resource, APP_AUTH_MISSING_MESSAGE);
+      reportResource(ctx, resource, APP_AUTH_MISSING_MESSAGE, CTX_APP_SERVICE);
     } else {
       authSettings.forEach(settings -> checkAuthSettings(ctx, settings));
     }
@@ -82,16 +88,16 @@ public class AnonymousAccessToResourceCheck extends AbstractResourceCheck {
     PropertyUtils.get(authSettings, "enabled", AttributeTree.class)
       .filter(enabled -> TextUtils.isValueFalse(enabled.value()))
       // report if 'enabled' is set to false
-      .ifPresentOrElse(disabled -> ctx.reportIssue(disabled, DISABLED_AUTH_MESSAGE),
+      .ifPresentOrElse(disabled -> ctx.reportIssue(disabled, DISABLED_AUTH_MESSAGE, List.of(), CTX_APP_SERVICE),
         // check 'unauthenticated_client_action'
         () -> PropertyUtils.get(authSettings, "unauthenticated_client_action", AttributeTree.class)
-          .ifPresentOrElse(action -> reportSensitiveValue(ctx, action, "AllowAnonymous", AUTHORIZING_ANONYMOUS_MESSAGE),
-            () -> ctx.reportIssue(authSettings, AUTHORIZING_ANONYMOUS_MESSAGE)));
+          .ifPresentOrElse(action -> reportSensitiveValue(ctx, action, "AllowAnonymous", AUTHORIZING_ANONYMOUS_MESSAGE, CTX_APP_SERVICE),
+            () -> ctx.reportIssue(authSettings, AUTHORIZING_ANONYMOUS_MESSAGE, List.of(), CTX_APP_SERVICE)));
   }
 
   private static void checkApiManagementApi(CheckContext ctx, BlockTree resource) {
     if (PropertyUtils.isMissing(resource, "openid_authentication")) {
-      reportResource(ctx, resource, API_MANAGEMENT_API_MESSAGE);
+      reportResource(ctx, resource, API_MANAGEMENT_API_MESSAGE, CTX_API_MANAGEMENT);
     }
   }
 
@@ -101,19 +107,19 @@ public class AnonymousAccessToResourceCheck extends AbstractResourceCheck {
   private static void checkApiManagement(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "sign_in", BlockTree.class)
       .ifPresentOrElse(signIn -> PropertyUtils.get(signIn, "enabled", AttributeTree.class)
-        .ifPresent(enabled -> reportOnFalse(ctx, enabled, API_MANAGEMENT_DISABLED_MESSAGE)),
-        () -> reportResource(ctx, resource, API_MANAGEMENT_MISSING_MESSAGE));
+        .ifPresent(enabled -> reportOnFalse(ctx, enabled, API_MANAGEMENT_DISABLED_MESSAGE, CTX_API_MANAGEMENT)),
+        () -> reportResource(ctx, resource, API_MANAGEMENT_MISSING_MESSAGE, CTX_API_MANAGEMENT));
   }
 
   private static void checkDataFactorLinkServiceOdata(CheckContext ctx, BlockTree resource) {
     if (PropertyUtils.isMissing(resource, "basic_authentication")) {
-      reportResource(ctx, resource, DATA_FACTORY_LINKED_SERVICE_ODATA_MESSAGE);
+      reportResource(ctx, resource, DATA_FACTORY_LINKED_SERVICE_ODATA_MESSAGE, CTX_DATA_FACTORY_LINKED_SERVICE);
     }
   }
 
   private static void checkDataFactorLinkServiceWebAndSftp(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "authentication_type", AttributeTree.class)
-      .ifPresent(authentication -> reportSensitiveValue(ctx, authentication, "Anonymous", AUTHORIZING_ANONYMOUS_MESSAGE));
+      .ifPresent(authentication -> reportSensitiveValue(ctx, authentication, "Anonymous", AUTHORIZING_ANONYMOUS_MESSAGE, CTX_DATA_FACTORY_LINKED_SERVICE));
   }
 
   /**
@@ -122,16 +128,16 @@ public class AnonymousAccessToResourceCheck extends AbstractResourceCheck {
   private static void checkRedisCache(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "redis_configuration", BlockTree.class)
       .flatMap(config -> PropertyUtils.get(config, "enable_authentication", AttributeTree.class))
-      .ifPresent(authentication -> reportOnFalse(ctx, authentication, DISABLED_AUTH_MESSAGE));
+      .ifPresent(authentication -> reportOnFalse(ctx, authentication, DISABLED_AUTH_MESSAGE, CTX_CACHE_FOR_REDIS));
   }
 
   private static void checkStorageAccount(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "allow_blob_public_access", AttributeTree.class)
-      .ifPresent(publicAccess -> reportOnTrue(ctx, publicAccess, AUTHORIZING_POTENTIAL_ANONYMOUS_MESSAGE));
+      .ifPresent(publicAccess -> reportOnTrue(ctx, publicAccess, AUTHORIZING_POTENTIAL_ANONYMOUS_MESSAGE, CTX_STORAGE_ACCOUNTS));
   }
 
   private static void checkStorageContainer(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "container_access_type", AttributeTree.class)
-      .ifPresent(attr -> reportUnexpectedValue(ctx, attr, "private", AUTHORIZING_POTENTIAL_ANONYMOUS_MESSAGE));
+      .ifPresent(attr -> reportUnexpectedValue(ctx, attr, "private", AUTHORIZING_POTENTIAL_ANONYMOUS_MESSAGE, CTX_STORAGE_ACCOUNTS));
   }
 }

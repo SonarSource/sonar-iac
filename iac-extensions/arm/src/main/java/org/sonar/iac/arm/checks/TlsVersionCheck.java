@@ -37,15 +37,18 @@ public class TlsVersionCheck extends AbstractArmResourceCheck {
     "Microsoft.DBforPostgreSQL/servers",
     "Microsoft.DBforMariaDB/servers");
 
+  private static final String CTX_STORAGE_ACCOUNTS = "storage_accounts";
+  private static final String CTX_DATABASES = "databases";
+
   @Override
   protected void registerResourceConsumer() {
-    register("Microsoft.Storage/storageAccounts", checkTlsVersion(STORAGE_ACCOUNT_TLS_PROPERTY_KEY));
-    register(DATABASE_RESOURCE_TYPES, checkTlsVersion(DATABASE_TLS_PROPERTY_KEY));
+    register("Microsoft.Storage/storageAccounts", checkTlsVersion(STORAGE_ACCOUNT_TLS_PROPERTY_KEY, CTX_STORAGE_ACCOUNTS));
+    register(DATABASE_RESOURCE_TYPES, checkTlsVersion(DATABASE_TLS_PROPERTY_KEY, CTX_DATABASES));
   }
 
-  private static Consumer<ContextualResource> checkTlsVersion(String propertyName) {
+  private static Consumer<ContextualResource> checkTlsVersion(String propertyName, String contextKey) {
     return resource -> resource.property(propertyName)
-      .reportIfAbsent(TLS_VERSION_NOT_SET_MESSAGE)
-      .reportIf(expr -> TextUtils.isValue(expr, "TLS1_2").isFalse(), TLS_VERSION_INCORRECT_MESSAGE);
+      .reportIfAbsent(TLS_VERSION_NOT_SET_MESSAGE, contextKey)
+      .reportIf(expr -> TextUtils.isValue(expr, "TLS1_2").isFalse(), TLS_VERSION_INCORRECT_MESSAGE, contextKey);
   }
 }

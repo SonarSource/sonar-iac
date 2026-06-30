@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.terraform.checks.aws;
 
+import java.util.List;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -34,6 +35,9 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
   private static final String SECURITY_POLICY = "security_policy";
   private static final String SSL_POLICY = "ssl_policy";
 
+  private static final String CTX_API_GATEWAY = "aws_api_gateway";
+  private static final String CTX_OPENSEARCH = "aws_opensearch";
+
   @Override
   protected void registerResourceChecks() {
     register(AwsWeakSSLProtocolCheckPart::checkApiGatewayDomainName, "aws_api_gateway_domain_name");
@@ -47,31 +51,31 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
   private static void checkApiGatewayDomainName(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, SECURITY_POLICY, AttributeTree.class)
       .ifPresentOrElse(policy -> reportWeakApiGatewayPolicy(ctx, policy),
-        () -> reportResource(ctx, resource, String.format(OMITTING_WEAK_SSL_MESSAGE, SECURITY_POLICY)));
+        () -> reportResource(ctx, resource, String.format(OMITTING_WEAK_SSL_MESSAGE, SECURITY_POLICY), CTX_API_GATEWAY));
   }
 
   private static void checkApiGatewayV2DomainName(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "domain_name_configuration", BlockTree.class).ifPresentOrElse(config -> checkDomainNameConfiguration(ctx,
       config),
-      () -> reportResource(ctx, resource, String.format(OMITTING_WEAK_SSL_MESSAGE, "domain_name_configuration.security_policy")));
+      () -> reportResource(ctx, resource, String.format(OMITTING_WEAK_SSL_MESSAGE, "domain_name_configuration.security_policy"), CTX_API_GATEWAY));
   }
 
   private static void checkOpenSearchDomain(CheckContext ctx, BlockTree resource) {
     PropertyUtils.get(resource, "domain_endpoint_options", BlockTree.class)
       .ifPresentOrElse(options -> checkDomainEndpointOptions(ctx, options),
-        () -> reportResource(ctx, resource, String.format(OMITTING_WEAK_SSL_MESSAGE, "domain_endpoint_options.tls_security_policy")));
+        () -> reportResource(ctx, resource, String.format(OMITTING_WEAK_SSL_MESSAGE, "domain_endpoint_options.tls_security_policy"), CTX_OPENSEARCH));
   }
 
   private static void checkDomainNameConfiguration(CheckContext ctx, BlockTree config) {
     PropertyUtils.get(config, SECURITY_POLICY, AttributeTree.class)
       .ifPresentOrElse(policy -> reportWeakApiGatewayPolicy(ctx, policy),
-        () -> ctx.reportIssue(config.key(), String.format(OMITTING_WEAK_SSL_MESSAGE, SECURITY_POLICY)));
+        () -> ctx.reportIssue(config.key(), String.format(OMITTING_WEAK_SSL_MESSAGE, SECURITY_POLICY), List.of(), CTX_API_GATEWAY));
   }
 
   private static void checkDomainEndpointOptions(CheckContext ctx, BlockTree options) {
     PropertyUtils.get(options, "tls_security_policy", AttributeTree.class)
-      .ifPresentOrElse(policy -> reportSensitiveValue(ctx, policy, ELASTIC_WEAK_POLICY, WEAK_SSL_MESSAGE),
-        () -> ctx.reportIssue(options.key(), String.format(OMITTING_WEAK_SSL_MESSAGE, "tls_security_policy")));
+      .ifPresentOrElse(policy -> reportSensitiveValue(ctx, policy, ELASTIC_WEAK_POLICY, WEAK_SSL_MESSAGE, CTX_OPENSEARCH),
+        () -> ctx.reportIssue(options.key(), String.format(OMITTING_WEAK_SSL_MESSAGE, "tls_security_policy"), List.of(), CTX_OPENSEARCH));
   }
 
   private static void checkLbListener(CheckContext ctx, BlockTree resource) {
@@ -94,7 +98,7 @@ public class AwsWeakSSLProtocolCheckPart extends AbstractResourceCheck {
 
   private static void reportWeakApiGatewayPolicy(CheckContext ctx, AttributeTree policy) {
     if (TextUtils.matchesValue(policy.value(), AwsWeakSSLProtocolCheckPart::isStrongApiGatewayPolicy).isFalse()) {
-      ctx.reportIssue(policy, WEAK_SSL_MESSAGE);
+      ctx.reportIssue(policy, WEAK_SSL_MESSAGE, List.of(), CTX_API_GATEWAY);
     }
   }
 

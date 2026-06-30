@@ -48,6 +48,9 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   private static final String SECURITY_POLICY_KEY = "SecurityPolicy";
   private static final String SSL_POLICY_KEY = "SslPolicy";
 
+  private static final String CTX_API_GATEWAY = "api_gateway";
+  private static final String CTX_OPENSEARCH = "opensearch";
+
   @Override
   protected void checkResource(CheckContext ctx, Resource resource) {
     var type = resource.typeAsString();
@@ -67,19 +70,19 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
 
   private static void checkApiGatewayDomain(CheckContext ctx, Resource resource) {
     PropertyUtils.value(resource.properties(), SECURITY_POLICY_KEY)
-      .ifPresent(policy -> checkSecurityPolicy(ctx, policy));
+      .ifPresent(policy -> checkSecurityPolicy(ctx, policy, CTX_API_GATEWAY));
   }
 
   private static void checkSearchDomain(CheckContext ctx, Resource resource) {
     PropertyUtils.get(resource.properties(), "DomainEndpointOptions", TupleTree.class)
       .ifPresentOrElse(options -> checkDomainEndpointOptions(ctx, options),
-        () -> reportResource(ctx, resource, omittingMessage("DomainEndpointOptions.TLSSecurityPolicy")));
+        () -> reportResource(ctx, resource, omittingMessage("DomainEndpointOptions.TLSSecurityPolicy"), CTX_OPENSEARCH));
   }
 
   private static void checkDomainNameConfiguration(CheckContext ctx, TupleTree config) {
     if (config.value() instanceof SequenceTree sequenceTree && configSequenceContainsSecurityPolicy(sequenceTree)) {
       getSecurityPolicyFromConfigSequence(sequenceTree)
-        .ifPresent(policy -> checkSecurityPolicy(ctx, policy));
+        .ifPresent(policy -> checkSecurityPolicy(ctx, policy, CTX_API_GATEWAY));
     }
   }
 
@@ -98,9 +101,9 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
       .findFirst();
   }
 
-  private static void checkSecurityPolicy(CheckContext ctx, Tree policy) {
+  private static void checkSecurityPolicy(CheckContext ctx, Tree policy, String contextKey) {
     if (TextUtils.matchesValue(policy, WeakSSLProtocolCheck::isStrongApiGatewayPolicy).isFalse()) {
-      ctx.reportIssue(policy, MESSAGE);
+      ctx.reportIssue(policy, MESSAGE, List.of(), contextKey);
     }
   }
 
@@ -111,12 +114,12 @@ public class WeakSSLProtocolCheck extends AbstractResourceCheck {
   private static void checkDomainEndpointOptions(CheckContext ctx, TupleTree options) {
     PropertyUtils.value(options.value(), "TLSSecurityPolicy")
       .ifPresentOrElse(policy -> checkElasticPolicy(ctx, policy),
-        () -> ctx.reportIssue(options.key(), omittingMessage("TLSSecurityPolicy")));
+        () -> ctx.reportIssue(options.key(), omittingMessage("TLSSecurityPolicy"), List.of(), CTX_OPENSEARCH));
   }
 
   private static void checkElasticPolicy(CheckContext ctx, Tree policy) {
     if (TextUtils.isValue(policy, ELASTIC_WEAK_POLICY).isTrue()) {
-      ctx.reportIssue(policy, MESSAGE);
+      ctx.reportIssue(policy, MESSAGE, List.of(), CTX_OPENSEARCH);
     }
   }
 

@@ -104,9 +104,13 @@ public abstract class AbstractResourceCheck implements IacCheck {
     ctx.reportIssue(resource.labels().get(0), message, secondaries);
   }
 
-  protected static void reportOnTrue(CheckContext ctx, AttributeTree attribute, String message, SecondaryLocation... secondaries) {
+  public static void reportResource(CheckContext ctx, BlockTree resource, String message, String ruleDescriptionContextKey) {
+    ctx.reportIssue(resource.labels().get(0), message, List.of(), ruleDescriptionContextKey);
+  }
+
+  protected static void reportOnTrue(CheckContext ctx, AttributeTree attribute, String message, String ruleDescriptionContextKey) {
     if (TextUtils.isValueTrue(attribute.value())) {
-      ctx.reportIssue(attribute, message, Arrays.asList(secondaries));
+      ctx.reportIssue(attribute, message, List.of(), ruleDescriptionContextKey);
     }
   }
 
@@ -116,15 +120,33 @@ public abstract class AbstractResourceCheck implements IacCheck {
     }
   }
 
+  protected static void reportOnFalse(CheckContext ctx, AttributeTree attribute, String message, String ruleDescriptionContextKey) {
+    if (TextUtils.isValueFalse(attribute.value())) {
+      ctx.reportIssue(attribute, message, List.of(), ruleDescriptionContextKey);
+    }
+  }
+
   protected static void reportUnexpectedValue(CheckContext ctx, AttributeTree attribute, String expectedValue, String message, SecondaryLocation... secondaries) {
     if (TextUtils.isValue(attribute.value(), expectedValue).isFalse()) {
       ctx.reportIssue(attribute, message, Arrays.asList(secondaries));
     }
   }
 
+  protected static void reportUnexpectedValue(CheckContext ctx, AttributeTree attribute, String expectedValue, String message, String ruleDescriptionContextKey) {
+    if (TextUtils.isValue(attribute.value(), expectedValue).isFalse()) {
+      ctx.reportIssue(attribute, message, List.of(), ruleDescriptionContextKey);
+    }
+  }
+
   protected static void reportSensitiveValue(CheckContext ctx, AttributeTree attribute, String sensitiveValue, String message, SecondaryLocation... secondaries) {
     if (TextUtils.isValue(attribute.value(), sensitiveValue).isTrue()) {
       ctx.reportIssue(attribute, message, Arrays.asList(secondaries));
+    }
+  }
+
+  protected static void reportSensitiveValue(CheckContext ctx, AttributeTree attribute, String sensitiveValue, String message, String ruleDescriptionContextKey) {
+    if (TextUtils.isValue(attribute.value(), sensitiveValue).isTrue()) {
+      ctx.reportIssue(attribute, message, List.of(), ruleDescriptionContextKey);
     }
   }
 }

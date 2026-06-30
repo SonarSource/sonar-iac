@@ -61,6 +61,22 @@ public class ContextualObject extends ContextualMap<ContextualObject, ObjectExpr
     return super.reportIfAbsent(message, secondaries);
   }
 
+  @Override
+  public ContextualMap<ContextualObject, ObjectExpression> reportIfAbsent(String message, String ruleDescriptionContextKey) {
+    if (isResourceReferencing().isTrue()) {
+      return this;
+    }
+    return super.reportIfAbsent(message, ruleDescriptionContextKey);
+  }
+
+  @Override
+  public ContextualMap<ContextualObject, ObjectExpression> reportIfAbsent(String message, List<SecondaryLocation> secondaries, String ruleDescriptionContextKey) {
+    if (isResourceReferencing().isTrue()) {
+      return this;
+    }
+    return super.reportIfAbsent(message, secondaries, ruleDescriptionContextKey);
+  }
+
   private Trilean isResourceReferencing() {
     ContextualTree<?, ?> parentTree = this.parent;
     while (parentTree != null) {
