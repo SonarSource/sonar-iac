@@ -267,6 +267,19 @@ class PublicNetworkAccessCheckTest {
   }
 
   @Test
+  void shouldCheckAksAuthorizedIpRangesJson() {
+    ArmVerifier.verify("PublicNetworkAccessCheckTest/rangePublicIPAddress/authorizedIPRanges.json",
+      CHECK,
+      issue(17, 12, 17, 21, MESSAGE_PUBLIC_IP_ACCESS),
+      issue(56, 12, 56, 28, MESSAGE_PUBLIC_IP_ACCESS));
+  }
+
+  @Test
+  void shouldCheckAksAuthorizedIpRangesBicep() {
+    BicepVerifier.verify("PublicNetworkAccessCheckTest/rangePublicIPAddress/authorizedIPRanges.bicep", CHECK);
+  }
+
+  @Test
   void shouldCheckDbForMySqlFlexibleServersJson() {
     ArmVerifier.verify("PublicNetworkAccessCheckTest/publicNetworkAccess/flexibleServers.json",
       CHECK,

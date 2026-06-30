@@ -1,0 +1,80 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ipRangeParameter": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2024-02-01",
+      "name": "aks-public-range",
+      "properties": {
+        "apiServerAccessProfile": {
+          "authorizedIPRanges": [
+            "8.8.8.8"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2024-02-01",
+      "name": "aks-sentinel",
+      "properties": {
+        "apiServerAccessProfile": {
+          "authorizedIPRanges": [
+            "0.0.0.0/32"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2024-02-01",
+      "name": "aks-private-ranges",
+      "properties": {
+        "apiServerAccessProfile": {
+          "authorizedIPRanges": [
+            "10.0.0.0/8",
+            "172.16.0.0/12",
+            "192.168.0.0/16"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2024-02-01",
+      "name": "aks-mixed",
+      "properties": {
+        "apiServerAccessProfile": {
+          "authorizedIPRanges": [
+            "0.0.0.0/32",
+            "12.34.56.78/24"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2024-02-01",
+      "name": "aks-parameterized",
+      "properties": {
+        "apiServerAccessProfile": {
+          "authorizedIPRanges": [
+            "[parameters('ipRangeParameter')]"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2024-02-01",
+      "name": "aks-no-profile",
+      "properties": {}
+    }
+  ]
+}

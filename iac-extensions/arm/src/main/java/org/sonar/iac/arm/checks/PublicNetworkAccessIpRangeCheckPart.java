@@ -27,6 +27,8 @@ import org.sonar.iac.arm.checks.ipaddress.IpAddressValidator;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.TextUtils;
+import org.sonarsource.analyzer.commons.appsec.IpAddressClassifier;
 
 class PublicNetworkAccessIpRangeCheckPart extends AbstractArmResourceCheck {
 
@@ -60,6 +62,17 @@ class PublicNetworkAccessIpRangeCheckPart extends AbstractArmResourceCheck {
     register(PUBLIC_IP_ADDRESS_RANGE_TYPES, PublicNetworkAccessIpRangeCheckPart::checkIpRange);
     register(PUBLIC_IP_ADDRESS_RANGE_IN_FIREWALL_RULES_TYPES, checkIpRangeInFirewallRules());
     register(PUBLIC_IP_ADDRESS_RANGE_IN_PROPERTIES_FIREWALL_RULES_TYPES, checkIpRangeInFirewallRulesProperties());
+    register("Microsoft.ContainerService/managedClusters", checkAuthorizedIpRanges());
+  }
+
+  private static Consumer<ContextualResource> checkAuthorizedIpRanges() {
+    return resource -> resource.object("apiServerAccessProfile")
+      .list("authorizedIPRanges")
+      .reportItemIf(PublicNetworkAccessIpRangeCheckPart::isPublicIpAddress, PUBLIC_IP_ADDRESS_MESSAGE);
+  }
+
+  private static boolean isPublicIpAddress(Expression expression) {
+    return TextUtils.matchesValue(expression, literal -> !IpAddressClassifier.isReserved(literal)).isTrue();
   }
 
   private static <S extends ContextualMap<S, T>, T extends HasProperties & Tree> void checkIpRange(ContextualMap<S, T> resource) {
