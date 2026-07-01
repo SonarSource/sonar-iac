@@ -20,9 +20,11 @@ import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
+import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.File.Scope;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6387")
 public class SubscriptionRoleAssignmentCheck extends AbstractArmResourceCheck {
@@ -38,10 +40,23 @@ public class SubscriptionRoleAssignmentCheck extends AbstractArmResourceCheck {
   }
 
   private static void checkRoleAssignments(ContextualResource resource) {
+    if (hasEffectiveCondition(resource)) {
+      return;
+    }
     File file = (File) ArmTreeUtils.getRootNode(resource.tree);
     String sensitiveScope = SENSITIVE_SCOPE_WITH_NAME.get(file.targetScope());
     if (sensitiveScope != null) {
       resource.report(String.format(MESSAGE, sensitiveScope), new SecondaryLocation(file.targetScopeLiteral(), sensitiveScope));
     }
+  }
+
+  /**
+   * A condition restricts the assignment's effective permissions (an ABAC allow-list), so a broad scope is intentional.
+   * An explicitly empty condition (e.g. {@code condition: ''}) imposes no restriction and must still be reported; a
+   * non-literal expression cannot be resolved statically, so it is treated as a real condition.
+   */
+  private static boolean hasEffectiveCondition(ContextualResource resource) {
+    Expression value = resource.property("condition").valueOrNull();
+    return value != null && TextUtils.getValue(value).filter(String::isBlank).isEmpty();
   }
 }

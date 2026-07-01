@@ -20,6 +20,37 @@
       "name": "Compliant: not a sensitive type",
       "type": "other type",
       "apiVersion": "2022-04-01"
+    },
+    {
+      "name": "Compliant: condition restricts the effective permissions",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+        "principalId": "[parameters('principalId')]",
+        "conditionVersion": "2.0",
+        "condition": "(@Resource[Microsoft.Storage/storageAccounts/blobServices/containers/blobs:path] StringLike 'public/*')"
+      }
+    },
+    {
+      "name": "Sensitive: an empty condition imposes no restriction",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+        "principalId": "[parameters('principalId')]",
+        "condition": ""
+      }
+    },
+    {
+      "name": "Compliant: condition is a non-literal expression that cannot be resolved statically",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+        "principalId": "[parameters('principalId')]",
+        "condition": "[parameters('roleDefinitionId')]"
+      }
     }
   ]
 }

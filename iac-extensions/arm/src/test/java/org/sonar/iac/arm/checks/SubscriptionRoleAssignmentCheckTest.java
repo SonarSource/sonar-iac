@@ -31,7 +31,8 @@ class SubscriptionRoleAssignmentCheckTest {
       CHECK,
       issue(7, 14, 7, 55, "Make sure assigning this role with a Subscription scope is safe here.",
         new SecondaryLocation(range(2, 13, 2, 106), "Subscription scope")),
-      issue(16, 14, 16, 55));
+      issue(16, 14, 16, 55),
+      issue(37, 14, 37, 55));
   }
 
   @Test

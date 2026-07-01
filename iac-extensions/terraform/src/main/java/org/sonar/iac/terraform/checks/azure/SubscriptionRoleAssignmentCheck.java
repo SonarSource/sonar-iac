@@ -20,6 +20,7 @@ import java.util.function.Predicate;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
@@ -48,6 +49,9 @@ public class SubscriptionRoleAssignmentCheck extends AbstractResourceCheck {
   }
 
   private static void checkRoleAssignment(CheckContext ctx, BlockTree resource) {
+    if (hasEffectiveCondition(resource)) {
+      return;
+    }
     PropertyUtils.get(resource, "scope", AttributeTree.class)
       .ifPresent(scope -> {
         if (RoleScopeHelper.isSensitiveScope(scope.value(), REFERENCE_SUBSCRIPTION_SCOPE_PREDICATE, PLAIN_SUBSCRIPTION_SCOPE_PREDICATE)) {
@@ -56,5 +60,17 @@ public class SubscriptionRoleAssignmentCheck extends AbstractResourceCheck {
           ctx.reportIssue(scope, MANAGEMENT_GROUP_MESSAGE);
         }
       });
+  }
+
+  /**
+   * A condition restricts the assignment's effective permissions (an ABAC allow-list), so a broad scope is intentional.
+   * An explicitly empty condition (e.g. {@code condition = ""}) imposes no restriction and must still be reported; a
+   * value that cannot be resolved to a literal (interpolation, reference) is treated as a real condition.
+   */
+  private static boolean hasEffectiveCondition(BlockTree resource) {
+    return PropertyUtils.get(resource, "condition", AttributeTree.class)
+      .map(AttributeTree::value)
+      .map(value -> TextUtils.getValue(value).filter(String::isBlank).isEmpty())
+      .orElse(false);
   }
 }
