@@ -22,7 +22,7 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.checks.CommonExcludedPatterns;
+import org.sonar.iac.common.checks.SecretClassifier;
 import org.sonarsource.analyzer.commons.EntropyDetector;
 import org.sonarsource.analyzer.commons.HumanLanguageDetector;
 
@@ -75,7 +75,7 @@ public class HardcodedSecretsCheck extends AbstractEnvCheck {
     return VALID_SECRET_FORMAT_PATTERN.test(valueFieldValue)
       && !isPath(valueFieldValue)
       && !isPlaceholder(nameFieldValue, valueFieldValue)
-      && !CommonExcludedPatterns.isCommonExcludedPattern(valueFieldValue)
+      && !SecretClassifier.isKnownNonSecret(valueFieldValue)
       && isRandomEnough(valueFieldValue)
       && isNotHumanLanguage(valueFieldValue);
   }

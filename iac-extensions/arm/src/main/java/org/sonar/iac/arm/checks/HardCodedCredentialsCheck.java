@@ -24,6 +24,7 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.SecretClassifier;
 import org.sonar.iac.common.checks.TextUtils;
 
 @Rule(key = "S6437")
@@ -58,6 +59,7 @@ public class HardCodedCredentialsCheck implements IacCheck {
 
   /** TODO SONARIAC-1420: S6437 should raise when credential is not defined via parameter */
   private static boolean isHardcoded(Tree tree) {
-    return TextUtils.matchesValue(tree, v -> !v.isBlank() && LogicAppHardCodedSecretCheck.isLiteralSecret(v)).isTrue();
+    return TextUtils.matchesValue(tree,
+      v -> !v.isBlank() && LogicAppHardCodedSecretCheck.isLiteralSecret(v) && !SecretClassifier.isKnownNonSecret(v)).isTrue();
   }
 }

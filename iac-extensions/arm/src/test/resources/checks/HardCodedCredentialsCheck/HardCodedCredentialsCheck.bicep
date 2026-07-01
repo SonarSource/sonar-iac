@@ -2,15 +2,15 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
   name: 'noncompliant'
   properties: {
     administratorLogin: 'admin'
-    administratorLoginPassword: 'password' // Noncompliant {{Revoke and change this secret, as it might be compromised.}}
+    administratorLoginPassword: 'Rb7kZpQ2' // Noncompliant {{Revoke and change this secret, as it might be compromised.}}
 //  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    password: 'password' // Noncompliant
-    secret: 'password' // Noncompliant
-    adminPassword: 'password' // Noncompliant
+    password: 'Rb7kZpQ2' // Noncompliant
+    secret: 'Rb7kZpQ2' // Noncompliant
+    adminPassword: 'Rb7kZpQ2' // Noncompliant
     adminUsername: 'admin'
-    publishingPassword: 'password' // Noncompliant
+    publishingPassword: 'Rb7kZpQ2' // Noncompliant
     publishingUserName: 'admin'
-    randomProperty: 'password'
+    randomProperty: 'Rb7kZpQ2'
   }
 }
 
@@ -42,11 +42,11 @@ resource nonCompliant2 'Microsoft.Network/networkInterfaces@2020-06-01' = {
   location: resourceGroup().location
   properties: condition ? {
     // Noncompliant@+1
-    administratorLoginPassword: 'password'
+    administratorLoginPassword: 'Rb7kZpQ2'
 //  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   } : {
     // Noncompliant@+1
-    password: 'password'
+    password: 'Rb7kZpQ2'
 //  ^^^^^^^^^^^^^^^^^^^^
   }
 }

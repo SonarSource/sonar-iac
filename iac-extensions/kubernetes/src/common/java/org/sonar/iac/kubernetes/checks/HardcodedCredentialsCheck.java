@@ -22,7 +22,7 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.checks.CommonExcludedPatterns;
+import org.sonar.iac.common.checks.SecretClassifier;
 
 @Rule(key = "S2068")
 public class HardcodedCredentialsCheck extends AbstractEnvCheck {
@@ -48,7 +48,7 @@ public class HardcodedCredentialsCheck extends AbstractEnvCheck {
   protected boolean isValueSensitive(String nameFieldValue, String valueFieldValue) {
     return VALUE_INCLUSION_PREDICATE.test(valueFieldValue)
       && !isPlaceholder(nameFieldValue, valueFieldValue)
-      && !CommonExcludedPatterns.isCommonExcludedPattern(valueFieldValue);
+      && !SecretClassifier.isKnownNonSecret(valueFieldValue);
   }
 
   private static boolean isPlaceholder(String nameFieldValue, String valueFieldValue) {

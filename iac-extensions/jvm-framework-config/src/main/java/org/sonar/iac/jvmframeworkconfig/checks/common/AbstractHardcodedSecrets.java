@@ -23,7 +23,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.common.checks.CommonExcludedPatterns;
+import org.sonar.iac.common.checks.SecretClassifier;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
 import static org.sonar.iac.jvmframeworkconfig.tree.utils.JvmFrameworkConfigUtils.getStringValue;
@@ -52,7 +52,7 @@ public abstract class AbstractHardcodedSecrets extends AbstractSensitiveKeyCheck
   }
 
   private static boolean isHardcoded(String value) {
-    return !(value.isEmpty() || CommonExcludedPatterns.isCommonExcludedPattern(value));
+    return !(value.isEmpty() || SecretClassifier.isKnownNonSecret(value));
   }
 
   protected static boolean checkValueWithPattern(CheckContext ctx, Pattern pattern, Tuple tuple) {
@@ -67,7 +67,7 @@ public abstract class AbstractHardcodedSecrets extends AbstractSensitiveKeyCheck
     }
 
     String password = matcher.group(PASSWORD_GROUP);
-    if (password == null || CommonExcludedPatterns.isCommonExcludedPattern(password)) {
+    if (password == null || SecretClassifier.isKnownNonSecret(password)) {
       return false;
     }
 
