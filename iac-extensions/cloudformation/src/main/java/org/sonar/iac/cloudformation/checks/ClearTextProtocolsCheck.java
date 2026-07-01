@@ -155,12 +155,6 @@ public class ClearTextProtocolsCheck extends AbstractResourceCheck {
     }
   }
 
-  private static void reportOnFalseProperty(CheckContext ctx, @Nullable Tree tree, String propertyName, String message) {
-    PropertyUtils.value(tree, propertyName, ScalarTree.class)
-      .filter(TextUtils::isValueFalse)
-      .ifPresent(clientBroker -> ctx.reportIssue(clientBroker, message));
-  }
-
   private static void reportOnFalseProperty(CheckContext ctx, @Nullable Tree tree, String propertyName, String message, String ruleDescriptionContextKey) {
     PropertyUtils.value(tree, propertyName, ScalarTree.class)
       .filter(TextUtils::isValueFalse)
