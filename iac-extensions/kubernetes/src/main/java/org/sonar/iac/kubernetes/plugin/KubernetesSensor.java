@@ -18,14 +18,12 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FilePredicates;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -65,7 +63,6 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
   private final ProjectContextImpl projectContextImpl;
   private HelmProcessor helmProcessor;
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
-  private final YamlFileTypeResolver yamlFileTypeResolver;
 
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmEvaluator helmEvaluator, KustomizationInfoProvider kustomizationInfoProvider,
@@ -78,11 +75,11 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
   public KubernetesSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, KubernetesLanguage language, HelmEvaluator helmEvaluator, @Nullable SonarLintFileListener sonarLintFileListener,
     KustomizationInfoProvider kustomizationInfoProvider, YamlFileTypeResolver yamlFileTypeResolver, IacProjectSensor projectSensor) {
-    super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, KubernetesCheckList.checks(), projectSensor);
+    super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, KubernetesCheckList.checks(), projectSensor,
+      yamlFileTypeResolver);
     this.helmEvaluator = helmEvaluator;
     this.sonarLintFileListener = sonarLintFileListener;
     this.kustomizationInfoProvider = kustomizationInfoProvider;
-    this.yamlFileTypeResolver = yamlFileTypeResolver;
     if (sonarLintFileListener != null) {
       projectContextImpl = sonarLintFileListener.getProjectContext();
     } else {
@@ -149,15 +146,8 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
   }
 
   @Override
-  protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
-    FilePredicates predicates = sensorContext.fileSystem().predicates();
-    return predicates.and(predicates.hasType(InputFile.Type.MAIN),
-      customFilePredicate(sensorContext, statistics));
-  }
-
-  @Override
-  protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
-    return yamlFileTypeResolver.getFilePredicate(statistics, FileType.KUBERNETES, FileType.HELM);
+  protected Set<FileType> fileTypes() {
+    return Set.of(FileType.KUBERNETES, FileType.HELM);
   }
 
   @Override

@@ -19,6 +19,7 @@ package org.sonar.iac.common.predicates;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,7 +29,11 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.languages.IacLanguage;
 import org.sonarsource.api.sonarlint.SonarLintSide;
+
+import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.JSON_LANGUAGE_KEY;
+import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.YAML_LANGUAGE_KEY;
 
 /**
  * Single entry point to determine and share the {@link FileType} of YAML (or YAML-like) files between the different YAML
@@ -41,15 +46,29 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  *   <li>it defines a single order in which predicates are applied to determine the type of a file;</li>
  *   <li>it caches the resulting {@link FileType} per file in {@link YamlFileTypeCache} so that it is computed only once.</li>
  * </ul>
- * The resolver itself is created once per analysis: it depends on the analysis' {@link FileSystem} and
- * {@link Configuration}, which in SonarLint only exist in the per-analysis container (a longer lived instance could not
- * be injected with them). What is shared across sensors and across analyses is the injected {@link YamlFileTypeCache},
- * which is engine-wide, so a file's type is still computed only once and reused by every sensor.
+ * The resolver is created once per analysis: it depends on the analysis' {@link FileSystem} and {@link Configuration},
+ * which in SonarLint only exist in the per-analysis container. It shares the injected {@link YamlFileTypeCache} - which
+ * has the same per-analysis lifespan - with every other YAML based sensor of the analysis, so a file's type is computed
+ * only once and reused by all of them.
  */
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.SINGLE_ANALYSIS)
 public class YamlFileTypeResolver {
   public static final String EXTENDED_LOGGING_PROPERTY_NAME = "sonar.internal.iac.extendedLogging";
+
+  // The base part of the candidate-language union (see candidateLanguages()), covering the file types this base resolver
+  // classifies. GitHub Actions is intentionally part of this base set even though its analysis sensor ships in the
+  // enterprise plugin: its FileType and GithubActionsFilePredicate live in this community module and belong to the base
+  // predicate order so that a .github/workflows file is classified GITHUB_ACTIONS rather than Kubernetes/CloudFormation.
+  // The community Kubernetes and CloudFormation sensors rely on this to skip workflow files (see
+  // KubernetesSensorTest#shouldSkipKubernetesFileInGithubActionsWorkflowFolder and the CloudFormation equivalent), so it
+  // cannot move to the enterprise resolver. The enterprise resolver only adds the languages whose predicates it contributes.
+  private static final List<String> BASE_CANDIDATE_LANGUAGES = List.of(
+    JSON_LANGUAGE_KEY,
+    YAML_LANGUAGE_KEY,
+    IacLanguage.KUBERNETES.getKey(),
+    IacLanguage.CLOUDFORMATION.getKey(),
+    IacLanguage.GITHUB_ACTIONS.getKey());
 
   protected final KustomizationFilePredicate kustomizationFilePredicate;
   protected final KubernetesFilePredicate kubernetesFilePredicate;
@@ -74,6 +93,8 @@ public class YamlFileTypeResolver {
    *   appended after the community predicates with the lowest precedence. They are passed in rather than collected
    *   through an overridable method because the order is built here, in the constructor: a subclass' own predicate
    *   fields are only initialized after {@code super(...)} returns, so an overridable method would still see them null.
+   *   The candidate languages, in contrast, are constants, so a subclass extends them by overriding
+   *   {@link #candidateLanguages()} (called at analysis time, not from the constructor).
    */
   protected YamlFileTypeResolver(FileSystem fileSystem, Configuration config, YamlFileTypeCache yamlFileTypeCache,
     List<YamlFileTypePredicate> additionalFilePredicates) {
@@ -87,6 +108,18 @@ public class YamlFileTypeResolver {
     this.githubActionsFilePredicate = new GithubActionsFilePredicate(fileSystem.predicates(), extendedLoggingEnabled);
     this.armJsonFilePredicate = new ArmJsonFilePredicate(fileSystem.predicates(), config, extendedLoggingEnabled);
     this.filePredicatesOrder = computeFilePredicatesOrder(additionalFilePredicates);
+  }
+
+  /**
+   * The languages whose MAIN files {@link #getInputFiles} considers. This must be a fixed union covering every
+   * language a YAML based file type can carry: the specialized IaC languages register no suffix by default, but a user
+   * can reassign .yaml/.json files to one of them via {@code sonar.<lang>.file.suffixes}, and such files must still be
+   * classified (they were, through {@link #getFilePredicate}, before {@link #getInputFiles} existed). Subclasses extend
+   * the set by overriding this method (calling {@code super.candidateLanguages()} and adding their languages); it is
+   * called at analysis time, so the override may safely depend on subclass state.
+   */
+  protected Set<String> candidateLanguages() {
+    return new LinkedHashSet<>(BASE_CANDIDATE_LANGUAGES);
   }
 
   /**
@@ -149,6 +182,62 @@ public class YamlFileTypeResolver {
   }
 
   /**
+   * Returns the MAIN YAML/JSON files of the given {@code fileSystem} resolved to any of the given {@link FileType}s, in
+   * file-system iteration order.
+   * <p>
+   * Unlike {@link #getFilePredicate}, whose evaluation re-reads file content for every sensor that applies it, this
+   * resolves each candidate file's {@link FileType} through the shared {@link YamlFileTypeCache}, so the content based
+   * predicates run only once per file no matter how many sensors are interested in it.
+   * <p>
+   * Selection is scoped to the {@code fileSystem} passed by the caller - the running sensor's own
+   * {@code SensorContext.fileSystem()} - and never an analysis-wide one: in a multi-module analysis a sensor must only
+   * receive the files of the module being analyzed, and a sensor's hidden-file visibility (whether it declared
+   * {@code processesHiddenFiles()}) must be honored. The result is therefore identical to what
+   * {@code fileSystem.inputFiles(getFilePredicate(fileTypes))} would return, only cheaper to compute.
+   *
+   * @throws IllegalArgumentException if no {@link FileType} is provided
+   */
+  public List<InputFile> getInputFiles(FileSystem fileSystem, DurationStatistics durationStatistics, FileType... fileTypes) {
+    if (fileTypes.length == 0) {
+      throw new IllegalArgumentException("At least one FileType must be provided to collect files");
+    }
+    var candidateFiles = classifyCandidateFiles(fileSystem, durationStatistics);
+    var typedFiles = yamlFileTypeCache.getFiles(fileTypes);
+    return candidateFiles.stream()
+      .filter(typedFiles::contains)
+      .toList();
+  }
+
+  /**
+   * Resolves and caches the {@link FileType} of the given file system's MAIN candidate files, returning them in
+   * file-system iteration order. Candidates are the files in any of the {@link #candidateLanguages()} - the YAML/JSON
+   * languages plus every specialized IaC language a .yaml/.json file may be reassigned to via
+   * {@code sonar.<lang>.file.suffixes}; their actual type is then decided by the ordered predicates, exactly as
+   * {@link #getFilePredicate} would. As the {@link YamlFileTypeCache} is shared by all sensors of the analysis, a file's
+   * content based predicates are evaluated only by the first sensor that reaches it; later sensors get cache hits.
+   */
+  private List<InputFile> classifyCandidateFiles(FileSystem fileSystem, DurationStatistics durationStatistics) {
+    dispatchTimers(durationStatistics);
+    var predicates = fileSystem.predicates();
+    // Candidates are MAIN files in any candidate language, plus Helm .tpl templates: those carry no YAML language (they
+    // are not valid YAML) yet are a valid HELM file type, so a language-only filter would drop them - as it would here
+    // the HELM members that getFilePredicate(HELM) used to pick up over the whole file system (SONARIAC-3025).
+    var candidates = predicates.and(
+      predicates.hasType(InputFile.Type.MAIN),
+      predicates.or(
+        predicates.hasLanguages(candidateLanguages().toArray(new String[0])),
+        predicates.matchesPathPattern(HelmFilePredicate.TPL_TEMPLATE_PATH_PATTERN)));
+    var candidateFiles = new ArrayList<InputFile>();
+    durationStatistics.time("Scanner file retrieval", () -> {
+      for (InputFile inputFile : fileSystem.inputFiles(candidates)) {
+        computeFileTypeWithCache(inputFile);
+        candidateFiles.add(inputFile);
+      }
+    });
+    return candidateFiles;
+  }
+
+  /**
    * Re-binds the shared predicate instances to the calling sensor's {@link DurationStatistics}. Sensors run sequentially
    * and each calls {@link #getFilePredicate} right before scanning its files, so a predicate's evaluation time is
    * recorded into the statistics of the sensor that triggers it. Because the resolved {@link FileType} is cached, a
@@ -168,7 +257,7 @@ public class YamlFileTypeResolver {
     var type = yamlFileTypeCache.get(file.uri());
     if (type == null) {
       type = computeFileType(file, filePredicatesOrder).orElse(FileType.UNDETERMINED);
-      yamlFileTypeCache.put(file.uri(), type);
+      yamlFileTypeCache.put(file, type);
     }
     return type;
   }

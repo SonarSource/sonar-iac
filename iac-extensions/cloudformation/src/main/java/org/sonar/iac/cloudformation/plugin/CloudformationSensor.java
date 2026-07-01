@@ -16,8 +16,8 @@
  */
 package org.sonar.iac.cloudformation.plugin;
 
+import java.util.Set;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.NoSonarFilter;
@@ -33,8 +33,6 @@ import org.sonar.iac.common.yaml.AbstractYamlLanguageSensor;
 
 public class CloudformationSensor extends AbstractYamlLanguageSensor {
 
-  private final YamlFileTypeResolver yamlFileTypeResolver;
-
   public CloudformationSensor(
     SonarRuntime sonarRuntime,
     FileLinesContextFactory fileLinesContextFactory,
@@ -43,13 +41,13 @@ public class CloudformationSensor extends AbstractYamlLanguageSensor {
     CloudformationLanguage language,
     YamlFileTypeResolver yamlFileTypeResolver,
     IacProjectSensor projectSensor) {
-    super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, CloudformationCheckList.checks(), projectSensor);
-    this.yamlFileTypeResolver = yamlFileTypeResolver;
+    super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, CloudformationCheckList.checks(), projectSensor,
+      yamlFileTypeResolver);
   }
 
   @Override
-  protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
-    return yamlFileTypeResolver.getFilePredicate(statistics, FileType.CLOUDFORMATION);
+  protected Set<FileType> fileTypes() {
+    return Set.of(FileType.CLOUDFORMATION);
   }
 
   @Override

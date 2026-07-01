@@ -194,6 +194,91 @@ class YamlFileTypeResolverTest {
       .hasMessage("At least one FileType must be provided to build a file predicate");
   }
 
+  @Test
+  void shouldReturnInputFilesGroupedByType() {
+    var settings = new MapSettings();
+    settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "AWSTemplateFormatVersion");
+    settings.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
+    var sensorContext = SensorContextTester.create(tempDir).setSettings(settings);
+    var cloudFormationFile = IacTestUtils.inputFile("cloudformation.yaml", tempDir, VALID_CLOUDFORMATION_CONTENT, "yaml");
+    var kubernetesFile = IacTestUtils.inputFile("kubernetes.yaml", tempDir, VALID_KUBERNETES_CONTENT, "yaml");
+    var plainFile = IacTestUtils.inputFile("plain.yaml", tempDir, "key: value", "yaml");
+    sensorContext.fileSystem().add(cloudFormationFile);
+    sensorContext.fileSystem().add(kubernetesFile);
+    sensorContext.fileSystem().add(plainFile);
+    var resolver = new YamlFileTypeResolver(sensorContext.fileSystem(), sensorContext.config(), new YamlFileTypeCache());
+
+    assertThat(resolver.getInputFiles(sensorContext.fileSystem(), durationStatistics(), FileType.CLOUDFORMATION)).containsExactly(cloudFormationFile);
+    assertThat(resolver.getInputFiles(sensorContext.fileSystem(), durationStatistics(), FileType.KUBERNETES)).containsExactly(kubernetesFile);
+    assertThat(resolver.getInputFiles(sensorContext.fileSystem(), durationStatistics(), FileType.CLOUDFORMATION, FileType.KUBERNETES))
+      .containsExactlyInAnyOrder(cloudFormationFile, kubernetesFile);
+  }
+
+  @Test
+  void shouldClassifyFilesReassignedToASpecializedLanguageViaCustomSuffix() {
+    // A .yaml file reassigned to a specialized IaC language through `sonar.<lang>.file.suffixes` (so its language is no
+    // longer "yaml"/"json") must still be classified by getInputFiles, not dropped from the candidate scope.
+    var settings = new MapSettings();
+    settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "AWSTemplateFormatVersion");
+    settings.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
+    var sensorContext = SensorContextTester.create(tempDir).setSettings(settings);
+    var cloudFormationFile = IacTestUtils.inputFile("template.yaml", tempDir, VALID_CLOUDFORMATION_CONTENT, "cloudformation");
+    var kubernetesFile = IacTestUtils.inputFile("deploy.yaml", tempDir, VALID_KUBERNETES_CONTENT, "kubernetes");
+    sensorContext.fileSystem().add(cloudFormationFile);
+    sensorContext.fileSystem().add(kubernetesFile);
+    var resolver = new YamlFileTypeResolver(sensorContext.fileSystem(), sensorContext.config(), new YamlFileTypeCache());
+
+    assertThat(resolver.getInputFiles(sensorContext.fileSystem(), durationStatistics(), FileType.CLOUDFORMATION)).containsExactly(cloudFormationFile);
+    assertThat(resolver.getInputFiles(sensorContext.fileSystem(), durationStatistics(), FileType.KUBERNETES)).containsExactly(kubernetesFile);
+  }
+
+  @Test
+  void shouldReturnOnlyTheCallingFileSystemsFilesEvenWhenTheCacheIsShared() {
+    // In a multi-module analysis every module's sensor shares one cache but must only receive its own module's files.
+    // getInputFiles is therefore scoped to the file system passed by the caller, not to everything the shared cache holds.
+    var settings = new MapSettings();
+    settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "AWSTemplateFormatVersion");
+    settings.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
+    var sharedCache = new YamlFileTypeCache();
+
+    var moduleA = SensorContextTester.create(tempDir).setSettings(settings);
+    var kubernetesA = IacTestUtils.inputFile("moduleA/deploy.yaml", tempDir, VALID_KUBERNETES_CONTENT, "yaml");
+    moduleA.fileSystem().add(kubernetesA);
+    var resolverA = new YamlFileTypeResolver(moduleA.fileSystem(), moduleA.config(), sharedCache);
+
+    var moduleB = SensorContextTester.create(tempDir).setSettings(settings);
+    var kubernetesB = IacTestUtils.inputFile("moduleB/deploy.yaml", tempDir, VALID_KUBERNETES_CONTENT, "yaml");
+    moduleB.fileSystem().add(kubernetesB);
+    var resolverB = new YamlFileTypeResolver(moduleB.fileSystem(), moduleB.config(), sharedCache);
+
+    assertThat(resolverA.getInputFiles(moduleA.fileSystem(), durationStatistics(), FileType.KUBERNETES)).containsExactly(kubernetesA);
+    assertThat(resolverB.getInputFiles(moduleB.fileSystem(), durationStatistics(), FileType.KUBERNETES)).containsExactly(kubernetesB);
+    // Module B's file is now cached too, but querying module A again must still return only module A's file.
+    assertThat(resolverA.getInputFiles(moduleA.fileSystem(), durationStatistics(), FileType.KUBERNETES)).containsExactly(kubernetesA);
+  }
+
+  @Test
+  void shouldReturnHelmTplTemplatesWhichHaveNoYamlLanguage() throws IOException {
+    // A Helm .tpl template is not valid YAML and carries no language, yet it is a HELM file. getInputFiles must return
+    // it even though it is not in any candidate language - a language-only candidate filter would drop it.
+    var sensorContext = SensorContextTester.create(tempDir).setSettings(new MapSettings());
+    Files.createFile(tempDir.resolve("Chart.yaml"));
+    var tplFile = IacTestUtils.inputFile("templates/_helpers.tpl", tempDir, "{{- define \"x\" -}}{{- end -}}", null);
+    sensorContext.fileSystem().add(tplFile);
+    var resolver = new YamlFileTypeResolver(sensorContext.fileSystem(), sensorContext.config(), new YamlFileTypeCache());
+
+    assertThat(resolver.getInputFiles(sensorContext.fileSystem(), durationStatistics(), FileType.HELM)).containsExactly(tplFile);
+  }
+
+  @Test
+  void shouldFailWhenNoFileTypeIsProvidedToGetInputFiles() {
+    var statistics = durationStatistics();
+    var fileSystem = SensorContextTester.create(tempDir).fileSystem();
+    assertThatThrownBy(() -> yamlFileTypeResolver.getInputFiles(fileSystem, statistics))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("At least one FileType must be provided to collect files");
+  }
+
   private DurationStatistics durationStatistics() {
     return new DurationStatistics(mock(Configuration.class));
   }

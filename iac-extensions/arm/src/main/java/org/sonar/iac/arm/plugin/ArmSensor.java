@@ -43,15 +43,16 @@ import org.sonar.iac.common.predicates.FileType;
 import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.yaml.AbstractYamlLanguageSensor;
 
+// ARM also analyzes Bicep files (ArmLanguage), which are not YAML/JSON and therefore never enter the shared
+// YamlFileTypeResolver cache. It cannot select its files from that cache via fileTypes(); it stays on the predicate
+// path, combining a Bicep language match with the AZURE_RESOURCE_MANAGER file type resolved for JSON files.
 public class ArmSensor extends AbstractYamlLanguageSensor {
 
-  private final YamlFileTypeResolver yamlFileTypeResolver;
   private ArmParserStatistics armParserStatistics;
 
   public ArmSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, ArmLanguage language, YamlFileTypeResolver yamlFileTypeResolver, IacProjectSensor projectSensor) {
-    super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, ArmCheckList.checks(), projectSensor);
-    this.yamlFileTypeResolver = yamlFileTypeResolver;
+    super(sonarRuntime, fileLinesContextFactory, checkFactory, noSonarFilter, language, ArmCheckList.checks(), projectSensor, yamlFileTypeResolver);
   }
 
   @Override

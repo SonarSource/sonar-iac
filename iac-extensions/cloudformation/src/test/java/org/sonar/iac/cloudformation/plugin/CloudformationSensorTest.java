@@ -28,6 +28,7 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.predicates.FileType;
 import org.sonar.iac.common.predicates.YamlFileTypeCache;
 import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
@@ -125,7 +126,8 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
     context.settings().setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE);
 
-    FilePredicate filePredicate = sensor().customFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
+    var resolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
+    FilePredicate filePredicate = resolver.getFilePredicate(new DurationStatistics(mock(Configuration.class)), FileType.CLOUDFORMATION);
     assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();
     assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
   }

@@ -18,6 +18,7 @@ package org.sonar.iac.common.yaml;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -37,6 +38,8 @@ import org.sonar.iac.common.extension.SonarRuntimeUtils;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.predicates.FileType;
+import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 
@@ -47,12 +50,18 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
   public static final String FILE_SEPARATOR = "---";
 
   protected final Checks<IacCheck> checks;
+  // Shared, per-analysis resolver. Always present: it drives fileTypes()/getInputFiles selection for sensors that opt in,
+  // and the predicate-path sensors (ARM, GitHub Actions, the YAML/JSON catch-all) still receive it even though they keep
+  // selecting files their own way.
+  protected final YamlFileTypeResolver yamlFileTypeResolver;
 
   protected AbstractYamlLanguageSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
-    NoSonarFilter noSonarFilter, Language language, List<Class<?>> checks, IacProjectSensor projectSensor) {
+    NoSonarFilter noSonarFilter, Language language, List<Class<?>> checks, IacProjectSensor projectSensor,
+    YamlFileTypeResolver yamlFileTypeResolver) {
     super(sonarRuntime, fileLinesContextFactory, noSonarFilter, language, projectSensor);
     this.checks = checkFactory.create(repositoryKey());
     this.checks.addAnnotatedChecks(checks);
+    this.yamlFileTypeResolver = yamlFileTypeResolver;
   }
 
   @Override
@@ -78,6 +87,25 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
     return List.of();
   }
 
+  /**
+   * The {@link FileType}s this sensor analyzes. When non-empty, {@link #inputFiles} selects the analysis' files of these
+   * types straight from the shared {@link YamlFileTypeResolver} cache (one traversal shared by all YAML based sensors)
+   * instead of re-scanning the file system with {@link #mainFilePredicate}. Sensors that select files differently (the
+   * YAML/JSON catch-all, or sensors that also handle non-YAML/JSON files) leave this empty and keep the predicate path.
+   */
+  protected Set<FileType> fileTypes() {
+    return Set.of();
+  }
+
+  @Override
+  protected List<InputFile> inputFiles(SensorContext sensorContext, DurationStatistics statistics) {
+    var types = fileTypes();
+    if (types.isEmpty()) {
+      return super.inputFiles(sensorContext, statistics);
+    }
+    return yamlFileTypeResolver.getInputFiles(sensorContext.fileSystem(), statistics, types.toArray(new FileType[0]));
+  }
+
   @Override
   protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
     FileSystem fileSystem = sensorContext.fileSystem();
@@ -87,6 +115,12 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
       customFilePredicate(sensorContext, statistics));
   }
 
-  protected abstract FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics);
+  /**
+   * The predicate used by {@link #mainFilePredicate} on the predicate selection path. Defaults to matching nothing;
+   * sensors that stay on the predicate path (e.g. ARM, which also handles non-YAML/JSON files) override it.
+   */
+  protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
+    return sensorContext.fileSystem().predicates().none();
+  }
 
 }

@@ -36,7 +36,8 @@ import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.YAML_LANGUAGE
 public class HelmFilePredicate extends AbstractTimedFilePredicate implements YamlFileTypePredicate {
   private static final Logger LOG = LoggerFactory.getLogger(HelmFilePredicate.class);
   private static final String[] HELM_YAML_PATH_PATTERNS = {"**/templates/**", "**/values.yaml", "**/values.yml", "**/Chart.yaml"};
-  private static final String TPL_TEMPLATE_PATH_PATTERN = "**/templates/*.tpl";
+  // Package-private so YamlFileTypeResolver can include these (language-less) templates in its classification candidates.
+  static final String TPL_TEMPLATE_PATH_PATTERN = "**/templates/*.tpl";
 
   private final FileSystem fileSystem;
   private final FilePredicate delegate;

@@ -17,30 +17,33 @@
 package org.sonar.iac.common.predicates;
 
 import java.net.URI;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.CheckForNull;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
-import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
-import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileListener;
 
 /**
- * Cache of the {@link FileType} computed for each file by {@link YamlFileTypeResolver}.
- * It is injected as a singleton so that the file type of a given file is computed only once, even if several YAML based
- * sensors are interested in it.
+ * Cache of the {@link FileType} computed for each file by {@link YamlFileTypeResolver}, shared by all YAML based sensors
+ * of a single analysis so that a file's type is computed only once even if several sensors are interested in it.
  * <p>
- * In SonarLint this single instance lives for the whole engine session and is shared across analyses. Because several
- * predicates are content based, a file's resolved {@link FileType} can change between analyses while its URI stays the
- * same, so the cache implements {@link ModuleFileListener} to drop the affected entry whenever a file changes.
+ * Besides the {@code URI -> FileType} lookup, the cache also maintains the reverse index {@code FileType -> InputFiles},
+ * so a sensor can ask for all the files resolved to a given {@link FileType} (through {@link #getFiles}) instead of
+ * re-applying a predicate over the whole file system.
+ * <p>
+ * It is scoped to a single analysis ({@link SonarLintSide.Lifespan#SINGLE_ANALYSIS}), the same lifespan as
+ * {@link YamlFileTypeResolver}: a fresh cache is built for every analysis, so it can safely hold that analysis'
+ * {@link InputFile} instances and never serves a stale type - a new analysis simply starts from an empty cache.
  */
 @ScannerSide
-@SonarLintSide(lifespan = SonarLintSide.INSTANCE)
-public class YamlFileTypeCache implements ModuleFileListener {
+@SonarLintSide(lifespan = SonarLintSide.SINGLE_ANALYSIS)
+public class YamlFileTypeCache {
 
-  // Shared singleton accessed by all YAML based sensors and, in SonarLint, mutated from module file events which may be
-  // delivered on a different thread than the analysis, so the backing map must be thread-safe.
   private final Map<URI, FileType> fileTypeCache = new ConcurrentHashMap<>();
+  private final Map<FileType, Set<InputFile>> filesByType = new ConcurrentHashMap<>();
 
   public YamlFileTypeCache() {
     // Public explicit constructor for injection
@@ -51,16 +54,39 @@ public class YamlFileTypeCache implements ModuleFileListener {
     return fileTypeCache.get(fileUri);
   }
 
-  public void put(URI fileUri, FileType fileType) {
-    fileTypeCache.put(fileUri, fileType);
+  public void put(InputFile inputFile, FileType fileType) {
+    var previous = fileTypeCache.put(inputFile.uri(), fileType);
+    if (previous != null && previous != fileType) {
+      removeFromReverseIndex(previous, inputFile);
+    }
+    addToReverseIndex(fileType, inputFile);
   }
 
   /**
-   * Invalidates the cached {@link FileType} of a file when it is created, modified or deleted, so that it is recomputed
-   * on the next analysis instead of returning a type derived from stale content.
+   * Returns the input files resolved to any of the given {@link FileType}s. The returned set is a snapshot: it is
+   * detached from the cache, so iterating it is safe even if the cache is concurrently mutated.
    */
-  @Override
-  public void process(ModuleFileEvent moduleFileEvent) {
-    fileTypeCache.remove(moduleFileEvent.getTarget().uri());
+  public Set<InputFile> getFiles(FileType... fileTypes) {
+    var result = new HashSet<InputFile>();
+    for (var fileType : fileTypes) {
+      var files = filesByType.get(fileType);
+      if (files != null) {
+        result.addAll(files);
+      }
+    }
+    return result;
+  }
+
+  private void addToReverseIndex(FileType fileType, InputFile inputFile) {
+    if (fileType != FileType.UNDETERMINED) {
+      filesByType.computeIfAbsent(fileType, type -> ConcurrentHashMap.newKeySet()).add(inputFile);
+    }
+  }
+
+  private void removeFromReverseIndex(FileType fileType, InputFile inputFile) {
+    var files = filesByType.get(fileType);
+    if (files != null) {
+      files.remove(inputFile);
+    }
   }
 }

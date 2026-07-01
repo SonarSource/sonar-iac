@@ -19,7 +19,6 @@ package org.sonar.iac.common.predicates;
 import java.net.URI;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -29,51 +28,64 @@ class YamlFileTypeCacheTest {
 
   @Test
   void shouldStoreValueInCache() {
-    YamlFileTypeCache cache = new YamlFileTypeCache();
-    URI fileUri = URI.create("file:///test.yaml");
-    FileType fileType = FileType.CLOUDFORMATION;
-    cache.put(fileUri, fileType);
-    assertThat(cache.get(fileUri)).isEqualTo(fileType);
+    var cache = new YamlFileTypeCache();
+    var file = inputFile("file:///test.yaml");
+    cache.put(file, FileType.CLOUDFORMATION);
+    assertThat(cache.get(file.uri())).isEqualTo(FileType.CLOUDFORMATION);
   }
 
   @Test
   void shouldReturnNullWhenValueIsNotStored() {
-    YamlFileTypeCache cache = new YamlFileTypeCache();
-    URI fileUri = URI.create("file:///test.yaml");
-    assertThat(cache.get(fileUri)).isNull();
+    var cache = new YamlFileTypeCache();
+    assertThat(cache.get(URI.create("file:///test.yaml"))).isNull();
   }
 
   @Test
-  void shouldInvalidateCacheEntryOnModuleFileEvent() {
-    YamlFileTypeCache cache = new YamlFileTypeCache();
-    URI changedUri = URI.create("file:///changed.yaml");
-    URI otherUri = URI.create("file:///other.yaml");
-    cache.put(changedUri, FileType.CLOUDFORMATION);
-    cache.put(otherUri, FileType.KUBERNETES);
+  void shouldExposeFilesGroupedByType() {
+    var cache = new YamlFileTypeCache();
+    var cloudFormation1 = inputFile("file:///cf1.yaml");
+    var cloudFormation2 = inputFile("file:///cf2.yaml");
+    var kubernetes = inputFile("file:///k8s.yaml");
+    cache.put(cloudFormation1, FileType.CLOUDFORMATION);
+    cache.put(cloudFormation2, FileType.CLOUDFORMATION);
+    cache.put(kubernetes, FileType.KUBERNETES);
 
-    cache.process(moduleFileEvent(changedUri, ModuleFileEvent.Type.MODIFIED));
-
-    assertThat(cache.get(changedUri)).isNull();
-    // Other entries are untouched.
-    assertThat(cache.get(otherUri)).isEqualTo(FileType.KUBERNETES);
+    assertThat(cache.getFiles(FileType.CLOUDFORMATION)).containsExactlyInAnyOrder(cloudFormation1, cloudFormation2);
+    assertThat(cache.getFiles(FileType.KUBERNETES)).containsExactly(kubernetes);
+    assertThat(cache.getFiles(FileType.CLOUDFORMATION, FileType.KUBERNETES))
+      .containsExactlyInAnyOrder(cloudFormation1, cloudFormation2, kubernetes);
   }
 
   @Test
-  void shouldNotFailWhenInvalidatingUnknownFile() {
-    YamlFileTypeCache cache = new YamlFileTypeCache();
-    URI unknownUri = URI.create("file:///unknown.yaml");
-
-    cache.process(moduleFileEvent(unknownUri, ModuleFileEvent.Type.DELETED));
-
-    assertThat(cache.get(unknownUri)).isNull();
+  void shouldReturnEmptyForTypeWithoutFiles() {
+    var cache = new YamlFileTypeCache();
+    assertThat(cache.getFiles(FileType.CLOUDFORMATION)).isEmpty();
   }
 
-  private static ModuleFileEvent moduleFileEvent(URI uri, ModuleFileEvent.Type type) {
+  @Test
+  void shouldNotIndexUndeterminedFiles() {
+    var cache = new YamlFileTypeCache();
+    var file = inputFile("file:///plain.yaml");
+    cache.put(file, FileType.UNDETERMINED);
+
+    assertThat(cache.get(file.uri())).isEqualTo(FileType.UNDETERMINED);
+    assertThat(cache.getFiles(FileType.UNDETERMINED)).isEmpty();
+  }
+
+  @Test
+  void shouldMoveFileToNewBucketWhenReclassified() {
+    var cache = new YamlFileTypeCache();
+    var file = inputFile("file:///changing.yaml");
+    cache.put(file, FileType.CLOUDFORMATION);
+    cache.put(file, FileType.KUBERNETES);
+
+    assertThat(cache.getFiles(FileType.CLOUDFORMATION)).isEmpty();
+    assertThat(cache.getFiles(FileType.KUBERNETES)).containsExactly(file);
+  }
+
+  private static InputFile inputFile(String uri) {
     var inputFile = mock(InputFile.class);
-    when(inputFile.uri()).thenReturn(uri);
-    var event = mock(ModuleFileEvent.class);
-    when(event.getTarget()).thenReturn(inputFile);
-    when(event.getType()).thenReturn(type);
-    return event;
+    when(inputFile.uri()).thenReturn(URI.create(uri));
+    return inputFile;
   }
 }

@@ -33,6 +33,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.testing.AbstractSensorTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,7 +97,7 @@ class AbstractYamlLanguageSensorTest extends AbstractSensorTest {
   @Override
   protected AbstractYamlLanguageSensor sensor(CheckFactory checkFactory) {
     return new AbstractYamlLanguageSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter, YamlLanguage.YAML,
-      Collections.emptyList(), projectSensor) {
+      Collections.emptyList(), projectSensor, mock(YamlFileTypeResolver.class)) {
       @Override
       protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
         FilePredicate customPredicate = mock(FilePredicate.class);
