@@ -22,7 +22,7 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.checks.SecretClassifier;
+import org.sonarsource.analyzer.commons.appsec.SecretClassifier;
 
 @Rule(key = "S2068")
 public class HardcodedCredentialsCheck extends AbstractEnvCheck {

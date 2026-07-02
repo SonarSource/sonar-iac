@@ -23,8 +23,8 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
-import org.sonar.iac.common.checks.SecretClassifier;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
+import org.sonarsource.analyzer.commons.appsec.SecretClassifier;
 
 import static org.sonar.iac.jvmframeworkconfig.tree.utils.JvmFrameworkConfigUtils.getStringValue;
 
@@ -46,13 +46,9 @@ public abstract class AbstractHardcodedSecrets extends AbstractSensitiveKeyCheck
 
   @Override
   protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
-    if (isHardcoded(value)) {
+    if (!value.isEmpty() && !SecretClassifier.isKnownNonSecret(value)) {
       ctx.reportIssue(tuple.value(), MESSAGE);
     }
-  }
-
-  private static boolean isHardcoded(String value) {
-    return !(value.isEmpty() || SecretClassifier.isKnownNonSecret(value));
   }
 
   protected static boolean checkValueWithPattern(CheckContext ctx, Pattern pattern, Tuple tuple) {

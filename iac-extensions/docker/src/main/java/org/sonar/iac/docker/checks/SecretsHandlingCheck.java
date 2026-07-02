@@ -19,21 +19,26 @@ package org.sonar.iac.docker.checks;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
+import org.sonar.iac.docker.symbols.Usage;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
 import org.sonar.iac.docker.tree.api.Argument;
+import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.EnvInstruction;
 import org.sonar.iac.docker.tree.api.Expression;
 import org.sonar.iac.docker.tree.api.KeyValuePair;
 import org.sonar.iac.docker.tree.api.Variable;
+import org.sonarsource.analyzer.commons.appsec.SecretClassifier;
 
 @Rule(key = "S6472")
 public class SecretsHandlingCheck implements IacCheck {
@@ -108,7 +113,7 @@ public class SecretsHandlingCheck implements IacCheck {
 
     ArgumentResolution valueResolution = ArgumentResolution.of(secret);
     if (valueResolution.isUnresolved()) {
-      return type.equals(AssignmentType.ARG) || isSensitiveVariableName(secret);
+      return type.equals(AssignmentType.ARG) || isSensitiveVariableReference(secret);
     }
 
     String value = valueResolution.value();
@@ -116,19 +121,34 @@ public class SecretsHandlingCheck implements IacCheck {
       return type.equals(AssignmentType.ARG);
     }
 
-    return !isUrl(value) && !isPath(value);
+    return !isUrl(value) && !isPath(value) && !SecretClassifier.isKnownNonSecret(value);
   }
 
-  /**
-   * Check if the argument contains of a single variable expression and check if its name is sensitive
-   */
-  private static boolean isSensitiveVariableName(Argument secret) {
+  private static boolean isSensitiveVariableReference(Argument secret) {
     List<Expression> expressions = secret.expressions();
     if (expressions.size() == 1 && expressions.get(0) instanceof Variable variable) {
-      String identifier = variable.identifier();
-      return isSensitiveVariableName(identifier);
+      ArgumentResolution previousValue = resolveReferencedValue(variable);
+      if (previousValue != null) {
+        return !isUrl(previousValue.value()) && !isPath(previousValue.value()) && !SecretClassifier.isKnownNonSecret(previousValue.value());
+      }
+      return isSensitiveVariableName(variable.identifier());
     }
     return false;
+  }
+
+  @CheckForNull
+  private static ArgumentResolution resolveReferencedValue(Variable variable) {
+    if (variable.symbol() == null) {
+      return null;
+    }
+    return variable.symbol().usages().stream()
+      .filter(u -> u.kind().equals(Usage.Kind.ASSIGNMENT) && u.tree().is(DockerTree.Kind.KEY_VALUE_PAIR))
+      .map(u -> ((KeyValuePair) u.tree()).value())
+      .filter(Objects::nonNull)
+      .map(ArgumentResolution::of)
+      .filter(r -> r.isResolved() && !r.value().isBlank())
+      .reduce((first, second) -> second)
+      .orElse(null);
   }
 
   /**

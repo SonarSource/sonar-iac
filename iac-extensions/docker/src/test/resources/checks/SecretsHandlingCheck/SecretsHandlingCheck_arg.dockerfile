@@ -7,11 +7,11 @@ ARG ACCESS_TOKEN=ThisIsSomethingThatShouldProbablyBeSecret
 # Noncompliant@+1
 ARG access_token=ThisIsSomethingThatShouldProbablyBeSecret
 # Noncompliant@+1
-ARG TOKEN=AAAA
+ARG TOKEN=Rb7kZpQ2x
 # Noncompliant@+1
-ARG token=AAAA
+ARG token=Rb7kZpQ2x
 # Noncompliant@+1
-ARG MY_1_ACCESS_TOKEN=AAAA
+ARG MY_1_ACCESS_TOKEN=Rb7kZpQ2x
 # Noncompliant@+1
 ARG ACCESS_TOKEN=${ACCESS_TOKEN}
 #   ^^^^^^^^^^^^
@@ -26,13 +26,13 @@ ARG ${CCC}=BBB
 ARG ACCESS_TOKEN="hts://www.secrets.com"
 
 # Noncompliant@+1
-ARG WEBHOOK_CREDENTIALS=AAAA
+ARG WEBHOOK_CREDENTIALS=Rb7kZpQ2x
 # Noncompliant@+1
-ARG OAUTH2-PASS=AAAA
+ARG OAUTH2-PASS=Rb7kZpQ2x
 # Noncompliant@+1
-ARG FtpPassword=AAAA
-ARG ExpireFtpPassword=AAAA
-ARG FtpMyPassword=AAAA
+ARG FtpPassword=Rb7kZpQ2x
+ARG ExpireFtpPassword=Rb7kZpQ2x
+ARG FtpMyPassword=Rb7kZpQ2x
 
 # Only raise on sensitive varaible name is not resolved to safe value
 ARG FOO="https://www.secrets.com"

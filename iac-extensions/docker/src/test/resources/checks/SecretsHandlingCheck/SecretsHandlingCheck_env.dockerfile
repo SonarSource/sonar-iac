@@ -12,11 +12,11 @@ ENV MyAccessToken=${RANDOM}
 # Noncompliant@+1 {{Make sure that using ENV to handle a secret is safe here.}}
 ENV ACCESS_TOKEN=ThisIsSomethingThatShouldProbablyBeSecret
 # Noncompliant@+1
-ENV TOKEN=AAAA
+ENV TOKEN=Rb7kZpQ2x
 # Noncompliant@+1
-ENV token=AAAA
+ENV token=Rb7kZpQ2x
 # Noncompliant@+1
-ENV MY_1_ACCESS_TOKEN=AAAA
+ENV MY_1_ACCESS_TOKEN=Rb7kZpQ2x
 # Noncompliant@+1
 ENV ACCESS_TOKEN=${ACCESS_TOKEN}
 
@@ -25,7 +25,7 @@ ARG CCC
 ENV ${CCC}=BBB
 
 ENV ACCESS_TOKEN=""
-ENV ACCESS=AAAA
+ENV ACCESS=Rb7kZpQ2x
 ENV NOACCESS_TOKEN=whatever
 ENV ACCESS_TOKEN_PATH=${RANDOM}
 ENV ACCESS_TOKEN=/usr/bin/:/bin/:/sbin/
@@ -39,13 +39,13 @@ ENV ACCESS_TOKEN="https://www.secrets.com"
 ENV ACCESS_TOKEN="hts://www.secrets.com"
 
 # Noncompliant@+1
-ENV WEBHOOK_CREDENTIALS=AAAA
+ENV WEBHOOK_CREDENTIALS=Rb7kZpQ2x
 # Noncompliant@+1
-ENV OAUTH2-PASS=AAAA
+ENV OAUTH2-PASS=Rb7kZpQ2x
 # Noncompliant@+1
-ENV FtpPassword=AAAA
-ENV ExpireFtpPassword=AAAA
-ENV FtpMyPassword=AAAA
+ENV FtpPassword=Rb7kZpQ2x
+ENV ExpireFtpPassword=Rb7kZpQ2x
+ENV FtpMyPassword=Rb7kZpQ2x
 
 # Noncompliant@+1
 ENV WEBHOOK_CREDENTIALS=$WEBHOOK_CREDENTIALS
@@ -56,19 +56,31 @@ ARG FOO="https://www.secrets.com"
 ENV WEBHOOK_CREDENTIALS=$FOO
 
 # FN hard to do a PascalCase split with numbers
-ENV Oauth2Pass=AAAA
+ENV Oauth2Pass=Rb7kZpQ2x
 
 ENV API_KEY=
 
 # Variables containing PUBLIC in the name are not flagged
-ENV NEXT_PUBLIC_ACCESS_TOKEN_KEY=AAAA
-ENV NEXT_PUBLIC_API_KEY=AAAA
-ENV PUBLIC_TOKEN=AAAA
+ENV NEXT_PUBLIC_ACCESS_TOKEN_KEY=Rb7kZpQ2x
+ENV NEXT_PUBLIC_API_KEY=Rb7kZpQ2x
+ENV PUBLIC_TOKEN=Rb7kZpQ2x
 
 # Variable that contains PUBLIC but only as a substring of a different word
 # Noncompliant@+1
-ENV PUBLICATION_SECRET_KEY=AAAA
+ENV PUBLICATION_SECRET_KEY=Rb7kZpQ2x
 
 # Variable where PUBLIC appears as a suffix — still flagged
 # Noncompliant@+1
-ENV NONPUBLIC_SECRET_KEY=AAAA
+ENV NONPUBLIC_SECRET_KEY=Rb7kZpQ2x
+
+
+ENV FAKE_SECRET_TOKEN=AAAA
+# Compliant because the referenced value (AAAA) is not a real secret
+ENV FAKE_SECRET_TOKEN=${FAKE_SECRET_TOKEN}
+
+# Reference should be classified against the value at the time of reference, not a later reassignment
+# Noncompliant@+1
+ENV MY_SECRET_TOKEN=realVerySecretValue123
+# Noncompliant@+1
+ENV MY_SECRET_TOKEN=${MY_SECRET_TOKEN}
+ENV MY_SECRET_TOKEN=AAAA

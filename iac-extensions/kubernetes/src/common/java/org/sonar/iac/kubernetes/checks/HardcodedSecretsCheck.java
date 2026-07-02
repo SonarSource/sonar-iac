@@ -22,9 +22,9 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
-import org.sonar.iac.common.checks.SecretClassifier;
 import org.sonarsource.analyzer.commons.EntropyDetector;
 import org.sonarsource.analyzer.commons.HumanLanguageDetector;
+import org.sonarsource.analyzer.commons.appsec.SecretClassifier;
 
 @Rule(key = "S6418")
 public class HardcodedSecretsCheck extends AbstractEnvCheck {
