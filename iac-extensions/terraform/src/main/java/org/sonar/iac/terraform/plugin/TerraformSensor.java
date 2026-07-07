@@ -49,6 +49,7 @@ public class TerraformSensor extends IacSensor {
     checks = checkFactory.create(TerraformExtension.REPOSITORY_KEY);
     checks.addAnnotatedChecks(TerraformCheckList.checks());
     this.providerVersions = providerVersions;
+    bindChecksTelemetry(checks.all());
   }
 
   @Override

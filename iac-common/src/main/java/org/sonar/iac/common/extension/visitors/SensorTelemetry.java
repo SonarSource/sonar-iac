@@ -22,11 +22,14 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Holds telemetry data collected during analysis. A single instance is shared across all IaC sensors via
  * {@link org.sonar.iac.common.extension.IacProjectSensor#getSensorTelemetry()} so values accumulate across
- * multi-module projects (where {@code Sensor} implementations can be instantiated multiple times).
+ * multi-module projects (where {@code Sensor} implementations can be instantiated multiple times). It is also injected
+ * into every check that implements {@link org.sonar.iac.common.api.checks.CollectingTelemetry}, so checks can
+ * contribute measures directly while analyzing.
  * <p>
  * Telemetry can be added through the following methods:
  * <ul>
@@ -36,24 +39,30 @@ import java.util.Map;
  *   <li>{@link #setBooleanMeasure(String, boolean)} – ORs values across calls; produces {@code "1"} when any caller
  *       supplied {@code true}, {@code "0"} when at least one call supplied a value but all were {@code false}.</li>
  * </ul>
- * Callers are expected to construct keys without the {@code "iac."} prefix, which is added automatically.
+ * Callers are expected to construct keys without the {@code "iac."} prefix, which is added automatically. Free-form
+ * values that become part of a key must first be passed through {@link #sanitizeKeySegment(String)}.
+ * <p>
+ * Because the single instance is shared by every sensor and check, the backing stores are {@link ConcurrentHashMap}s
+ * whose numeric, boolean and lines-of-code entries are mutated only through atomic {@code merge}/{@code computeIfAbsent}.
+ * The per-language file-size lists are synchronized (and snapshotted before they are read in {@link #getTelemetry()}),
+ * so contribution stays safe even if analysis ever runs checks concurrently.
  */
 public class SensorTelemetry {
 
   // `.` should be used for telemetry groups and every IaC key should start with `iac.`
   private static final String KEY_PREFIX = "iac.";
 
-  // Numerical measures (sum or set semantics) populated by domain-specific sensors
-  private final Map<String, Long> numericalMeasures = new HashMap<>();
+  // Numerical measures (sum or set semantics) populated by domain-specific sensors and checks
+  private final Map<String, Long> numericalMeasures = new ConcurrentHashMap<>();
 
-  // Boolean measures (OR semantics) populated by domain-specific sensors
-  private final Map<String, Boolean> booleanMeasures = new HashMap<>();
+  // Boolean measures (OR semantics) populated by domain-specific sensors and checks
+  private final Map<String, Boolean> booleanMeasures = new ConcurrentHashMap<>();
 
   // Per-language lines of code accumulated across calls
-  private final Map<String, Long> linesOfCodePerLanguage = new HashMap<>();
+  private final Map<String, Long> linesOfCodePerLanguage = new ConcurrentHashMap<>();
 
   // Per-language file sizes accumulated across calls
-  private final Map<String, List<Long>> fileSizesPerLanguage = new HashMap<>();
+  private final Map<String, List<Long>> fileSizesPerLanguage = new ConcurrentHashMap<>();
 
   /**
    * Accumulates lines of code for a given language. Stored at key {@code iac.<language>.loc}.
@@ -73,7 +82,8 @@ public class SensorTelemetry {
    * {@code iac.<language>.files.largestFiles} when {@link #getTelemetry()} is called.
    */
   public void addFileSize(String language, long fileSize) {
-    fileSizesPerLanguage.computeIfAbsent(language, k -> new ArrayList<>()).add(fileSize);
+    // Synchronized list so concurrent add() calls for the same language are safe; getTelemetry() snapshots before reading.
+    fileSizesPerLanguage.computeIfAbsent(language, k -> Collections.synchronizedList(new ArrayList<>())).add(fileSize);
   }
 
   /**
@@ -101,14 +111,27 @@ public class SensorTelemetry {
     booleanMeasures.merge(KEY_PREFIX + key, value, (a, b) -> a || b);
   }
 
+  /**
+   * Sanitizes a free-form value so it can be safely embedded as a single segment of a telemetry key: every run of
+   * characters other than an ASCII letter or digit is collapsed to a single {@code _}, and leading/trailing {@code _}
+   * are trimmed. Callers must apply this to any user-controlled value before appending it to a key, so keys never
+   * contain spaces, the {@code .} group separator or other characters that telemetry backends may restrict. The result
+   * stays human-readable, e.g. {@code Storage Blob Data Contributor} becomes {@code Storage_Blob_Data_Contributor}.
+   */
+  public static String sanitizeKeySegment(String segment) {
+    return segment.replaceAll("[^A-Za-z0-9]+", "_").replaceAll("^_++", "").replaceAll("_++$", "");
+  }
+
   public Map<String, String> getTelemetry() {
     var telemetry = new HashMap<String, String>();
     numericalMeasures.forEach((key, value) -> telemetry.put(key, String.valueOf(value)));
     booleanMeasures.forEach((key, value) -> telemetry.put(key, Boolean.TRUE.equals(value) ? "1" : "0"));
     linesOfCodePerLanguage.forEach((language, loc) -> telemetry.put(KEY_PREFIX + language + ".loc", String.valueOf(loc)));
     fileSizesPerLanguage.forEach((language, sizes) -> {
-      telemetry.put(KEY_PREFIX + language + ".files.medianSize", String.valueOf(calculateMedian(new ArrayList<>(sizes))));
-      telemetry.put(KEY_PREFIX + language + ".files.largestFiles", String.valueOf(getLargestNumbers(sizes, 20)));
+      // Snapshot the synchronized list before reading; new ArrayList<>(sizes) synchronizes on the list internally.
+      var sizesSnapshot = new ArrayList<>(sizes);
+      telemetry.put(KEY_PREFIX + language + ".files.medianSize", String.valueOf(calculateMedian(sizesSnapshot)));
+      telemetry.put(KEY_PREFIX + language + ".files.largestFiles", String.valueOf(getLargestNumbers(sizesSnapshot, 20)));
     });
     return telemetry;
   }

@@ -28,9 +28,9 @@ import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 
 /**
  * A single {@link ProjectSensor} that is instantiated only once per project.
- * It holds a single shared {@link SensorTelemetry} instance used by all IaC sensors
- * and reports telemetry at the end of the project analysis.
- * This is the <b>only</b> place where {@link SensorContext#addTelemetryProperty} is called.
+ * It holds the shared {@link SensorTelemetry} instance used by all IaC sensors and checks, and reports its telemetry at
+ * the end of the project analysis. This is the <b>only</b> place where {@link SensorContext#addTelemetryProperty} is
+ * called.
  */
 public class IacProjectSensor implements ProjectSensor {
 
@@ -50,7 +50,7 @@ public class IacProjectSensor implements ProjectSensor {
 
   /**
    * Returns the single shared {@link SensorTelemetry} instance for this project.
-   * All language sensors share this instance; per-language data is tracked internally
+   * All language sensors and checks share this instance; per-language data is tracked internally
    * using language keys.
    */
   public SensorTelemetry getSensorTelemetry() {
@@ -67,6 +67,7 @@ public class IacProjectSensor implements ProjectSensor {
     if (!isTelemetrySupported(context)) {
       return;
     }
+    // getTelemetry() already returns a fresh map, so it can be streamed directly.
     var sortedEntries = sensorTelemetry.getTelemetry()
       .entrySet().stream()
       .sorted(Map.Entry.comparingByKey())

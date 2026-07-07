@@ -18,7 +18,10 @@ package org.sonar.iac.arm.checks;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.iac.common.api.tree.impl.TextRanges.range;
 import static org.sonar.iac.common.testing.Verifier.issue;
 
@@ -62,5 +65,38 @@ class SubscriptionRoleAssignmentCheckTest {
   @Test
   void testDeploymentGroupBicep() {
     BicepVerifier.verifyNoIssue("SubscriptionRoleAssignmentCheck/deploymentTemplate.bicep", CHECK);
+  }
+
+  @Test
+  void shouldCollectTelemetry() {
+    var check = new SubscriptionRoleAssignmentCheck();
+    var sensorTelemetry = new SensorTelemetry();
+    check.setSensorTelemetry(sensorTelemetry);
+    BicepVerifier.verify("SubscriptionRoleAssignmentCheck/telemetry.bicep", check);
+
+    assertThat(sensorTelemetry.getTelemetry()).containsOnly(
+      entry("iac.azureresourcemanager.S6387.assignment_role_name.Storage_Blob_Data_Contributor", "1"),
+      entry("iac.azureresourcemanager.S6387.assignment_role_id.ba92f5b4-2d11-453d-a403-e96b0029c9fe", "1"),
+      entry("iac.azureresourcemanager.S6387.assignment_role_name.custom", "1"),
+      entry("iac.azureresourcemanager.S6387.assignment_role_id.custom", "1"),
+      entry("iac.azureresourcemanager.S6387.assignment_role_name.Reader", "1"),
+      entry("iac.azureresourcemanager.S6387.assignment_role_id.acdd72a7-3385-48ef-bd42-f606fba81ae7", "1"),
+      entry("iac.azureresourcemanager.S6387.principal_type.ServicePrincipal", "1"),
+      entry("iac.azureresourcemanager.S6387.principal_type.User", "1"),
+      entry("iac.azureresourcemanager.S6387.principal_type.Group", "1"));
+  }
+
+  @Test
+  void shouldAggregateTelemetryCountsAcrossAssignments() {
+    var check = new SubscriptionRoleAssignmentCheck();
+    var sensorTelemetry = new SensorTelemetry();
+    check.setSensorTelemetry(sensorTelemetry);
+    BicepVerifier.verify("SubscriptionRoleAssignmentCheck/telemetryAggregated.bicep", check);
+
+    // Two identical Reader/User assignments accumulate into counters greater than 1.
+    assertThat(sensorTelemetry.getTelemetry()).containsOnly(
+      entry("iac.azureresourcemanager.S6387.assignment_role_name.Reader", "2"),
+      entry("iac.azureresourcemanager.S6387.assignment_role_id.acdd72a7-3385-48ef-bd42-f606fba81ae7", "2"),
+      entry("iac.azureresourcemanager.S6387.principal_type.User", "2"));
   }
 }

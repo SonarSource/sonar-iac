@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.common.extension;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
@@ -29,6 +30,8 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Language;
 import org.sonar.api.utils.Version;
+import org.sonar.iac.common.api.checks.CollectingTelemetry;
+import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
@@ -125,6 +128,13 @@ public abstract class IacSensor extends TogglableSensor {
   @SuppressWarnings("java:S1172")
   protected void afterExecute(SensorContext sensorContext) {
     // do nothing by default
+  }
+
+  protected void bindChecksTelemetry(Collection<IacCheck> checks) {
+    checks.stream()
+      .filter(CollectingTelemetry.class::isInstance)
+      .map(CollectingTelemetry.class::cast)
+      .forEach(check -> check.setSensorTelemetry(sensorTelemetry));
   }
 
   public static boolean isFailFast(SensorContext context) {

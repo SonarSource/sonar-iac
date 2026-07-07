@@ -77,6 +77,21 @@ class IacProjectSensorTest {
   }
 
   @Test
+  void shouldReportTelemetryContributedByChecks() {
+    var sensor = new IacProjectSensor(settings.asConfig());
+    sensor.getSensorTelemetry().addLinesOfCode("terraform", 42);
+    // checks contribute measures through the same shared SensorTelemetry
+    sensor.getSensorTelemetry().addNumericalMeasure("terraform.S6387.principal_type.User", 3);
+
+    var context = contextWithRuntime(VERSION_WITH_TELEMETRY);
+    sensor.execute(context);
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.terraform.loc", "42")
+      .containsEntry("iac.terraform.S6387.principal_type.User", "3");
+  }
+
+  @Test
   void shouldReportTelemetryWhenApiVersionSupported() {
     var sensor = new IacProjectSensor(settings.asConfig());
     sensor.getSensorTelemetry().addLinesOfCode("terraform", 42);

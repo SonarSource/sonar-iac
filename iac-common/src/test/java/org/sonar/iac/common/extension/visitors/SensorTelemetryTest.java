@@ -208,4 +208,14 @@ class SensorTelemetryTest {
   void shouldNotEmitBooleanMeasureWhenNeverCalled() {
     assertThat(sensorTelemetry.getTelemetry()).doesNotContainKey("iac.foo.bar");
   }
+
+  @Test
+  void shouldSanitizeKeySegment() {
+    assertThat(SensorTelemetry.sanitizeKeySegment("Reader")).isEqualTo("Reader");
+    assertThat(SensorTelemetry.sanitizeKeySegment("Storage Blob Data Contributor")).isEqualTo("Storage_Blob_Data_Contributor");
+    assertThat(SensorTelemetry.sanitizeKeySegment("Advisor Recommendations Contributor (Assessments and Reviews)"))
+      .isEqualTo("Advisor_Recommendations_Contributor_Assessments_and_Reviews");
+    // leading/trailing runs of reserved characters are trimmed
+    assertThat(SensorTelemetry.sanitizeKeySegment(" .role. ")).isEqualTo("role");
+  }
 }

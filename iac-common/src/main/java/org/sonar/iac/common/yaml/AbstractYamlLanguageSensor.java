@@ -62,6 +62,7 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
     this.checks = checkFactory.create(repositoryKey());
     this.checks.addAnnotatedChecks(checks);
     this.yamlFileTypeResolver = yamlFileTypeResolver;
+    bindChecksTelemetry(this.checks.all());
   }
 
   @Override
