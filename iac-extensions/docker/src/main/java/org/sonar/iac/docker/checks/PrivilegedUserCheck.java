@@ -63,6 +63,8 @@ public class PrivilegedUserCheck implements IacCheck {
   private static final Set<String> SAFE_IMAGES = Set.of("adminer", "api-firewall", "elasticsearch", "emqx", "flink", "fluentd", "geonetwork", "groovy", "haproxy",
     "ibm-semeru-runtimes", "irssi", "jetty", "jobber", "kibana", "kong", "lightstreamer", "logstash", "memcached", "neo4j", "odoo", "open-liberty", "percona",
     "rocket.chat", "solr", "swift", "varnish", "vault", "websphere-liberty", "znc", "nginxinc/nginx-unprivileged");
+  // Registry/organization namespaces whose images run as a non-root user by default.
+  private static final Set<String> SAFE_NAMESPACES = Set.of("bitnami/", "dhi.io/");
 
   // Commands whose invocation in a RUN signals the dockerfile drops privileges later (or sets up a separate user).
   private static final Set<String> PRIVILEGE_DROP_COMMANDS = Set.of("gosu", "su-exec", "useradd", "adduser", "setpriv");
@@ -338,7 +340,11 @@ public class PrivilegedUserCheck implements IacCheck {
   }
 
   private boolean isSafeImage(String imageName) {
-    return SAFE_IMAGES.contains(imageName) || imageName.startsWith("bitnami/") || isUserSafeImage(imageName);
+    return SAFE_IMAGES.contains(imageName) || isSafeNamespace(imageName) || isUserSafeImage(imageName);
+  }
+
+  private static boolean isSafeNamespace(String imageName) {
+    return SAFE_NAMESPACES.stream().anyMatch(imageName::startsWith);
   }
 
   private boolean isUserSafeImage(String imageName) {

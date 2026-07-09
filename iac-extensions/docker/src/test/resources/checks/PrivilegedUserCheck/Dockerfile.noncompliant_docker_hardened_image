@@ -1,0 +1,9 @@
+# Counterpart to Dockerfile.compliant_docker_hardened_image: replacing the official dhi.io
+# namespace with a mirrored/external one (tracked in SONARIAC-3041) must still raise, proving
+# the compliant cases are suppressed specifically by the dhi.io namespace.
+FROM dhi.io/rust:1.92-alpine3.22-dev AS build
+CMD ["id"]
+
+# Noncompliant@+1 {{This image might run with "root" as the default user. Make sure it is safe here.}}
+FROM myregistry.io/dhi/alpine-base:3.23
+CMD ["id"]

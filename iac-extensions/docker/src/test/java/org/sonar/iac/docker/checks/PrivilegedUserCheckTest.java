@@ -89,6 +89,16 @@ class PrivilegedUserCheckTest {
     DockerVerifier.verify("PrivilegedUserCheck/Dockerfile_multi_stage_signal_in_builder_only", check);
   }
 
+  @Test
+  void testDockerHardenedImageCompliant() {
+    DockerVerifier.verifyNoIssue("PrivilegedUserCheck/Dockerfile.compliant_docker_hardened_image", check);
+  }
+
+  @Test
+  void testMirroredDockerHardenedImageStillRaises() {
+    DockerVerifier.verify("PrivilegedUserCheck/Dockerfile.noncompliant_docker_hardened_image", check);
+  }
+
   private static List<String> provideTestFiles(String testFileDir) {
     try (Stream<Path> pathStream = Files.list(BASE_DIR.resolve(testFileDir))) {
       return pathStream

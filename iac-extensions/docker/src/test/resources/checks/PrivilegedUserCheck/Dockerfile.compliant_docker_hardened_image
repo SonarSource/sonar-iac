@@ -1,0 +1,7 @@
+# Official docker-hosted Docker Hardened Images run as non-root (and w/o shell) by default.
+FROM dhi.io/rust:1.92-alpine3.22-dev AS build
+CMD ["id"]
+
+
+FROM dhi.io/alpine-base:3.23
+CMD ["id"]
