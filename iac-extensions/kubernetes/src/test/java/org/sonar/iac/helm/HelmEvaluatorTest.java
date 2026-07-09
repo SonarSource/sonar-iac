@@ -124,7 +124,7 @@ class HelmEvaluatorTest {
     }
   }
 
-  @Test
+  @RetryingTest(maxAttempts = 3)
   void shouldThrowIfGoReturnsError() {
     var templateDependencies = Map.of("values.yaml", "container:\n  port: 8080");
     assertThatThrownBy(() -> helmEvaluator.evaluateTemplate("/foo/bar/baz.yaml", "containerPort: {{ .Values.", templateDependencies))

@@ -210,6 +210,26 @@ class SensorTelemetryTest {
   }
 
   @Test
+  void shouldStoreStringMeasureWithIacPrefix() {
+    sensorTelemetry.setStringMeasure("pluginVersion", "1.2.3");
+
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.pluginVersion", "1.2.3");
+  }
+
+  @Test
+  void shouldOverwriteStringMeasureWhenSetAgain() {
+    sensorTelemetry.setStringMeasure("pluginVersion", "1.2.3");
+    sensorTelemetry.setStringMeasure("pluginVersion", "4.5.6");
+
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.pluginVersion", "4.5.6");
+  }
+
+  @Test
+  void shouldNotEmitStringMeasureWhenNeverCalled() {
+    assertThat(sensorTelemetry.getTelemetry()).doesNotContainKey("iac.pluginVersion");
+  }
+
+  @Test
   void shouldSanitizeKeySegment() {
     assertThat(SensorTelemetry.sanitizeKeySegment("Reader")).isEqualTo("Reader");
     assertThat(SensorTelemetry.sanitizeKeySegment("Storage Blob Data Contributor")).isEqualTo("Storage_Blob_Data_Contributor");
@@ -217,5 +237,12 @@ class SensorTelemetryTest {
       .isEqualTo("Advisor_Recommendations_Contributor_Assessments_and_Reviews");
     // leading/trailing runs of reserved characters are trimmed
     assertThat(SensorTelemetry.sanitizeKeySegment(" .role. ")).isEqualTo("role");
+    // a value with no alphanumeric characters at all would otherwise sanitize to an empty segment
+    assertThat(SensorTelemetry.sanitizeKeySegment(".")).isEqualTo("unknown");
+    assertThat(SensorTelemetry.sanitizeKeySegment(" . ")).isEqualTo("unknown");
+    assertThat(SensorTelemetry.sanitizeKeySegment("()")).isEqualTo("unknown");
+    // runs of multiple leading/trailing "_" are trimmed entirely, not just one character
+    assertThat(SensorTelemetry.sanitizeKeySegment("______something")).isEqualTo("something");
+    assertThat(SensorTelemetry.sanitizeKeySegment("something_________")).isEqualTo("something");
   }
 }

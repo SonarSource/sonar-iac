@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>{@link #setNumericalMeasure(String, long)} – overwrites the previous value (use only for project-level singletons).</li>
  *   <li>{@link #setBooleanMeasure(String, boolean)} – ORs values across calls; produces {@code "1"} when any caller
  *       supplied {@code true}, {@code "0"} when at least one call supplied a value but all were {@code false}.</li>
+ *   <li>{@link #setStringMeasure(String, String)} – overwrites the previous value (use only for project-level singletons).</li>
  * </ul>
  * Callers are expected to construct keys without the {@code "iac."} prefix, which is added automatically. Free-form
  * values that become part of a key must first be passed through {@link #sanitizeKeySegment(String)}.
@@ -54,6 +55,9 @@ public class SensorTelemetry {
 
   // Numerical measures (sum or set semantics) populated by domain-specific sensors and checks
   private final Map<String, Long> numericalMeasures = new ConcurrentHashMap<>();
+
+  // String measures (overwrite semantics) populated by domain-specific sensors
+  private final Map<String, String> stringMeasures = new ConcurrentHashMap<>();
 
   // Boolean measures (OR semantics) populated by domain-specific sensors and checks
   private final Map<String, Boolean> booleanMeasures = new ConcurrentHashMap<>();
@@ -112,20 +116,45 @@ public class SensorTelemetry {
   }
 
   /**
+   * Sets a string measure under {@code iac.<key>}, overwriting any previous value. Use this only for
+   * project-level singletons (e.g. the resolved plugin version).
+   */
+  public void setStringMeasure(String key, String value) {
+    stringMeasures.put(KEY_PREFIX + key, value);
+  }
+
+  /**
    * Sanitizes a free-form value so it can be safely embedded as a single segment of a telemetry key: every run of
    * characters other than an ASCII letter or digit is collapsed to a single {@code _}, and leading/trailing {@code _}
    * are trimmed. Callers must apply this to any user-controlled value before appending it to a key, so keys never
    * contain spaces, the {@code .} group separator or other characters that telemetry backends may restrict. The result
    * stays human-readable, e.g. {@code Storage Blob Data Contributor} becomes {@code Storage_Blob_Data_Contributor}.
+   * <p>
+   * A value with no alphanumeric characters at all (e.g. {@code "."} or {@code "()"}) would otherwise sanitize to an
+   * empty string, leaving a malformed, empty segment in the key (e.g. {@code iac..User}); such values fall back to
+   * {@code "unknown"} instead.
    */
   public static String sanitizeKeySegment(String segment) {
-    return segment.replaceAll("[^A-Za-z0-9]+", "_").replaceAll("^_++", "").replaceAll("_++$", "");
+    var sanitized = segment.replaceAll("[^A-Za-z0-9]+", "_");
+    // trims any number of leading/trailing "_" with a plain index scan, rather than an unanchored trailing-quantifier
+    // regex (which would cause non-linear backtracking).
+    int start = 0;
+    while (start < sanitized.length() && sanitized.charAt(start) == '_') {
+      start++;
+    }
+    int end = sanitized.length();
+    while (end > start && sanitized.charAt(end - 1) == '_') {
+      end--;
+    }
+    sanitized = sanitized.substring(start, end);
+    return sanitized.isEmpty() ? "unknown" : sanitized;
   }
 
   public Map<String, String> getTelemetry() {
     var telemetry = new HashMap<String, String>();
     numericalMeasures.forEach((key, value) -> telemetry.put(key, String.valueOf(value)));
     booleanMeasures.forEach((key, value) -> telemetry.put(key, Boolean.TRUE.equals(value) ? "1" : "0"));
+    telemetry.putAll(stringMeasures);
     linesOfCodePerLanguage.forEach((language, loc) -> telemetry.put(KEY_PREFIX + language + ".loc", String.valueOf(loc)));
     fileSizesPerLanguage.forEach((language, sizes) -> {
       // Snapshot the synchronized list before reading; new ArrayList<>(sizes) synchronizes on the list internally.

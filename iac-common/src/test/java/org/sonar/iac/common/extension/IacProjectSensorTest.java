@@ -123,7 +123,7 @@ class IacProjectSensorTest {
     sensor.execute(context);
 
     assertThat(context.getTelemetryProperties().keySet())
-      .containsExactly("iac.ansible.loc", "iac.terraform.loc");
+      .containsExactlyInAnyOrder("iac.ansible.loc", "iac.pluginVersion", "iac.terraform.loc");
   }
 
   @Test
@@ -153,13 +153,28 @@ class IacProjectSensorTest {
   }
 
   @Test
-  void shouldReportNoTelemetryWhenNothingAdded() {
+  void shouldReportOnlyPluginVersionWhenNothingElseAdded() {
     var sensor = new IacProjectSensor(settings.asConfig());
 
     var context = contextWithRuntime(VERSION_WITH_TELEMETRY);
     sensor.execute(context);
 
-    assertThat(context.getTelemetryProperties()).isEmpty();
+    assertThat(context.getTelemetryProperties()).containsOnlyKeys("iac.pluginVersion");
+  }
+
+  @Test
+  void shouldResolvePluginVersionFromResource() {
+    assertThat(IacProjectSensor.resolvePluginVersion()).isEqualTo("1.2.3-TEST");
+  }
+
+  @Test
+  void shouldReportPluginVersionTelemetry() {
+    var sensor = new IacProjectSensor(settings.asConfig());
+
+    var context = contextWithRuntime(VERSION_WITH_TELEMETRY);
+    sensor.execute(context);
+
+    assertThat(context.getTelemetryProperties()).containsEntry("iac.pluginVersion", "1.2.3-TEST");
   }
 
   private SensorContextTester contextWithRuntime(Version version) {

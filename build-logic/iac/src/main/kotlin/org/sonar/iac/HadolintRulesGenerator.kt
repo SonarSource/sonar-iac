@@ -180,7 +180,9 @@ object HadolintRulesGenerator {
 
         val severity = when {
             bugs.contains(ruleId) -> "CRITICAL"
+
             ruleId.startsWith("SC") && type == "CODE_SMELL" -> "MAJOR"
+
             else -> when (defaultSeverity.lowercase()) {
                 "error" -> "CRITICAL"
                 "warning" -> "MAJOR"
@@ -192,11 +194,14 @@ object HadolintRulesGenerator {
 
         val (attribute, softwareQuality, qualityImpact) = when (type) {
             "BUG" -> Triple("LOGICAL", "RELIABILITY", "HIGH")
+
             "VULNERABILITY" -> Triple("TRUSTWORTHY", "SECURITY", "MEDIUM")
+
             "CODE_SMELL" -> when (severity) {
                 "INFO", "MINOR" -> Triple("CONVENTIONAL", "MAINTAINABILITY", "LOW")
                 else -> Triple("CONVENTIONAL", "MAINTAINABILITY", "MEDIUM")
             }
+
             else -> Triple("CONVENTIONAL", "MAINTAINABILITY", "MEDIUM")
         }
 

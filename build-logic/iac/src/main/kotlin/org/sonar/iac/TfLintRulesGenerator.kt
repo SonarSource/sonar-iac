@@ -192,10 +192,17 @@ object TfLintRulesGenerator {
         )
 
         return when {
-            vulnerabilities.any { ruleId.contains(it) } -> listOf("VULNERABILITY", "TRUSTWORTHY", "SECURITY", "MEDIUM")
-            ruleset == "terraform" || codeSmells.any { ruleId.contains(it) } ->
+            vulnerabilities.any { ruleId.contains(it) } -> {
+                listOf("VULNERABILITY", "TRUSTWORTHY", "SECURITY", "MEDIUM")
+            }
+
+            ruleset == "terraform" || codeSmells.any { ruleId.contains(it) } -> {
                 listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "MEDIUM")
-            else -> listOf("BUG", "LOGICAL", "RELIABILITY", "MEDIUM")
+            }
+
+            else -> {
+                listOf("BUG", "LOGICAL", "RELIABILITY", "MEDIUM")
+            }
         }
     }
 

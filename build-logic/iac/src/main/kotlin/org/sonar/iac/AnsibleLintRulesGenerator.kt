@@ -376,29 +376,53 @@ object AnsibleLintRulesGenerator {
     private fun extractAttributes(id: String): List<String> {
         val idNoBrackets = idNoBrackets(id)
         return when {
-            bugs.contains(id) || bugs.contains(idNoBrackets) ->
+            bugs.contains(id) || bugs.contains(idNoBrackets) -> {
                 listOf("BUG", "LOGICAL", "RELIABILITY", "MEDIUM")
-            vulnerabilityHighTrustworthy.contains(id) || vulnerabilityHighTrustworthy.contains(idNoBrackets) ->
+            }
+
+            vulnerabilityHighTrustworthy.contains(id) || vulnerabilityHighTrustworthy.contains(idNoBrackets) -> {
                 listOf("VULNERABILITY", "TRUSTWORTHY", "SECURITY", "HIGH")
-            vulnerabilityMediumComplete.contains(id) || vulnerabilityMediumComplete.contains(idNoBrackets) ->
+            }
+
+            vulnerabilityMediumComplete.contains(id) || vulnerabilityMediumComplete.contains(idNoBrackets) -> {
                 listOf("VULNERABILITY", "COMPLETE", "SECURITY", "MEDIUM")
-            vulnerabilityMediumConventional.contains(id) || vulnerabilityMediumConventional.contains(idNoBrackets) ->
+            }
+
+            vulnerabilityMediumConventional.contains(id) || vulnerabilityMediumConventional.contains(idNoBrackets) -> {
                 listOf("VULNERABILITY", "CONVENTIONAL", "SECURITY", "MEDIUM")
-            codeSmellsLowClear.contains(id) || codeSmellsLowClear.contains(idNoBrackets) ->
+            }
+
+            codeSmellsLowClear.contains(id) || codeSmellsLowClear.contains(idNoBrackets) -> {
                 listOf("CODE_SMELL", "CLEAR", "MAINTAINABILITY", "LOW")
-            codeSmellsHighClear.contains(id) || codeSmellsHighClear.contains(idNoBrackets) ->
+            }
+
+            codeSmellsHighClear.contains(id) || codeSmellsHighClear.contains(idNoBrackets) -> {
                 listOf("CODE_SMELL", "CLEAR", "MAINTAINABILITY", "HIGH")
-            codeSmellLowConventional.contains(id) || codeSmellLowConventional.contains(idNoBrackets) ->
+            }
+
+            codeSmellLowConventional.contains(id) || codeSmellLowConventional.contains(idNoBrackets) -> {
                 listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "LOW")
-            codeSmellHighConventional.contains(id) || codeSmellHighConventional.contains(idNoBrackets) ->
+            }
+
+            codeSmellHighConventional.contains(id) || codeSmellHighConventional.contains(idNoBrackets) -> {
                 listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "HIGH")
-            codeSmellsLowFormatted.contains(id) || codeSmellsLowFormatted.contains(idNoBrackets) ->
+            }
+
+            codeSmellsLowFormatted.contains(id) || codeSmellsLowFormatted.contains(idNoBrackets) -> {
                 listOf("CODE_SMELL", "FORMATTED", "MAINTAINABILITY", "LOW")
-            codeSmellMediumLogical.contains(id) || codeSmellMediumLogical.contains(idNoBrackets) ->
+            }
+
+            codeSmellMediumLogical.contains(id) || codeSmellMediumLogical.contains(idNoBrackets) -> {
                 listOf("CODE_SMELL", "LOGICAL", "MAINTAINABILITY", "MEDIUM")
-            codeSmellLowIdentifiable.contains(id) || codeSmellLowIdentifiable.contains(idNoBrackets) ->
+            }
+
+            codeSmellLowIdentifiable.contains(id) || codeSmellLowIdentifiable.contains(idNoBrackets) -> {
                 listOf("CODE_SMELL", "IDENTIFIABLE", "MAINTAINABILITY", "LOW")
-            else -> listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "MEDIUM")
+            }
+
+            else -> {
+                listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "MEDIUM")
+            }
         }
     }
 

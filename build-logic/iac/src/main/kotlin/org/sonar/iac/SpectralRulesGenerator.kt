@@ -313,28 +313,37 @@ object SpectralRulesGenerator {
 
     private fun extractAttributes(id: String): List<String> =
         when {
-            bugs.contains(id) ->
+            bugs.contains(id) -> {
                 listOf("BUG", "LOGICAL", "RELIABILITY", "MEDIUM")
+            }
 
-            vulnerabilityHighTrustworthy.contains(id) ->
+            vulnerabilityHighTrustworthy.contains(id) -> {
                 listOf("VULNERABILITY", "TRUSTWORTHY", "SECURITY", "HIGH")
+            }
 
-            vulnerabilityMediumComplete.contains(id) ->
+            vulnerabilityMediumComplete.contains(id) -> {
                 listOf("VULNERABILITY", "COMPLETE", "SECURITY", "MEDIUM")
+            }
 
-            codeSmellsLowClear.contains(id) ->
+            codeSmellsLowClear.contains(id) -> {
                 listOf("CODE_SMELL", "CLEAR", "MAINTAINABILITY", "LOW")
+            }
 
-            codeSmellsHighClear.contains(id) ->
+            codeSmellsHighClear.contains(id) -> {
                 listOf("CODE_SMELL", "CLEAR", "MAINTAINABILITY", "HIGH")
+            }
 
-            codeSmellLowConventional.contains(id) ->
+            codeSmellLowConventional.contains(id) -> {
                 listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "LOW")
+            }
 
-            codeSmellMediumLogical.contains(id) ->
+            codeSmellMediumLogical.contains(id) -> {
                 listOf("CODE_SMELL", "LOGICAL", "MAINTAINABILITY", "MEDIUM")
+            }
 
-            else -> listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "MEDIUM")
+            else -> {
+                listOf("CODE_SMELL", "CONVENTIONAL", "MAINTAINABILITY", "MEDIUM")
+            }
         }
 
     private val fallbackRule = createFallbackRule(

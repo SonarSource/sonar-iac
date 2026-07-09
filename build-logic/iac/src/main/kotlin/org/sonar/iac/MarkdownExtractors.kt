@@ -116,29 +116,37 @@ private fun splitIntoTables(
 
             when {
                 // Header line: finalize current table and start the next one
-                isHeader && acc.currentTable.isNotEmpty() ->
+                isHeader && acc.currentTable.isNotEmpty() -> {
                     TableAccumulator(
                         tables = acc.tables + listOf(acc.currentTable),
                         currentTable = emptyList(),
                         inTable = false
                     )
+                }
+
                 // Table line: add to current table
-                isTableLine ->
+                isTableLine -> {
                     TableAccumulator(
                         tables = acc.tables,
                         currentTable = acc.currentTable + line,
                         // Set inTable to true if we are already in a table body, or we are past the separator line (after header)
                         inTable = acc.inTable || !isSeparatorLine
                     )
+                }
+
                 // Non-table, non-empty line after being in table: finalize current table
-                acc.inTable && trimmedLine.isNotEmpty() ->
+                acc.inTable && trimmedLine.isNotEmpty() -> {
                     TableAccumulator(
                         tables = if (acc.currentTable.isNotEmpty()) acc.tables + listOf(acc.currentTable) else acc.tables,
                         currentTable = emptyList(),
                         inTable = false
                     )
+                }
+
                 // Otherwise: keep current state
-                else -> acc
+                else -> {
+                    acc
+                }
             }
         }
 

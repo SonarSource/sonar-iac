@@ -16,7 +16,10 @@
  */
 package org.sonar.iac.common.extension;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
+import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -57,6 +60,20 @@ public class IacProjectSensor implements ProjectSensor {
     return sensorTelemetry;
   }
 
+  public static String resolvePluginVersion() {
+    try (InputStream is = IacProjectSensor.class.getClassLoader()
+      .getResourceAsStream("org/sonar/plugins/iac/pluginVersion.properties")) {
+      if (is != null) {
+        var props = new Properties();
+        props.load(is);
+        return props.getProperty("plugin.version", "unknown");
+      }
+    } catch (IOException e) {
+      // fall through to fallback
+    }
+    return "unknown";
+  }
+
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor.name("IaC Project Sensor");
@@ -67,6 +84,7 @@ public class IacProjectSensor implements ProjectSensor {
     if (!isTelemetrySupported(context)) {
       return;
     }
+    sensorTelemetry.setStringMeasure("pluginVersion", resolvePluginVersion());
     // getTelemetry() already returns a fresh map, so it can be streamed directly.
     var sortedEntries = sensorTelemetry.getTelemetry()
       .entrySet().stream()
