@@ -19,6 +19,7 @@ package org.sonar.iac.kubernetes.checks;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.YamlTree;
@@ -55,13 +56,13 @@ public abstract class AbstractEnvCheck extends AbstractKubernetesObjectCheck {
   private void checkEnvBlock(BlockObject envBlock) {
     var nameAttribute = envBlock.attribute(NAME_BLOCK);
     var nameValue = nameAttribute.asStringValue();
-    if (nameValue != null) {
+    if (nameValue != null && nameAttribute.tree != null) {
       var matcher = namePattern.matcher(nameValue);
       if (matcher.find()) {
         var nameSensitiveKeyword = matcher.group(CAPTURE_NAME);
         var valueBlock = envBlock.attribute(VALUE_BLOCK)
           .filterOnValue((String value) -> isValueSensitive(nameValue, value));
-        if (valueBlock.isPresent()) {
+        if (valueBlock.isPresent() && valueBlock.tree != null) {
           reportSensitiveEnvVariable(valueBlock.ctx,
             new SensitiveEnvVariable(nameAttribute.tree.value(), nameValue, nameSensitiveKeyword, valueBlock.tree.value(), valueBlock.asStringValue()));
         }
@@ -87,6 +88,6 @@ public abstract class AbstractEnvCheck extends AbstractKubernetesObjectCheck {
 
   protected abstract void reportSensitiveEnvVariable(CheckContext ctx, SensitiveEnvVariable sensitiveEnvVariable);
 
-  protected record SensitiveEnvVariable(YamlTree nameTree, String nameValue, String nameKeyword, YamlTree valueTree, String value) {
+  protected record SensitiveEnvVariable(YamlTree nameTree, String nameValue, String nameKeyword, YamlTree valueTree, @Nullable String value) {
   }
 }
