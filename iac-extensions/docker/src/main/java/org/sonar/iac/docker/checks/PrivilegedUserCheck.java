@@ -17,7 +17,10 @@
 package org.sonar.iac.docker.checks;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -32,8 +35,10 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.docker.checks.utils.MultiStageBuildInspector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.TreeUtils;
+import org.sonar.iac.docker.tree.api.Alias;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.ArgumentList;
+import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.CmdInstruction;
 import org.sonar.iac.docker.tree.api.CodeInstruction;
 import org.sonar.iac.docker.tree.api.DockerImage;
@@ -42,6 +47,7 @@ import org.sonar.iac.docker.tree.api.FromInstruction;
 import org.sonar.iac.docker.tree.api.OnBuildInstruction;
 import org.sonar.iac.docker.tree.api.RunInstruction;
 import org.sonar.iac.docker.tree.api.ShellCode;
+import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 
 import static org.sonar.iac.docker.checks.utils.CheckUtils.isScratchImage;
@@ -116,14 +122,64 @@ public class PrivilegedUserCheck implements IacCheck {
       return;
     }
 
-    getLastUser(dockerImage).ifPresentOrElse(
+    // A `FROM <stage>` inherits the base stage's USER, so the effective user of the final image can be set in an ancestor stage.
+    // Walk the inheritance chain from the final stage down to the real base image it ultimately builds on to resolve it.
+    List<DockerImage> stageChain = resolveStageChain(dockerImage);
+    effectiveUser(stageChain).ifPresentOrElse(
       lastUserInstruction -> checkLastUserInstruction(ctx, lastUserInstruction),
       () -> {
-        // Suppression is scoped to this last stage; builder stages don't affect the final image.
-        if (!isRootByDesign(dockerImage)) {
-          checkLastImageName(ctx, dockerImage.from());
+        if (!chainIsRootByDesign(stageChain)) {
+          DockerImage finalStage = stageChain.get(0);
+          DockerImage baseStage = stageChain.get(stageChain.size() - 1);
+          checkLastImageName(ctx, finalStage.from(), baseStage.from());
         }
       });
+  }
+
+  /**
+   * Follows the {@code FROM <stage>} references from the final stage down to the real base image it builds on, returning
+   * the visited stages child-first. A single-stage build (or one whose final stage builds on a real image) yields just that stage.
+   */
+  private static List<DockerImage> resolveStageChain(DockerImage finalStage) {
+    Map<String, DockerImage> stagesByAlias = new HashMap<>();
+    if (finalStage.parent() instanceof Body body) {
+      for (DockerImage image : body.dockerImages()) {
+        stageAlias(image).ifPresent(alias -> stagesByAlias.put(normalizeStageName(alias), image));
+      }
+    }
+    List<DockerImage> chain = new ArrayList<>();
+    DockerImage current = finalStage;
+    // chain.contains guards against a malformed circular FROM reference.
+    while (current != null && !chain.contains(current)) {
+      chain.add(current);
+      current = baseImageName(current).map(PrivilegedUserCheck::normalizeStageName).map(stagesByAlias::get).orElse(null);
+    }
+    return chain;
+  }
+
+  // The legacy builder matches build-stage references case-insensitively, so link them regardless of casing.
+  private static String normalizeStageName(String name) {
+    return name.toLowerCase(Locale.ROOT);
+  }
+
+  // The nearest USER wins: a child stage's USER overrides an inherited one, so search child-first.
+  private static Optional<UserInstruction> effectiveUser(List<DockerImage> stageChain) {
+    return stageChain.stream()
+      .map(PrivilegedUserCheck::getLastUser)
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .findFirst();
+  }
+
+  private static Optional<String> stageAlias(DockerImage image) {
+    return Optional.ofNullable(image.from().alias())
+      .map(Alias::alias)
+      .map(SyntaxToken::value);
+  }
+
+  private static Optional<String> baseImageName(DockerImage image) {
+    ArgumentResolution resolved = ArgumentResolution.of(image.from().image());
+    return resolved.isUnresolved() ? Optional.empty() : Optional.of(resolved.value());
   }
 
   private static void checkLastUserInstruction(CheckContext ctx, UserInstruction userInstruction) {
@@ -140,30 +196,39 @@ public class PrivilegedUserCheck implements IacCheck {
     }
   }
 
-  private void checkLastImageName(CheckContext ctx, FromInstruction fromInstruction) {
-    String imageName = getImageName(fromInstruction);
+  // The message is classified from the real base image, but reported on the final stage's FROM (the two coincide for a
+  // single-stage build): that FROM is where a USER instruction must be added to fix the effective user.
+  private void checkLastImageName(CheckContext ctx, FromInstruction reportLocation, FromInstruction baseImage) {
+    String imageName = getImageName(baseImage);
     if (imageName == null) {
       return;
     }
 
     if (isScratchImage(imageName)) {
-      ctx.reportIssue(fromInstruction, MESSAGE_SCRATCH);
+      ctx.reportIssue(reportLocation, MESSAGE_SCRATCH);
     } else if (isUnsafeImage(imageName) && !isUserSafeImage(imageName)) {
-      ctx.reportIssue(fromInstruction, String.format(MESSAGE_UNSAFE_DEFAULT_ROOT, imageName));
+      ctx.reportIssue(reportLocation, String.format(MESSAGE_UNSAFE_DEFAULT_ROOT, imageName));
     } else if (isMicrosoftUnsafeImage(imageName)) {
-      ctx.reportIssue(fromInstruction, MESSAGE_MICROSOFT_DEFAULT_ROOT);
+      ctx.reportIssue(reportLocation, MESSAGE_MICROSOFT_DEFAULT_ROOT);
     } else if (!isSafeImage(imageName)) {
-      ctx.reportIssue(fromInstruction, MESSAGE_OTHER_IMAGE);
+      ctx.reportIssue(reportLocation, MESSAGE_OTHER_IMAGE);
     }
   }
 
-  private static boolean isRootByDesign(DockerImage image) {
+  private static boolean chainIsRootByDesign(List<DockerImage> stageChain) {
+    // The effective launch (an interactive REPL) is a property of the final image; an ancestor's
+    // CMD/ENTRYPOINT is overridden downstream, so it must not silence the base-image warning.
+    // Setup signals (ONBUILD, useradd/gosu) persist through the chain via inherited layers.
+    return lastLaunchIsInteractiveShell(stageChain.get(0))
+      || stageChain.stream().anyMatch(PrivilegedUserCheck::hasRootByDesignSetup);
+  }
+
+  private static boolean hasRootByDesignSetup(DockerImage image) {
     return TreeUtils.firstDescendant(image, OnBuildInstruction.class).isPresent()
       || image.instructions().stream()
         .filter(RunInstruction.class::isInstance)
         .map(RunInstruction.class::cast)
-        .anyMatch(PrivilegedUserCheck::runHasPrivilegeDropCommand)
-      || lastLaunchIsInteractiveShell(image);
+        .anyMatch(PrivilegedUserCheck::runHasPrivilegeDropCommand);
   }
 
   private static boolean runHasPrivilegeDropCommand(RunInstruction run) {

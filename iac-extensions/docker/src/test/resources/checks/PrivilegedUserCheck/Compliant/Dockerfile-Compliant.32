@@ -1,0 +1,12 @@
+FROM alpine AS first
+USER nobody
+RUN id
+# effective user: nobody (set explicitly)
+
+FROM first AS second
+RUN id
+# effective user: nobody (inherited from first)
+
+FROM second AS third
+RUN id
+# effective user: nobody (inherited transitively via second -> first)

@@ -1,0 +1,13 @@
+FROM alpine AS first
+USER nobody
+RUN id
+
+FROM first AS second
+# The middle stage resets the inherited "nobody" back to "root", which the final stage then inherits.
+# Noncompliant@+1 {{Setting the default user as "root" might unnecessarily make the application unsafe. Make sure it is safe here.}}
+  USER root
+# ^^^^^^^^^
+RUN id
+
+FROM second AS third
+RUN id

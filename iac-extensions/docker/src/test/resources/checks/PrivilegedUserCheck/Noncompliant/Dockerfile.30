@@ -1,0 +1,11 @@
+# The builder stage drops into an interactive REPL, but the final stage overrides CMD and still runs as root.
+# The ancestor's launch is superseded downstream, so it must not suppress the finding on the base image.
+FROM alpine AS builder
+CMD ["bash"]
+RUN id
+
+# Noncompliant@+1 {{The "alpine" image runs with "root" as the default user. Make sure it is safe here.}}
+  FROM builder
+# ^^^^^^^^^^^^
+CMD ["myapp"]
+RUN id

@@ -1,0 +1,9 @@
+# No USER anywhere in the chain, so the effective base is the real image "alpine", not the "builder" alias.
+# The finding is reported on the final stage's FROM, where a USER instruction would fix the effective user.
+FROM alpine AS builder
+RUN id
+
+# Noncompliant@+1 {{The "alpine" image runs with "root" as the default user. Make sure it is safe here.}}
+  FROM builder
+# ^^^^^^^^^^^^
+RUN id

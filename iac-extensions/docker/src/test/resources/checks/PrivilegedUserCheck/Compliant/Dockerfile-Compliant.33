@@ -1,0 +1,8 @@
+# The final stage references the build stage with different casing than its "AS" name.
+# The legacy builder links them case-insensitively, so the inherited "nobody" user applies.
+FROM alpine AS Builder
+USER nobody
+RUN id
+
+FROM builder
+RUN id
