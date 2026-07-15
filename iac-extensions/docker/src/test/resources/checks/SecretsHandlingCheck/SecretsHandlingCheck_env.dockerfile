@@ -9,7 +9,7 @@ ENV MY_ACCESS_TOKEN=${RANDOM}
 ENV MY-ACCESS-TOKEN=${RANDOM}
 ENV MyAccessToken=${RANDOM}
 
-# Noncompliant@+1 {{Make sure that using ENV to handle a secret is safe here.}}
+# Compliant: now filtered by SecretClassifier
 ENV ACCESS_TOKEN=ThisIsSomethingThatShouldProbablyBeSecret
 # Noncompliant@+1
 ENV TOKEN=Rb7kZpQ2x
@@ -17,7 +17,7 @@ ENV TOKEN=Rb7kZpQ2x
 ENV token=Rb7kZpQ2x
 # Noncompliant@+1
 ENV MY_1_ACCESS_TOKEN=Rb7kZpQ2x
-# Noncompliant@+1
+# Compliant: now filtered by SecretClassifier (ACCESS_TOKEN referenced value is no longer a known secret)
 ENV ACCESS_TOKEN=${ACCESS_TOKEN}
 
 
@@ -79,8 +79,8 @@ ENV FAKE_SECRET_TOKEN=AAAA
 ENV FAKE_SECRET_TOKEN=${FAKE_SECRET_TOKEN}
 
 # Reference should be classified against the value at the time of reference, not a later reassignment
-# Noncompliant@+1
+# Compliant: now filtered by SecretClassifier
 ENV MY_SECRET_TOKEN=realVerySecretValue123
-# Noncompliant@+1
+# Compliant: now filtered by SecretClassifier (MY_SECRET_TOKEN referenced value is no longer a known secret)
 ENV MY_SECRET_TOKEN=${MY_SECRET_TOKEN}
 ENV MY_SECRET_TOKEN=AAAA

@@ -1,10 +1,9 @@
 FROM foo
 
 
-# Noncompliant@+1 {{Make sure that using ARG to handle a secret is safe here.}}
+# Compliant: now filtered by SecretClassifier
 ARG ACCESS_TOKEN=ThisIsSomethingThatShouldProbablyBeSecret
-#   ^^^^^^^^^^^^
-# Noncompliant@+1
+# Compliant: now filtered by SecretClassifier
 ARG access_token=ThisIsSomethingThatShouldProbablyBeSecret
 # Noncompliant@+1
 ARG TOKEN=Rb7kZpQ2x

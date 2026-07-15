@@ -50,6 +50,7 @@ import org.sonar.iac.kubernetes.visitors.KubernetesChecksVisitor;
 import org.sonar.iac.kubernetes.visitors.KubernetesHighlightingVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
+import org.sonarsource.analyzer.commons.appsec.TestFileClassifier;
 
 import static org.sonar.iac.kubernetes.plugin.kustomization.KustomizationSensor.KUSTOMIZATION_SENSOR_NAME;
 
@@ -163,7 +164,7 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
       statistics,
       helmProcessor,
       kubernetesParserStatistics,
-      new KubernetesChecksVisitor(checks, statistics, projectContextImpl),
+      new KubernetesChecksVisitor(checks, statistics, projectContextImpl, TestFileClassifier.of(sensorContext.config())),
       sonarLintFileListener,
       sensorTelemetry);
   }

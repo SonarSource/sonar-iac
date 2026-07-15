@@ -21,14 +21,19 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.Checks;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.common.AbstractTestTree;
 import org.sonar.iac.common.api.checks.IacCheck;
+import org.sonar.iac.common.api.checks.TestFileSkipping;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.languages.IacLanguage;
+import org.sonarsource.analyzer.commons.appsec.TestFileClassifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -154,6 +159,64 @@ class ChecksVisitorTest {
 
     // Pre-visit root, pre-visit child, post-visit child, post-visit root
     assertThat(events).containsExactly("pre:TestTree", "pre:SubTestTree", "post:SubTestTree", "post:TestTree");
+  }
+
+  @Test
+  void shouldSkipTestFileSkippingCheckOnTestPathFile() {
+    List<Tree> visited = new ArrayList<>();
+    IacCheck skippingCheck = (IacCheck & TestFileSkipping) init -> init.register(Tree.class, (ctx, tree) -> visited.add(tree));
+    when(checks.all()).thenReturn(List.of(skippingCheck));
+    when(checks.ruleKey(skippingCheck)).thenReturn(TEST_RULE_KEY);
+
+    ChecksVisitor visitor = new ChecksVisitor(checks, statistics, TestFileClassifier.of(new MapSettings().asConfig()));
+    visitor.scan(testFileCtx("test/pod.yaml"), new TestTree());
+
+    assertThat(visited).isEmpty();
+  }
+
+  @Test
+  void shouldNotSkipTestFileSkippingCheckOnMainPathFile() {
+    List<Tree> visited = new ArrayList<>();
+    IacCheck skippingCheck = (IacCheck & TestFileSkipping) init -> init.register(Tree.class, (ctx, tree) -> visited.add(tree));
+    when(checks.all()).thenReturn(List.of(skippingCheck));
+    when(checks.ruleKey(skippingCheck)).thenReturn(TEST_RULE_KEY);
+
+    ChecksVisitor visitor = new ChecksVisitor(checks, statistics, TestFileClassifier.of(new MapSettings().asConfig()));
+    visitor.scan(testFileCtx("src/main/pod.yaml"), new TestTree());
+
+    assertThat(visited).hasSize(1);
+  }
+
+  @Test
+  void shouldSkipTestFileSkippingCheckOnTestPathFileViaRegisterPost() {
+    List<Tree> visited = new ArrayList<>();
+    IacCheck skippingCheck = (IacCheck & TestFileSkipping) init -> init.registerPost(Tree.class, (ctx, tree) -> visited.add(tree));
+    when(checks.all()).thenReturn(List.of(skippingCheck));
+    when(checks.ruleKey(skippingCheck)).thenReturn(TEST_RULE_KEY);
+
+    ChecksVisitor visitor = new ChecksVisitor(checks, statistics, TestFileClassifier.of(new MapSettings().asConfig()));
+    visitor.scan(testFileCtx("test/pod.yaml"), new TestTree());
+
+    assertThat(visited).isEmpty();
+  }
+
+  @Test
+  void shouldNotSkipNormalCheckOnTestPathFile() {
+    List<Tree> visited = new ArrayList<>();
+    IacCheck normalCheck = init -> init.register(Tree.class, (ctx, tree) -> visited.add(tree));
+    when(checks.all()).thenReturn(List.of(normalCheck));
+    when(checks.ruleKey(normalCheck)).thenReturn(TEST_RULE_KEY);
+
+    ChecksVisitor visitor = new ChecksVisitor(checks, statistics, TestFileClassifier.of(new MapSettings().asConfig()));
+    visitor.scan(testFileCtx("test/pod.yaml"), new TestTree());
+
+    assertThat(visited).hasSize(1);
+  }
+
+  private static InputFileContext testFileCtx(String relativePath) {
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.relativePath()).thenReturn(relativePath);
+    return new InputFileContext(mock(SensorContext.class), inputFile, IacLanguage.UNKNOWN);
   }
 
   static class TestTree extends AbstractTestTree {

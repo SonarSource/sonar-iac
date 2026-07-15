@@ -19,7 +19,9 @@ package org.sonar.iac.common.extension.visitors;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
@@ -27,27 +29,50 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.checks.TestFileSkipping;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.languages.IacLanguage;
+import org.sonarsource.analyzer.commons.appsec.TestFileClassifier;
 
 public class ChecksVisitor extends TreeVisitor<InputFileContext> {
 
   protected final Checks<IacCheck> checks;
   protected final DurationStatistics statistics;
+  @Nullable
+  protected final TestFileClassifier testFileClassifier;
+  // Lazily initialized: super() calls context() before this field assignment would run.
+  @Nullable
+  private Set<RuleKey> testFileSkippingRules;
 
   public ChecksVisitor(Checks<IacCheck> checks, DurationStatistics statistics) {
+    this(checks, statistics, null);
+  }
+
+  public ChecksVisitor(Checks<IacCheck> checks, DurationStatistics statistics, @Nullable TestFileClassifier testFileClassifier) {
     this.checks = checks;
     this.statistics = statistics;
+    this.testFileClassifier = testFileClassifier;
     Collection<IacCheck> activeChecks = checks.all();
     for (IacCheck check : activeChecks) {
       var ruleKey = checks.ruleKey(check);
       Objects.requireNonNull(ruleKey);
       check.initialize(context(ruleKey));
     }
+  }
+
+  protected Set<RuleKey> testFileSkippingRules() {
+    if (testFileSkippingRules == null) {
+      testFileSkippingRules = checks.all().stream()
+        .filter(TestFileSkipping.class::isInstance)
+        .map(checks::ruleKey)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toUnmodifiableSet());
+    }
+    return testFileSkippingRules;
   }
 
   protected InitContext context(RuleKey ruleKey) {
@@ -67,7 +92,9 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
     public <T extends Tree> void register(Class<T> cls, BiConsumer<CheckContext, T> visitor) {
       ChecksVisitor.this.register(cls, statistics.time(ruleKey.rule(), (ctx, tree) -> {
         currentCtx = ctx;
-        visitor.accept(this, tree);
+        if (!shouldSkipForTestFile()) {
+          visitor.accept(this, tree);
+        }
       }));
     }
 
@@ -75,8 +102,16 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
     public <T extends Tree> void registerPost(Class<T> cls, BiConsumer<CheckContext, T> visitor) {
       ChecksVisitor.this.registerPost(cls, statistics.time(ruleKey.rule(), (ctx, tree) -> {
         currentCtx = ctx;
-        visitor.accept(this, tree);
+        if (!shouldSkipForTestFile()) {
+          visitor.accept(this, tree);
+        }
       }));
+    }
+
+    private boolean shouldSkipForTestFile() {
+      return testFileClassifier != null
+        && testFileSkippingRules().contains(ruleKey)
+        && testFileClassifier.looksLikeTestFile(currentCtx.inputFile);
     }
 
     @Override

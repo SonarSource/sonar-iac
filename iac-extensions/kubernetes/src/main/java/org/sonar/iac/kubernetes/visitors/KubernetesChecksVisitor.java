@@ -30,6 +30,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
+import org.sonarsource.analyzer.commons.appsec.TestFileClassifier;
 
 public class KubernetesChecksVisitor extends ChecksVisitor {
 
@@ -47,8 +48,9 @@ public class KubernetesChecksVisitor extends ChecksVisitor {
 
   public KubernetesChecksVisitor(Checks<IacCheck> checks,
     DurationStatistics statistics,
-    ProjectContext projectContext) {
-    super(checks, statistics);
+    ProjectContext projectContext,
+    TestFileClassifier testFileClassifier) {
+    super(checks, statistics, testFileClassifier);
     this.projectContext = projectContext;
   }
 

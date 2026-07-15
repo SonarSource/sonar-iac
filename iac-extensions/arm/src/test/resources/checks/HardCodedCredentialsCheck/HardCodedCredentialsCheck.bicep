@@ -55,8 +55,8 @@ resource nonCompliant2 'Microsoft.Network/networkInterfaces@2020-06-01' = {
 resource noncompliantAtPrefix 'Microsoft.Sql/servers@2023-05-01-preview' = {
   name: 'noncompliant-at-prefix'
   properties: {
-    administratorLoginPassword: '@password123' // Noncompliant
-    password: '@MySecret' // Noncompliant
-    secret: '@admin' // Noncompliant
+    administratorLoginPassword: '@Rb7kZpQ2xy3' // Noncompliant
+    password: '@Rb7kZpQ2' // Noncompliant
+    secret: '@Xyz12' // Noncompliant
   }
 }

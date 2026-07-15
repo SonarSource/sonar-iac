@@ -36,12 +36,14 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.checks.TestFileSkipping;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.filesystem.FileSystemUtils;
 import org.sonar.iac.common.languages.IacLanguage;
+import org.sonarsource.analyzer.commons.appsec.TestFileClassifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -61,7 +63,7 @@ class KubernetesChecksVisitorTest {
 
   private static final ProjectContext PROJECT_CONTEXT = mock(ProjectContext.class);
   private final KubernetesChecksVisitor visitor = new KubernetesChecksVisitor(mock(Checks.class),
-    new DurationStatistics(mock(Configuration.class)), PROJECT_CONTEXT);
+    new DurationStatistics(mock(Configuration.class)), PROJECT_CONTEXT, TestFileClassifier.of(mock(Configuration.class)));
   private KubernetesChecksVisitor.KubernetesContextAdapter context;
   private static final TextRange TREE_TEXT_RANGE = range(1, 0, 1, 1);
   private final Tree tree = mock(Tree.class);
@@ -107,8 +109,56 @@ class KubernetesChecksVisitorTest {
 
   @Test
   void shouldReturnProjectContext() {
-    KubernetesCheckContext checkContext = (KubernetesCheckContext) visitor.context(null);
+    KubernetesCheckContext checkContext = (KubernetesCheckContext) visitor.context(RuleKey.of("testRepo", "testRule"));
     assertThat(checkContext.projectContext()).isEqualTo(PROJECT_CONTEXT);
+  }
+
+  @Test
+  void shouldSuppressTestFileSkippingCheckOnTestPathFile() {
+    var visited = new java.util.ArrayList<>();
+    IacCheck skippingCheck = (IacCheck & TestFileSkipping) init -> init.register(Tree.class, (ctx, node) -> visited.add(node));
+    var specificVisitor = visitorWithCheck(skippingCheck, RuleKey.of("kubernetes", "S2068"));
+
+    InputFile testFile = mock(InputFile.class);
+    when(testFile.relativePath()).thenReturn("test/pod.yaml");
+    specificVisitor.scan(new InputFileContext(mock(SensorContext.class), testFile, IacLanguage.UNKNOWN), tree);
+
+    assertThat(visited).isEmpty();
+  }
+
+  @Test
+  void shouldNotSuppressTestFileSkippingCheckOnMainPathFile() {
+    var visited = new java.util.ArrayList<>();
+    IacCheck skippingCheck = (IacCheck & TestFileSkipping) init -> init.register(Tree.class, (ctx, node) -> visited.add(node));
+    var specificVisitor = visitorWithCheck(skippingCheck, RuleKey.of("kubernetes", "S2068"));
+
+    InputFile mainFile = mock(InputFile.class);
+    when(mainFile.relativePath()).thenReturn("src/main/pod.yaml");
+    specificVisitor.scan(new InputFileContext(mock(SensorContext.class), mainFile, IacLanguage.UNKNOWN), tree);
+
+    assertThat(visited).hasSize(1);
+  }
+
+  @Test
+  void shouldSuppressTestFileSkippingCheckViaRegisterPost() {
+    var visited = new java.util.ArrayList<>();
+    IacCheck skippingCheck = (IacCheck & TestFileSkipping) init -> init.registerPost(Tree.class, (ctx, node) -> visited.add(node));
+    var specificVisitor = visitorWithCheck(skippingCheck, RuleKey.of("kubernetes", "S2068"));
+
+    InputFile testFile = mock(InputFile.class);
+    when(testFile.relativePath()).thenReturn("test/pod.yaml");
+    specificVisitor.scan(new InputFileContext(mock(SensorContext.class), testFile, IacLanguage.UNKNOWN), tree);
+
+    assertThat(visited).isEmpty();
+  }
+
+  private KubernetesChecksVisitor visitorWithCheck(IacCheck check, RuleKey ruleKey) {
+    org.sonar.api.batch.rule.Checks<IacCheck> checks = mock(org.sonar.api.batch.rule.Checks.class);
+    when(checks.all()).thenReturn(List.of(check));
+    when(checks.ruleKey(check)).thenReturn(ruleKey);
+    when(tree.textRange()).thenReturn(TREE_TEXT_RANGE);
+    return new KubernetesChecksVisitor(checks,
+      new DurationStatistics(mock(Configuration.class)), PROJECT_CONTEXT, TestFileClassifier.of(mock(Configuration.class)));
   }
 
   @Test
@@ -255,7 +305,8 @@ class KubernetesChecksVisitorTest {
     KubernetesChecksVisitor specificVisitor = new KubernetesChecksVisitor(
       mock(Checks.class),
       new DurationStatistics(mock(Configuration.class)),
-      projectContext);
+      projectContext,
+      TestFileClassifier.of(mock(Configuration.class)));
     KubernetesChecksVisitor.KubernetesContextAdapter specificContext = (KubernetesChecksVisitor.KubernetesContextAdapter) specificVisitor
       .context(RuleKey.of("testRepo", "testRule"));
     IacCheck validCheckWithSecondaryLocation = init -> init.register(Tree.class, (ctx, node) -> ctx.reportIssue(node, message, secondaryLocations));
@@ -267,7 +318,8 @@ class KubernetesChecksVisitorTest {
     KubernetesChecksVisitor specificVisitor = new KubernetesChecksVisitor(
       mock(Checks.class),
       new DurationStatistics(mock(Configuration.class)),
-      projectContext);
+      projectContext,
+      TestFileClassifier.of(mock(Configuration.class)));
     KubernetesChecksVisitor.KubernetesContextAdapter specificContext = (KubernetesChecksVisitor.KubernetesContextAdapter) specificVisitor
       .context(RuleKey.of("testRepo", "testRule"));
     IacCheck validCheckWithSecondaryLocation = init -> init.register(Tree.class, (ctx, node) -> ((KubernetesCheckContext) ctx).reportIssueNoLineShift(textRange, message));

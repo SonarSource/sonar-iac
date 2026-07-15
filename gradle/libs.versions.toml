@@ -3,7 +3,7 @@ sonarqube = "26.2.0.119303"
 # Before updating the plugin-api version, make sure to check the compatibility matrix and stick to the lowest denominator
 # https://github.com/SonarSource/sonar-plugin-api?tab=readme-ov-file#compatibility
 sonar-plugin-api = "12.0.0.2960"
-sonar-commons = "2.25.0.4954"
+sonar-commons = "2.27.0.5007"
 sonar-license-api = "3.4"
 sonar-orchestrator = "6.1.0.3962"
 junit = "6.0.3"
