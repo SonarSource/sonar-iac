@@ -35,7 +35,11 @@ import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.sonar.iac.common.predicates.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE;
 import static org.sonar.iac.common.predicates.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_KEY;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
@@ -234,8 +238,8 @@ class YamlFileTypeResolverTest {
 
   @Test
   void shouldReturnOnlyTheCallingFileSystemsFilesEvenWhenTheCacheIsShared() {
-    // In a multi-module analysis every module's sensor shares one cache but must only receive its own module's files.
-    // getInputFiles is therefore scoped to the file system passed by the caller, not to everything the shared cache holds.
+    // A multi-module analysis (sonar.modules) builds one file system per module but shares one cache, so each module's
+    // sensor must only receive its own module's files. getInputFiles is therefore scoped to the caller's file system.
     var settings = new MapSettings();
     settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "AWSTemplateFormatVersion");
     settings.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
@@ -277,6 +281,25 @@ class YamlFileTypeResolverTest {
     assertThatThrownBy(() -> yamlFileTypeResolver.getInputFiles(fileSystem, statistics))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("At least one FileType must be provided to collect files");
+  }
+
+  @Test
+  void shouldScanTheFileSystemOnlyOnceWhenGetInputFilesIsCalledRepeatedly() {
+    // Several getInputFiles calls in one analysis must trigger the scan only once; the rest reuse the memoized result.
+    var settings = new MapSettings();
+    settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, "AWSTemplateFormatVersion");
+    settings.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
+    var sensorContext = SensorContextTester.create(tempDir).setSettings(settings);
+    sensorContext.fileSystem().add(IacTestUtils.inputFile("cloudformation.yaml", tempDir, VALID_CLOUDFORMATION_CONTENT, "yaml"));
+    sensorContext.fileSystem().add(IacTestUtils.inputFile("kubernetes.yaml", tempDir, VALID_KUBERNETES_CONTENT, "yaml"));
+    var fileSystem = spy(sensorContext.fileSystem());
+    var resolver = new YamlFileTypeResolver(fileSystem, sensorContext.config(), new YamlFileTypeCache());
+
+    resolver.getInputFiles(fileSystem, durationStatistics(), FileType.CLOUDFORMATION);
+    resolver.getInputFiles(fileSystem, durationStatistics(), FileType.KUBERNETES);
+    resolver.getInputFiles(fileSystem, durationStatistics(), FileType.CLOUDFORMATION, FileType.KUBERNETES);
+
+    verify(fileSystem, times(1)).inputFiles(any());
   }
 
   private DurationStatistics durationStatistics() {

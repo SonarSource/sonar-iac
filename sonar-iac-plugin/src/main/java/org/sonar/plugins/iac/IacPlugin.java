@@ -24,6 +24,7 @@ import org.sonar.iac.common.json.JsonEmptyBuiltInProfileDefinition;
 import org.sonar.iac.common.json.JsonFileFilter;
 import org.sonar.iac.common.json.JsonLanguage;
 import org.sonar.iac.common.predicates.YamlFileTypeCache;
+import org.sonar.iac.common.predicates.YamlFileTypeClassificationSensor;
 import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.warnings.DefaultAnalysisWarningsWrapper;
 import org.sonar.iac.common.yaml.YamlEmptyBuiltInProfileDefinition;
@@ -55,6 +56,7 @@ public class IacPlugin implements Plugin {
 
     context.addExtension(YamlFileTypeCache.class);
     defineYamlFileTypeResolver(context);
+    context.addExtension(YamlFileTypeClassificationSensor.class);
 
     context.addExtension(DefaultAnalysisWarningsWrapper.class);
 

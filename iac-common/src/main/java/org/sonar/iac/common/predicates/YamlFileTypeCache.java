@@ -17,33 +17,32 @@
 package org.sonar.iac.common.predicates;
 
 import java.net.URI;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.CheckForNull;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
- * Cache of the {@link FileType} computed for each file by {@link YamlFileTypeResolver}, shared by all YAML based sensors
- * of a single analysis so that a file's type is computed only once even if several sensors are interested in it.
+ * Cache shared by all YAML based sensors of a single analysis, so a file's {@link FileType} is computed only once.
  * <p>
- * Besides the {@code URI -> FileType} lookup, the cache also maintains the reverse index {@code FileType -> InputFiles},
- * so a sensor can ask for all the files resolved to a given {@link FileType} (through {@link #getFiles}) instead of
- * re-applying a predicate over the whole file system.
+ * It holds the {@code URI -> FileType} lookup and, per {@link FileSystem}, the ordered candidate files of the
+ * classification scan, so a sensor can get its files without re-scanning. It is keyed by {@link FileSystem} because a
+ * multi-module analysis ({@code sonar.modules}) builds one file system per module while sharing this analysis-scoped
+ * cache, so each module's sensors must get back only their own module's files.
  * <p>
- * It is scoped to a single analysis ({@link SonarLintSide.Lifespan#SINGLE_ANALYSIS}), the same lifespan as
- * {@link YamlFileTypeResolver}: a fresh cache is built for every analysis, so it can safely hold that analysis'
- * {@link InputFile} instances and never serves a stale type - a new analysis simply starts from an empty cache.
+ * Scoped to a single analysis ({@link SonarLintSide.Lifespan#SINGLE_ANALYSIS}): a fresh cache per analysis, so it can
+ * safely hold that analysis' {@link InputFile} instances and never serves a stale type.
  */
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.SINGLE_ANALYSIS)
 public class YamlFileTypeCache {
 
   private final Map<URI, FileType> fileTypeCache = new ConcurrentHashMap<>();
-  private final Map<FileType, Set<InputFile>> filesByType = new ConcurrentHashMap<>();
+  private final Map<FileSystem, List<InputFile>> classifiedCandidatesByFileSystem = new ConcurrentHashMap<>();
 
   public YamlFileTypeCache() {
     // Public explicit constructor for injection
@@ -55,38 +54,23 @@ public class YamlFileTypeCache {
   }
 
   public void put(InputFile inputFile, FileType fileType) {
-    var previous = fileTypeCache.put(inputFile.uri(), fileType);
-    if (previous != null && previous != fileType) {
-      removeFromReverseIndex(previous, inputFile);
-    }
-    addToReverseIndex(fileType, inputFile);
+    fileTypeCache.put(inputFile.uri(), fileType);
   }
 
   /**
-   * Returns the input files resolved to any of the given {@link FileType}s. The returned set is a snapshot: it is
-   * detached from the cache, so iterating it is safe even if the cache is concurrently mutated.
+   * Returns the ordered candidate files already classified for the given {@link FileSystem}, or {@code null} if it has
+   * not been classified yet. An empty (non-null) list means the scan ran and found no candidate file: a hit, not a miss.
    */
-  public Set<InputFile> getFiles(FileType... fileTypes) {
-    var result = new HashSet<InputFile>();
-    for (var fileType : fileTypes) {
-      var files = filesByType.get(fileType);
-      if (files != null) {
-        result.addAll(files);
-      }
-    }
-    return result;
+  @CheckForNull
+  public List<InputFile> getClassifiedCandidates(FileSystem fileSystem) {
+    return classifiedCandidatesByFileSystem.get(fileSystem);
   }
 
-  private void addToReverseIndex(FileType fileType, InputFile inputFile) {
-    if (fileType != FileType.UNDETERMINED) {
-      filesByType.computeIfAbsent(fileType, type -> ConcurrentHashMap.newKeySet()).add(inputFile);
-    }
-  }
-
-  private void removeFromReverseIndex(FileType fileType, InputFile inputFile) {
-    var files = filesByType.get(fileType);
-    if (files != null) {
-      files.remove(inputFile);
-    }
+  /**
+   * Memoizes the candidate files - in file-system iteration order - classified for the given {@link FileSystem}, so the
+   * classification scan runs only once per file system no matter how many sensors need those files.
+   */
+  public void putClassifiedCandidates(FileSystem fileSystem, List<InputFile> orderedCandidateFiles) {
+    classifiedCandidatesByFileSystem.put(fileSystem, orderedCandidateFiles);
   }
 }

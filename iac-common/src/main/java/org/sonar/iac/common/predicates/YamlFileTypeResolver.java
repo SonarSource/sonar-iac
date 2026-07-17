@@ -118,7 +118,7 @@ public class YamlFileTypeResolver {
    * the set by overriding this method (calling {@code super.candidateLanguages()} and adding their languages); it is
    * called at analysis time, so the override may safely depend on subclass state.
    */
-  protected Set<String> candidateLanguages() {
+  public Set<String> candidateLanguages() {
     return new LinkedHashSet<>(BASE_CANDIDATE_LANGUAGES);
   }
 
@@ -190,10 +190,10 @@ public class YamlFileTypeResolver {
    * predicates run only once per file no matter how many sensors are interested in it.
    * <p>
    * Selection is scoped to the {@code fileSystem} passed by the caller - the running sensor's own
-   * {@code SensorContext.fileSystem()} - and never an analysis-wide one: in a multi-module analysis a sensor must only
-   * receive the files of the module being analyzed, and a sensor's hidden-file visibility (whether it declared
-   * {@code processesHiddenFiles()}) must be honored. The result is therefore identical to what
-   * {@code fileSystem.inputFiles(getFilePredicate(fileTypes))} would return, only cheaper to compute.
+   * {@code SensorContext.fileSystem()}: a multi-module analysis ({@code sonar.modules}) builds one file system per
+   * module while sharing the {@link YamlFileTypeCache}, so a sensor must only receive the files of the module being
+   * analyzed. The result is identical to what {@code fileSystem.inputFiles(getFilePredicate(fileTypes))} would return,
+   * only cheaper to compute.
    *
    * @throws IllegalArgumentException if no {@link FileType} is provided
    */
@@ -202,21 +202,36 @@ public class YamlFileTypeResolver {
       throw new IllegalArgumentException("At least one FileType must be provided to collect files");
     }
     var candidateFiles = classifyCandidateFiles(fileSystem, durationStatistics);
-    var typedFiles = yamlFileTypeCache.getFiles(fileTypes);
+    var types = EnumSet.copyOf(Arrays.asList(fileTypes));
+    // classifyCandidateFiles has cached every candidate's type, so computeFileTypeWithCache is a plain lookup here;
+    // UNDETERMINED files match no requested type and are dropped.
     return candidateFiles.stream()
-      .filter(typedFiles::contains)
+      .filter(file -> types.contains(computeFileTypeWithCache(file)))
       .toList();
   }
 
   /**
-   * Resolves and caches the {@link FileType} of the given file system's MAIN candidate files, returning them in
-   * file-system iteration order. Candidates are the files in any of the {@link #candidateLanguages()} - the YAML/JSON
-   * languages plus every specialized IaC language a .yaml/.json file may be reassigned to via
-   * {@code sonar.<lang>.file.suffixes}; their actual type is then decided by the ordered predicates, exactly as
-   * {@link #getFilePredicate} would. As the {@link YamlFileTypeCache} is shared by all sensors of the analysis, a file's
-   * content based predicates are evaluated only by the first sensor that reaches it; later sensors get cache hits.
+   * Classifies the file system's candidate files up front, warming the shared {@link YamlFileTypeCache} so the analysis
+   * sensors that run afterwards read types from the cache instead of triggering the classification. Only an
+   * optimization: classification is memoized in the shared cache, so the first consumer otherwise classifies lazily.
+   */
+  public void classify(FileSystem fileSystem, DurationStatistics durationStatistics) {
+    classifyCandidateFiles(fileSystem, durationStatistics);
+  }
+
+  /**
+   * Resolves and caches the {@link FileType} of the file system's MAIN candidate files, returned in file-system
+   * iteration order. Candidates are the files in any {@link #candidateLanguages()} (YAML/JSON plus any specialized IaC
+   * language a .yaml/.json file was reassigned to); their type is decided by the ordered predicates. The scan and
+   * classification run at most once per {@link FileSystem} - the ordered list is memoized in the shared cache and later
+   * sensors reuse it instead of re-scanning.
    */
   private List<InputFile> classifyCandidateFiles(FileSystem fileSystem, DurationStatistics durationStatistics) {
+    var alreadyClassified = yamlFileTypeCache.getClassifiedCandidates(fileSystem);
+    if (alreadyClassified != null) {
+      // Already classified for this file system: reuse the memoized order and read the types from the shared cache.
+      return alreadyClassified;
+    }
     dispatchTimers(durationStatistics);
     var predicates = fileSystem.predicates();
     // Candidates are MAIN files in any candidate language, plus Helm .tpl templates: those carry no YAML language (they
@@ -234,7 +249,9 @@ public class YamlFileTypeResolver {
         candidateFiles.add(inputFile);
       }
     });
-    return candidateFiles;
+    var orderedCandidateFiles = List.copyOf(candidateFiles);
+    yamlFileTypeCache.putClassifiedCandidates(fileSystem, orderedCandidateFiles);
+    return orderedCandidateFiles;
   }
 
   /**

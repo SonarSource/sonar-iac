@@ -17,7 +17,9 @@
 package org.sonar.iac.common.predicates;
 
 import java.net.URI;
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,46 +43,46 @@ class YamlFileTypeCacheTest {
   }
 
   @Test
-  void shouldExposeFilesGroupedByType() {
-    var cache = new YamlFileTypeCache();
-    var cloudFormation1 = inputFile("file:///cf1.yaml");
-    var cloudFormation2 = inputFile("file:///cf2.yaml");
-    var kubernetes = inputFile("file:///k8s.yaml");
-    cache.put(cloudFormation1, FileType.CLOUDFORMATION);
-    cache.put(cloudFormation2, FileType.CLOUDFORMATION);
-    cache.put(kubernetes, FileType.KUBERNETES);
-
-    assertThat(cache.getFiles(FileType.CLOUDFORMATION)).containsExactlyInAnyOrder(cloudFormation1, cloudFormation2);
-    assertThat(cache.getFiles(FileType.KUBERNETES)).containsExactly(kubernetes);
-    assertThat(cache.getFiles(FileType.CLOUDFORMATION, FileType.KUBERNETES))
-      .containsExactlyInAnyOrder(cloudFormation1, cloudFormation2, kubernetes);
-  }
-
-  @Test
-  void shouldReturnEmptyForTypeWithoutFiles() {
-    var cache = new YamlFileTypeCache();
-    assertThat(cache.getFiles(FileType.CLOUDFORMATION)).isEmpty();
-  }
-
-  @Test
-  void shouldNotIndexUndeterminedFiles() {
-    var cache = new YamlFileTypeCache();
-    var file = inputFile("file:///plain.yaml");
-    cache.put(file, FileType.UNDETERMINED);
-
-    assertThat(cache.get(file.uri())).isEqualTo(FileType.UNDETERMINED);
-    assertThat(cache.getFiles(FileType.UNDETERMINED)).isEmpty();
-  }
-
-  @Test
-  void shouldMoveFileToNewBucketWhenReclassified() {
+  void shouldOverwriteTypeWhenReclassified() {
     var cache = new YamlFileTypeCache();
     var file = inputFile("file:///changing.yaml");
     cache.put(file, FileType.CLOUDFORMATION);
     cache.put(file, FileType.KUBERNETES);
 
-    assertThat(cache.getFiles(FileType.CLOUDFORMATION)).isEmpty();
-    assertThat(cache.getFiles(FileType.KUBERNETES)).containsExactly(file);
+    assertThat(cache.get(file.uri())).isEqualTo(FileType.KUBERNETES);
+  }
+
+  @Test
+  void shouldReturnNullForClassifiedCandidatesOfUnknownFileSystem() {
+    var cache = new YamlFileTypeCache();
+    assertThat(cache.getClassifiedCandidates(mock(FileSystem.class))).isNull();
+  }
+
+  @Test
+  void shouldMemoizeClassifiedCandidatesPerFileSystem() {
+    var cache = new YamlFileTypeCache();
+    var fileSystemA = mock(FileSystem.class);
+    var fileSystemB = mock(FileSystem.class);
+    var a1 = inputFile("file:///a/1.yaml");
+    var a2 = inputFile("file:///a/2.yaml");
+    var b1 = inputFile("file:///b/1.yaml");
+
+    cache.putClassifiedCandidates(fileSystemA, List.of(a1, a2));
+    cache.putClassifiedCandidates(fileSystemB, List.of(b1));
+
+    // Order is preserved and each file system gets back only its own files (a multi-module analysis shares one cache).
+    assertThat(cache.getClassifiedCandidates(fileSystemA)).containsExactly(a1, a2);
+    assertThat(cache.getClassifiedCandidates(fileSystemB)).containsExactly(b1);
+  }
+
+  @Test
+  void shouldTreatEmptyClassifiedCandidatesAsAHit() {
+    var cache = new YamlFileTypeCache();
+    var fileSystem = mock(FileSystem.class);
+    cache.putClassifiedCandidates(fileSystem, List.of());
+
+    // An empty (non-null) list is a cache hit: the file system was classified and simply has no candidate file.
+    assertThat(cache.getClassifiedCandidates(fileSystem)).isNotNull().isEmpty();
   }
 
   private static InputFile inputFile(String uri) {
