@@ -15,7 +15,8 @@
   "tags": [
     "dockerfile",
     "cwe",
-    "former-hotspot"
+    "former-hotspot",
+    "secret"
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-6472",
