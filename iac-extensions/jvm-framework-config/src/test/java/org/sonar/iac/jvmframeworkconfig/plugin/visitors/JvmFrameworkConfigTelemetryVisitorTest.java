@@ -16,6 +16,8 @@
  */
 package org.sonar.iac.jvmframeworkconfig.plugin.visitors;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import org.junit.jupiter.api.AfterEach;
@@ -24,8 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.jvmframeworkconfig.parser.JvmFrameworkConfigParser;

@@ -16,10 +16,10 @@
  */
 package org.sonar.iac.arm.tests;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.io.File;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.iac.arm.plugin.ArmLanguage;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.languages.IacLanguage;

@@ -16,10 +16,10 @@
  */
 package org.sonar.iac.common.json;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 

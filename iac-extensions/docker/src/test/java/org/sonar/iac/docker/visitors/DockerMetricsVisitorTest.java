@@ -18,7 +18,6 @@ package org.sonar.iac.docker.visitors;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
@@ -26,6 +25,7 @@ import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.testing.AbstractMetricsTest;
 import org.sonar.iac.docker.parser.DockerParser;
 import org.sonar.iac.docker.plugin.DockerLanguage;
+import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

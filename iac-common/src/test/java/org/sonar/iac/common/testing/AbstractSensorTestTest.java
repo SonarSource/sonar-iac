@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.common.testing;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -26,7 +27,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.resources.Language;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -109,7 +109,7 @@ class AbstractSensorTestTest {
 
     InputFile inputFile = SENSOR.inputFile(filename, content);
     SENSOR.analyze(inputFile);
-    assertThat(SENSOR.context.fileSystem().inputFiles()).contains(inputFile);
+    assertThat(SENSOR.context.fileSystem().inputFiles(SENSOR.context.fileSystem().predicates().all())).contains(inputFile);
   }
 
   private static class SensorTester extends AbstractSensorTest {

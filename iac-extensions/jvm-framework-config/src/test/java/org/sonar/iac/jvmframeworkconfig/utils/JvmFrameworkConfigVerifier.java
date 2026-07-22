@@ -16,10 +16,10 @@
  */
 package org.sonar.iac.jvmframeworkconfig.utils;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;

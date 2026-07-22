@@ -19,10 +19,10 @@ package org.sonar.iac.helm.utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
+import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 
 public class GoAstCreator {
   private final HelmEvaluator helmEvaluator;

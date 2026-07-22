@@ -22,9 +22,9 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.iac.common.warnings.AnalysisWarningsWrapper;
+import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 import org.sonarsource.analyzer.commons.internal.json.simple.JSONObject;
 
 import static org.assertj.core.api.Assertions.assertThat;

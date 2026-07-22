@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -35,8 +36,6 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Comment;
@@ -70,6 +69,7 @@ import org.sonar.iac.kubernetes.visitors.LocationShifter;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
+import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
 
 import static org.sonar.iac.common.filesystem.FileSystemUtils.retrieveHelmProjectFolder;
