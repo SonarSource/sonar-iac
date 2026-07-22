@@ -38,6 +38,12 @@ class TerraformUtilsTest extends TerraformTreeModelTest {
     a[1].b, b
     a[1].b.c, c
     a[1].b[2].c[3], c
+    a.b[*], b
+    a[*], null
+    a[count.index].b, b
+    a.b[count.index], b
+    a["k"].b, b
+    a.b["k"], b
     """, nullValues = "null")
   void shouldGetResourceName(String expression, String expectedName) {
     var tree = (ExpressionTree) parse(expression, HclLexicalGrammar.EXPRESSION);

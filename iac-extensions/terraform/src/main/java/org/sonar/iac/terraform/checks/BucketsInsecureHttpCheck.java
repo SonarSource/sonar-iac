@@ -42,6 +42,7 @@ import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
 import org.sonar.iac.terraform.api.tree.TemplateExpressionTree;
 import org.sonar.iac.terraform.checks.utils.PolicyUtils;
+import org.sonar.iac.terraform.checks.utils.TerraformUtils;
 
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isResource;
 import static org.sonar.iac.terraform.checks.AbstractResourceCheck.isS3BucketResource;
@@ -119,8 +120,10 @@ public class BucketsInsecureHttpCheck implements IacCheck {
       return PropertyUtils.value(bucket, "bucket")
         .map(name -> TextUtils.isValue(name, literalExpr.value()).isTrue())
         .orElse(false);
-    } else if (key instanceof AttributeAccessTree attributeAccess && attributeAccess.object() instanceof AttributeAccessTree accessTree && bucket.labels().size() >= 2) {
-      return accessTree.attribute().value().equals(bucket.labels().get(1).value());
+    } else if (key instanceof AttributeAccessTree attributeAccess && bucket.labels().size() >= 2) {
+      return TerraformUtils.getResourceName(attributeAccess.object())
+        .filter(name -> name.equals(bucket.labels().get(1).value()))
+        .isPresent();
     }
 
     return false;

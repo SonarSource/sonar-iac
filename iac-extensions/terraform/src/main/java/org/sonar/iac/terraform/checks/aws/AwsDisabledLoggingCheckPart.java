@@ -42,6 +42,7 @@ import org.sonar.iac.terraform.api.tree.TerraformTree;
 import org.sonar.iac.terraform.checks.AbstractNewCrossResourceCheck;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.checks.AbstractResourceCheck;
+import org.sonar.iac.terraform.checks.utils.TerraformUtils;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
 import org.sonar.iac.terraform.symbols.ListSymbol;
@@ -225,7 +226,7 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewCrossResourceCheck {
 
   private static boolean hasReferenceToS3Bucket(String resourceName, StatementTree block) {
     if (block.value() instanceof AttributeAccessTree accessTree &&
-      accessTree.object() instanceof AttributeAccessTree accessTreeNested) {
+      TerraformUtils.unwrapIndexAccess(accessTree.object()) instanceof AttributeAccessTree accessTreeNested) {
       return TextUtils.isValue(accessTreeNested.object(), "aws_s3_bucket").isTrue() &&
         TextUtils.isValue(accessTreeNested.attribute(), resourceName).isTrue();
     }
@@ -250,7 +251,7 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewCrossResourceCheck {
 
   private Optional<BlockTree> toPolicyDocumentData(AttributeTree policyAttributeTree) {
     if (policyAttributeTree.value() instanceof AttributeAccessTree accessTree &&
-      accessTree.object() instanceof AttributeAccessTree accessTreeNested &&
+      TerraformUtils.unwrapIndexAccess(accessTree.object()) instanceof AttributeAccessTree accessTreeNested &&
       accessTreeNested.object() instanceof AttributeAccessTree attributeAccessTree &&
       TextUtils.isValue(attributeAccessTree.object(), "data").isTrue()) {
       return TextUtils.getValue(accessTreeNested.attribute())

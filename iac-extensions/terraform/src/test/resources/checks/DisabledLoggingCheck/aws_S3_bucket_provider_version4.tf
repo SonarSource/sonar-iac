@@ -171,3 +171,84 @@ resource "aws_s3_bucket_logging" "invalid_bucket_logging_no_id_suffix" {
 resource "aws_s3_bucket_logging" "invalid_bucket_logging_no_bucket_name" {
   bucket = aws_s3_bucket
 }
+
+# -------
+variable "enabled" {
+  default = true
+}
+
+# Compliant: logging resource links to a count-created bucket through an indexed reference.
+resource "aws_s3_bucket" "count_logged_bucket" {
+  count  = var.enabled ? 1 : 0
+  bucket = "count-logged-bucket"
+}
+resource "aws_s3_bucket_logging" "count_logged_bucket" {
+  count         = var.enabled ? 1 : 0
+  bucket        = aws_s3_bucket.count_logged_bucket[0].id
+  target_bucket = "log-bucket"
+  target_prefix = "log/"
+}
+
+# Compliant: logging enabled through a bucket policy whose document is an indexed data source.
+resource "aws_s3_bucket" "count_policy_logbucket" {
+  count  = var.enabled ? 1 : 0
+  bucket = "count-policy-logbucket"
+}
+data "aws_iam_policy_document" "count_log_delivery" {
+  count = var.enabled ? 1 : 0
+  statement {
+    principals {
+      type        = "Service"
+      identifiers = ["logging.s3.amazonaws.com"]
+    }
+  }
+}
+resource "aws_s3_bucket_policy" "count_policy_logbucket" {
+  count  = var.enabled ? 1 : 0
+  bucket = aws_s3_bucket.count_policy_logbucket[0].id
+  policy = data.aws_iam_policy_document.count_log_delivery[0].json
+}
+
+# Noncompliant@+1
+resource "aws_s3_bucket" "count_bucket_no_logging" {
+  count  = var.enabled ? 1 : 0
+  bucket = "count-bucket-no-logging"
+}
+
+variable "logged_bucket_names" {
+  default = ["count-idx-logged-a", "count-idx-logged-b"]
+}
+
+# Compliant: multiple buckets created with count, each linked to its own logging resource via count.index.
+resource "aws_s3_bucket" "count_idx_logged_bucket" {
+  count  = length(var.logged_bucket_names)
+  bucket = var.logged_bucket_names[count.index]
+}
+resource "aws_s3_bucket_logging" "count_idx_logged_bucket" {
+  count         = length(var.logged_bucket_names)
+  bucket        = aws_s3_bucket.count_idx_logged_bucket[count.index].id
+  target_bucket = "log-bucket"
+  target_prefix = "log/"
+}
+
+variable "logged_bucket_keys" {
+  default = ["a", "b"]
+}
+
+# Compliant: buckets created with for_each, each linked to its own logging resource via a string key.
+resource "aws_s3_bucket" "foreach_logged_bucket" {
+  for_each = toset(var.logged_bucket_keys)
+  bucket   = "foreach-logged-bucket-${each.key}"
+}
+resource "aws_s3_bucket_logging" "foreach_logged_bucket" {
+  for_each      = toset(var.logged_bucket_keys)
+  bucket        = aws_s3_bucket.foreach_logged_bucket[each.key].id
+  target_bucket = "log-bucket"
+  target_prefix = "log/"
+}
+
+# Noncompliant@+1
+resource "aws_s3_bucket" "foreach_bucket_no_logging" {
+  for_each = toset(var.logged_bucket_keys)
+  bucket   = "foreach-bucket-no-logging-${each.key}"
+}

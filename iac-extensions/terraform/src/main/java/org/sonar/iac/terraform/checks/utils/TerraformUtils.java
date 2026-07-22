@@ -22,6 +22,7 @@ import org.sonar.iac.common.checks.Trilean;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.IndexAccessExprTree;
+import org.sonar.iac.terraform.api.tree.IndexSplatAccessTree;
 import org.sonar.iac.terraform.api.tree.VariableExprTree;
 
 import static org.sonar.iac.terraform.api.tree.TerraformTree.Kind.ATTRIBUTE_ACCESS;
@@ -54,19 +55,27 @@ public class TerraformUtils {
   }
 
   /**
-   * Extract resource name from Terraform expression. Resource names are in a form {@code resource_type.resource_name},
-   * for example {@code aws_s3_bucket.example}. This method extracts the {@code example} part from such expressions.
-   * <p>
+   * Extract the resource name from a reference like {@code aws_s3_bucket.example} (returns {@code example}).
+   * A trailing index/splat from {@code count}/{@code for_each} ({@code aws_s3_bucket.example[0]}) is unwrapped first.
    */
   public static Optional<String> getResourceName(ExpressionTree expression) {
-    if (expression instanceof AttributeAccessTree attributeAccess) {
-      // Using resource identifier directly, like aws_s3_bucket.example; we need to capture the `example` part
+    if (unwrapIndexAccess(expression) instanceof AttributeAccessTree attributeAccess) {
       return Optional.of(attributeAccess.attribute().value());
-    } else if (expression instanceof IndexAccessExprTree indexAccess && indexAccess.subject() instanceof AttributeAccessTree subject) {
-      // Expression is like aws_s3_bucket.example[X] when `count` or `for_each` meta-arg is used.
-      // X can be number, `count.index`, `each.key`, etc. Again, we need to capture the `example` part.
-      return Optional.of(subject.attribute().value());
     }
     return Optional.empty();
+  }
+
+  /**
+   * Discard a trailing index or splat access ({@code x[0]}, {@code x["k"]}, {@code x[*]}) and return the wrapped subject.
+   * Such indexing appears when the referenced resource uses {@code count} or {@code for_each}.
+   */
+  public static ExpressionTree unwrapIndexAccess(ExpressionTree expression) {
+    if (expression instanceof IndexAccessExprTree indexAccess) {
+      return indexAccess.subject();
+    }
+    if (expression instanceof IndexSplatAccessTree splatAccess) {
+      return splatAccess.subject();
+    }
+    return expression;
   }
 }

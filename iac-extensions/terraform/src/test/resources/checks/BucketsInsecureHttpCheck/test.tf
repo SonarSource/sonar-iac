@@ -827,3 +827,104 @@ resource "aws_s3_bucket_policy" "noncompliant_heredoc_multiple_resources" {
 }
 POLICY
 }
+
+variable "enabled" {
+  default = true
+}
+
+# Compliant: policy links to a count-created bucket through an indexed reference.
+resource "aws_s3_bucket" "count_bucket" {
+  count  = var.enabled ? 1 : 0
+  bucket = "count-bucket"
+}
+resource "aws_s3_bucket_policy" "count_bucket" {
+  count  = var.enabled ? 1 : 0
+  bucket = aws_s3_bucket.count_bucket[0].id
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource  = [aws_s3_bucket.count_bucket[0].arn, "${aws_s3_bucket.count_bucket[0].arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      },
+    ]
+  })
+}
+
+# Compliant: same indexed-reference pattern, policy supplied through a data source.
+data "aws_iam_policy_document" "count_bucket_policy" {
+  count = var.enabled ? 1 : 0
+}
+resource "aws_s3_bucket" "count_bucket_datasource" {
+  count  = var.enabled ? 1 : 0
+  bucket = "count-bucket-datasource"
+}
+resource "aws_s3_bucket_policy" "count_bucket_datasource" {
+  count  = var.enabled ? 1 : 0
+  bucket = aws_s3_bucket.count_bucket_datasource[0].id
+  policy = data.aws_iam_policy_document.count_bucket_policy[0].json
+}
+
+# Noncompliant@+1 {{No bucket policy enforces HTTPS-only access to this bucket.}}
+resource "aws_s3_bucket" "count_bucket_no_policy" {
+  count  = var.enabled ? 1 : 0
+  bucket = "count-bucket-no-policy"
+}
+
+variable "bucket_names" {
+  default = ["count-idx-bucket-a", "count-idx-bucket-b"]
+}
+
+# Compliant: multiple buckets created with count, each linked to its own policy via count.index.
+resource "aws_s3_bucket" "count_idx_bucket" {
+  count  = length(var.bucket_names)
+  bucket = var.bucket_names[count.index]
+}
+resource "aws_s3_bucket_policy" "count_idx_bucket" {
+  count  = length(var.bucket_names)
+  bucket = aws_s3_bucket.count_idx_bucket[count.index].id
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource  = [aws_s3_bucket.count_idx_bucket[count.index].arn, "${aws_s3_bucket.count_idx_bucket[count.index].arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      },
+    ]
+  })
+}
+
+variable "bucket_keys" {
+  default = ["a", "b"]
+}
+
+# Compliant: buckets created with for_each, each linked to its own policy via a string key.
+resource "aws_s3_bucket" "foreach_bucket" {
+  for_each = toset(var.bucket_keys)
+  bucket   = "foreach-bucket-${each.key}"
+}
+resource "aws_s3_bucket_policy" "foreach_bucket" {
+  for_each = toset(var.bucket_keys)
+  bucket   = aws_s3_bucket.foreach_bucket[each.key].id
+  policy = jsonencode({
+    Statement = [
+      {
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource  = [aws_s3_bucket.foreach_bucket[each.key].arn, "${aws_s3_bucket.foreach_bucket[each.key].arn}/*"]
+        Condition = { Bool = { "aws:SecureTransport" = "false" } }
+      },
+    ]
+  })
+}
+
+# Noncompliant@+1 {{No bucket policy enforces HTTPS-only access to this bucket.}}
+resource "aws_s3_bucket" "foreach_bucket_no_policy" {
+  for_each = toset(var.bucket_keys)
+  bucket   = "foreach-bucket-no-policy-${each.key}"
+}
