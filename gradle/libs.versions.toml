@@ -7,6 +7,7 @@ sonar-plugin-api = "12.0.0.2960"
 sonar-commons = "2.27.0.5007"
 sonar-license-api = "3.4"
 sonar-orchestrator = "6.1.0.3962"
+sonar-scanner-integration-tester = "1.2.0.1354"
 junit = "6.0.3"
 junit-pioneer = "2.3.0"
 assertj = "3.27.7"
@@ -40,6 +41,7 @@ sonar-plugin-api = { module = "org.sonarsource.api.plugin:sonar-plugin-api", ver
 sonar-plugin-api-test-fixtures = { module = "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures", version.ref = "sonar-plugin-api" }
 sonar-ws = { module = "org.sonarsource.sonarqube:sonar-ws", version.ref = "sonarqube" }
 sonar-orchestrator-junit5 = { module = "org.sonarsource.orchestrator:sonar-orchestrator-junit5", version.ref = "sonar-orchestrator" }
+sonar-scanner-integration-tester = { module = "com.sonarsource.scanner.integrationtester:sonar-scanner-integration-tester", version.ref = "sonar-scanner-integration-tester" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 # Version of JUnit Platform is taken from the JUnit BOM that is imported by junit-jupiter
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
