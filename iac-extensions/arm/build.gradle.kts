@@ -23,6 +23,7 @@ description = "SonarSource IaC Analyzer :: Extensions :: Azure Resource Manager"
 
 dependencies {
     api(project(":iac-common"))
+    api(libs.jspecify)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)

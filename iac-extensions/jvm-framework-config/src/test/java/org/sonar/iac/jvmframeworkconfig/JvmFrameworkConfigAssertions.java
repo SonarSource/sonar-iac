@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.jvmframeworkconfig;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.ExternalIssueAssert;
@@ -28,7 +28,7 @@ public class JvmFrameworkConfigAssertions {
     return TextRangeAssert.assertThat(actual);
   }
 
-  public static TextRangePluginApiAssert assertThat(@Nullable org.sonar.api.batch.fs.TextRange actual) {
+  public static TextRangePluginApiAssert assertThat(org.sonar.api.batch.fs.@Nullable TextRange actual) {
     return TextRangePluginApiAssert.assertThat(actual);
   }
 

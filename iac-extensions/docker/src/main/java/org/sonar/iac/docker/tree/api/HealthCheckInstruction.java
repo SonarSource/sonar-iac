@@ -17,6 +17,7 @@
 package org.sonar.iac.docker.tree.api;
 
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#healthcheck">HEALTCHECK</> instruction.
@@ -34,7 +35,9 @@ public interface HealthCheckInstruction extends Instruction {
 
   List<Flag> options();
 
+  @Nullable
   CmdInstruction cmdInstruction();
 
+  @Nullable
   SyntaxToken none();
 }

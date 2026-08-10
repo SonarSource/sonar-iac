@@ -16,11 +16,11 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 
 public interface MemberExpression extends Expression {
-  @CheckForNull
+  @Nullable
   Expression expression();
 
   SyntaxToken separatingToken();

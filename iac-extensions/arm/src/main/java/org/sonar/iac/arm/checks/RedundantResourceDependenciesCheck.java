@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -103,7 +103,7 @@ public class RedundantResourceDependenciesCheck implements IacCheck {
    * Resource IDs are returned by `*ResourceId` functions
    * There can be other types of expressions, that eventually resolve into strings, but we can't evaluate them; these can be FNs.
    */
-  @CheckForNull
+  @Nullable
   private static TextTree extractDependencyTextTree(Expression expression) {
     if (expression instanceof FunctionCall functionCall &&
       TextUtils.matchesValue(functionCall.name(), name -> "resourceId".equals(name) || name.endsWith("ResourceId")).isTrue()) {

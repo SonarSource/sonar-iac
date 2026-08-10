@@ -19,8 +19,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.symbols.SymbolTable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.File;
@@ -58,7 +57,7 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
     return findDeclarationStatement().map(TargetScopeDeclaration::scope).orElse(Scope.RESOURCE_GROUP);
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public Expression targetScopeLiteral() {
     return findDeclarationStatement().map(TargetScopeDeclaration::value).orElse(null);

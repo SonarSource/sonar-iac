@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.cloudformation.checks.AbstractResourceCheck.Resource;
 import org.sonar.iac.cloudformation.tree.FunctionCallTree;

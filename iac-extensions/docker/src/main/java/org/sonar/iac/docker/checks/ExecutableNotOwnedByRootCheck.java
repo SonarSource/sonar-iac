@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -86,7 +86,7 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
     }
   }
 
-  @CheckForNull
+  @Nullable
   private static Flag getSensitiveChownFlag(TransferInstruction transferInstruction) {
     return transferInstruction.options().stream()
       .filter(f -> f.name().equals("chown"))

@@ -17,7 +17,7 @@
 package org.sonar.iac.jvmframeworkconfig.tree.api;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 
 /**
@@ -32,6 +32,6 @@ public interface File extends JvmFrameworkConfig {
   /**
    * @return the original yaml tree of this profile, or null if it was not parsed from a yaml file.
    */
-  @CheckForNull
+  @Nullable
   YamlTree originalYamlTree();
 }

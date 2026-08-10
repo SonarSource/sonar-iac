@@ -16,22 +16,22 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.bicep.Declaration;
 
 public interface OutputDeclaration extends Declaration {
   ArmTree type();
 
-  @CheckForNull
+  @Nullable
   StringLiteral condition();
 
-  @CheckForNull
+  @Nullable
   StringLiteral copyCount();
 
-  @CheckForNull
+  @Nullable
   Expression copyInput();
 
-  @CheckForNull
+  @Nullable
   Expression value();
 
   default Kind getKind() {

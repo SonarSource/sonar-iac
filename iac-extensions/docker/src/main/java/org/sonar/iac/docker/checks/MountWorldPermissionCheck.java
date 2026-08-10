@@ -19,7 +19,7 @@ package org.sonar.iac.docker.checks;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -72,7 +72,7 @@ public class MountWorldPermissionCheck implements IacCheck {
       this.textRange = textRange;
     }
 
-    @CheckForNull
+    @Nullable
     public static MountOption creatFromMatcher(Matcher matcher, TextPointer start) {
       if (matcher.find()) {
         int line = start.line();

@@ -17,7 +17,7 @@
 package org.sonar.iac.terraform.checks.azure;
 
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;

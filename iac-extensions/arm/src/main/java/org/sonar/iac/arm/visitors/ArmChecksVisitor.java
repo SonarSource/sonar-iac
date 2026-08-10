@@ -18,8 +18,7 @@ package org.sonar.iac.arm.visitors;
 
 import java.util.List;
 import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.iac.arm.plugin.ArmSensor;
@@ -72,7 +71,7 @@ public class ArmChecksVisitor extends ChecksVisitor {
    * Returns the rule description context key to use for the given rule and file format, or {@code null} when the rule does not split its
    * description into Bicep / JSON-ARM contexts.
    */
-  @CheckForNull
+  @Nullable
   static String contextKeyFor(String ruleKey, boolean isBicepFile) {
     if (!RULES_WITH_BICEP_AND_TEMPLATES_CONTEXTS.contains(ruleKey)) {
       return null;

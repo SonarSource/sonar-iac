@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.terraform.api.tree;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface TemplateIfDirectiveTree extends ExpressionTree {
   ExpressionTree condition();

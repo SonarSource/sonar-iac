@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Marker interface to define the contract of Dockerfile instructions that contain code to be executed,
@@ -24,6 +24,6 @@ import javax.annotation.CheckForNull;
  * The code can either be a {@link ShellCode} (shell form) or a {@link ArgumentList} (exec form).
  */
 public interface CodeInstruction extends Instruction {
-  @CheckForNull
+  @Nullable
   DockerTree code();
 }

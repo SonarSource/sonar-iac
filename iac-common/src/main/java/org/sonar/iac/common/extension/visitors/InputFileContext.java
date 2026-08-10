@@ -21,8 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -135,7 +134,7 @@ public class InputFileContext extends TreeContext {
     error.save();
   }
 
-  @CheckForNull
+  @Nullable
   private NewIssueLocation newLocation(NewIssue newIssue, SecondaryLocation secondaryLocation) {
     var fileToRaiseOn = retrieveFileToRaiseOn(secondaryLocation);
     if (fileToRaiseOn != null) {
@@ -147,7 +146,7 @@ public class InputFileContext extends TreeContext {
     return null;
   }
 
-  @CheckForNull
+  @Nullable
   public InputFile retrieveFileToRaiseOn(SecondaryLocation secondaryLocation) {
     if (secondaryLocation.filePath == null) {
       return inputFile;

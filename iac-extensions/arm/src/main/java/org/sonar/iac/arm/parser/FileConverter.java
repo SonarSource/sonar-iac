@@ -19,7 +19,7 @@ package org.sonar.iac.arm.parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.OutputDeclaration;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;

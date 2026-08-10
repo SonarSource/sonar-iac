@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.common.languages;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public enum IacLanguage {
   ANSIBLE("ansible", "Ansible"),

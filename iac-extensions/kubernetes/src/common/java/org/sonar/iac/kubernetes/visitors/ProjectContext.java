@@ -17,8 +17,7 @@
 package org.sonar.iac.kubernetes.visitors;
 
 import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.kubernetes.model.Chart;
 import org.sonar.iac.kubernetes.model.ProjectResource;
@@ -40,7 +39,7 @@ public interface ProjectContext {
   @Nullable
   InputFileContext getInputFileContext(String path);
 
-  @CheckForNull
+  @Nullable
   Chart getChart();
 
   /**

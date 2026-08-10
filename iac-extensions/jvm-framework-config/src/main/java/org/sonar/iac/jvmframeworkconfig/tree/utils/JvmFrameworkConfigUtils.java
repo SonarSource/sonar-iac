@@ -17,7 +17,7 @@
 package org.sonar.iac.jvmframeworkconfig.tree.utils;
 
 import java.util.Optional;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Scalar;
 import org.sonar.iac.jvmframeworkconfig.tree.api.SyntaxToken;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
@@ -26,7 +26,7 @@ public final class JvmFrameworkConfigUtils {
   private JvmFrameworkConfigUtils() {
   }
 
-  @CheckForNull
+  @Nullable
   public static String getStringValue(Tuple tuple) {
     return Optional.ofNullable(tuple.value())
       .map(Scalar::value)

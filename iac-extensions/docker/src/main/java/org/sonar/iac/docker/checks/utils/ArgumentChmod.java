@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.checks.Chmod;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;

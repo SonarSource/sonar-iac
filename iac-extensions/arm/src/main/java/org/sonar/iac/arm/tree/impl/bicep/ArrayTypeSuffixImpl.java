@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.arm.tree.impl.bicep;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeSuffix;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;

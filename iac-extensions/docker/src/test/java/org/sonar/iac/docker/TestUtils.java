@@ -17,7 +17,7 @@
 package org.sonar.iac.docker;
 
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.FromInstruction;
 

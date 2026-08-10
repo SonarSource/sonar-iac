@@ -18,8 +18,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -32,13 +31,13 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
 
   private final SyntaxToken separatingToken;
 
-  @CheckForNull
+  @Nullable
   private final SyntaxToken safeDereference;
-  @CheckForNull
+  @Nullable
   private final SyntaxToken reverseIndexAccessorToken;
-  @CheckForNull
+  @Nullable
   private final Expression expression;
-  @CheckForNull
+  @Nullable
   private final SyntaxToken closingBracket;
 
   private Expression memberAccess;
@@ -69,7 +68,7 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
     return result;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public Expression expression() {
     return expression;

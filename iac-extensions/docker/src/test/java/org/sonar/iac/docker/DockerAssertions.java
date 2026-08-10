@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.docker;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.common.testing.TextRangeAssert;
 import org.sonar.iac.docker.symbols.ArgumentResolution;

@@ -18,8 +18,7 @@ package org.sonar.iac.arm.checks.ipaddress;
 
 import java.util.List;
 import java.util.OptionalLong;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -83,7 +82,7 @@ public class IpAddressValidator {
     return literal == null ? OptionalLong.empty() : IpAddressClassifier.parseIpv4SingleAddress(literal);
   }
 
-  @CheckForNull
+  @Nullable
   private static String literalOrNull(@Nullable ArmTree tree) {
     if (tree != null && tree.is(ArmTree.Kind.STRING_LITERAL)) {
       return TextUtils.getValue(tree).orElse(null);

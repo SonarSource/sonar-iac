@@ -18,7 +18,7 @@ package org.sonar.iac.arm.tree.impl.bicep.importdecl;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.AsClause;
 import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportedSymbolsListItem;

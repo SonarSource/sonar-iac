@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.Property;
@@ -78,19 +77,19 @@ public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements Reso
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public Expression name() {
     return name;
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public Identifier symbolicName() {
     return symbolicName;
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public SyntaxToken existing() {
     return null;
   }

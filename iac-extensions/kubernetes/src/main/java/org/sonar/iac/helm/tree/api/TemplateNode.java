@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.helm.tree.api;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * TemplateNode represents a {{template}} action.
@@ -32,7 +32,7 @@ public interface TemplateNode extends Node {
    *
    * @return the name of the template (unquoted)
    */
-  @CheckForNull
+  @Nullable
   String name();
 
   /**
@@ -40,6 +40,6 @@ public interface TemplateNode extends Node {
    *
    * @return the command to evaluate as dot for the template
    */
-  @CheckForNull
+  @Nullable
   PipeNode pipe();
 }

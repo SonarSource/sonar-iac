@@ -21,7 +21,7 @@ import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;

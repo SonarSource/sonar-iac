@@ -17,36 +17,36 @@
 package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.bicep.Declaration;
 import org.sonar.iac.common.api.tree.TextTree;
 
 public interface ParameterDeclaration extends Declaration, HasSymbol {
 
-  @CheckForNull
+  @Nullable
   ParameterType type();
 
-  @CheckForNull
+  @Nullable
   TextTree resourceType();
 
-  @CheckForNull
+  @Nullable
   Expression defaultValue();
 
   List<Expression> allowedValues();
 
-  @CheckForNull
+  @Nullable
   StringLiteral description();
 
-  @CheckForNull
+  @Nullable
   NumericLiteral minValue();
 
-  @CheckForNull
+  @Nullable
   NumericLiteral maxValue();
 
-  @CheckForNull
+  @Nullable
   NumericLiteral minLength();
 
-  @CheckForNull
+  @Nullable
   NumericLiteral maxLength();
 
   default Kind getKind() {

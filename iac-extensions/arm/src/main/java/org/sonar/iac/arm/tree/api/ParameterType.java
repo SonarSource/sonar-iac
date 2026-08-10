@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 
 public enum ParameterType {
   ARRAY("array"),
@@ -29,7 +29,7 @@ public enum ParameterType {
 
   private final String name;
 
-  @CheckForNull
+  @Nullable
   public static ParameterType fromName(String name) {
     for (ParameterType value : ParameterType.values()) {
       if (value.name.equals(name)) {

@@ -19,7 +19,7 @@ package org.sonar.iac.arm.checks.elementsorder;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.checks.ElementsOrderResourceCheck;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.FunctionCall;
@@ -76,7 +76,7 @@ public class ElementsOrderResourceCheckBicep extends AbstractElementsOrderResour
     }
   }
 
-  @CheckForNull
+  @Nullable
   private static ValueAndHighlight toValueAndHighlight(Decorator decorator) {
     if (decorator.expression() instanceof FunctionCall functionCall) {
       var identifier = ArmTreeUtils.functionCallNameOrNull(functionCall);

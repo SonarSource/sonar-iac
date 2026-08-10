@@ -18,8 +18,7 @@ package org.sonar.iac.jvmframeworkconfig.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Scalar;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
@@ -51,7 +50,7 @@ public class TupleImpl extends AbstractJvmFrameworkConfigImpl implements Tuple {
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public Scalar value() {
     return value;
   }

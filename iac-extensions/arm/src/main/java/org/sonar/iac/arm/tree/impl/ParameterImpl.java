@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.arm.tree.impl;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Parameter;
@@ -30,7 +30,7 @@ public class ParameterImpl extends AbstractHasIdentifierImpl implements Paramete
     super(expression, textRange);
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public Symbol symbol() {
     return symbol;

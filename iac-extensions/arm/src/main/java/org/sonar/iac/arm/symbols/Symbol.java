@@ -18,7 +18,7 @@ package org.sonar.iac.arm.symbols;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.HasSymbol;
 import org.sonar.iac.arm.tree.api.bicep.Declaration;
@@ -46,7 +46,7 @@ public class Symbol {
     return usages.stream().noneMatch(usage -> Usage.Kind.ACCESS == usage.kind());
   }
 
-  @CheckForNull
+  @Nullable
   public Declaration findAssignmentDeclaration() {
     return usages.stream()
       .filter(usage -> Usage.Kind.ASSIGNMENT == usage.kind())

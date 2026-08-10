@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.arm.tree.impl;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Variable;

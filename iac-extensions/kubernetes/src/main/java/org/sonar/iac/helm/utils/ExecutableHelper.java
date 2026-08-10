@@ -28,7 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Arrays;
 import java.util.Locale;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.iac.helm.HelmEvaluator;
@@ -75,7 +75,7 @@ public final class ExecutableHelper {
     }
   }
 
-  @CheckForNull
+  @Nullable
   public static byte[] readProcessOutput(Process process) {
     try (var output = process.getInputStream()) {
       return output.readAllBytes();

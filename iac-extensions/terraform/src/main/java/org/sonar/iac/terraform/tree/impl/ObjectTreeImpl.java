@@ -17,7 +17,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;

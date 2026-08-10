@@ -18,8 +18,7 @@ package org.sonar.iac.jvmframeworkconfig.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 import org.sonar.iac.jvmframeworkconfig.tree.api.File;
@@ -44,7 +43,7 @@ public class FileImpl extends AbstractJvmFrameworkConfigImpl implements File {
     return new ArrayList<>(profiles);
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public YamlTree originalYamlTree() {
     return originalTree;

@@ -20,7 +20,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
@@ -48,7 +48,7 @@ public class YamlFileTypeCache {
     // Public explicit constructor for injection
   }
 
-  @CheckForNull
+  @Nullable
   public FileType get(URI fileUri) {
     return fileTypeCache.get(fileUri);
   }
@@ -61,7 +61,7 @@ public class YamlFileTypeCache {
    * Returns the ordered candidate files already classified for the given {@link FileSystem}, or {@code null} if it has
    * not been classified yet. An empty (non-null) list means the scan ran and found no candidate file: a hit, not a miss.
    */
-  @CheckForNull
+  @Nullable
   public List<InputFile> getClassifiedCandidates(FileSystem fileSystem) {
     return classifiedCandidatesByFileSystem.get(fileSystem);
   }

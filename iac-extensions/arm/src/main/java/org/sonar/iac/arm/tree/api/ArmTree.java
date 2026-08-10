@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.bicep.AmbientTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.AsClause;
@@ -73,7 +73,7 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public interface ArmTree extends Tree {
 
-  @CheckForNull
+  @Nullable
   ArmTree parent();
 
   boolean is(Kind... kind);

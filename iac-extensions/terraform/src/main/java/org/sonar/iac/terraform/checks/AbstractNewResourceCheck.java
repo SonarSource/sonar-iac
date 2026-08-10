@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -69,7 +69,7 @@ public abstract class AbstractNewResourceCheck implements IacCheck {
   }
 
   /** Despite its name, this method works fine for 'resource', 'data' and all other sorts of Terraform top-level blocks */
-  @CheckForNull
+  @Nullable
   public static String resourceType(BlockTree tree) {
     return tree.labels().isEmpty() ? null : tree.labels().get(0).value();
   }

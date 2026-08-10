@@ -21,8 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.parser.bicep.ArmTemplateExpressionParser;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -271,7 +270,7 @@ public class ArmJsonBaseConverter {
     return properties;
   }
 
-  @CheckForNull
+  @Nullable
   private StringLiteral extractPropertyOrNull(PropertyTree property, String name) {
     return PropertyUtils.get(property.value(), name::equalsIgnoreCase)
       .map(this::toStringLiteral)

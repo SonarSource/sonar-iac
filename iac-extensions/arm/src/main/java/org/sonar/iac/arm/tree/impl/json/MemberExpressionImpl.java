@@ -18,8 +18,7 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -40,7 +39,7 @@ public class MemberExpressionImpl extends ExpressionImpl implements MemberExpres
     this.memberAccess = memberAccess;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public Expression expression() {
     return expression;

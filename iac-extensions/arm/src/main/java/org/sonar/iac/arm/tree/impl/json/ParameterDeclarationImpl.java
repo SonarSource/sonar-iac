@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -94,7 +93,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public ParameterType type() {
     if (type != null) {
       return ParameterType.fromName(type.value());
@@ -102,7 +101,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     return null;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public TextTree resourceType() {
     // In JSON ARM, this value cannot be set
@@ -110,7 +109,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public Expression defaultValue() {
     return defaultValue;
   }
@@ -121,31 +120,31 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public StringLiteral description() {
     return description;
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public NumericLiteral minValue() {
     return minValue;
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public NumericLiteral maxValue() {
     return maxValue;
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public NumericLiteral minLength() {
     return minLength;
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public NumericLiteral maxLength() {
     return maxLength;
   }

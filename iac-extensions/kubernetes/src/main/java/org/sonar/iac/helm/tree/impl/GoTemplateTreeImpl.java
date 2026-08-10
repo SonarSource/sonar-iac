@@ -16,8 +16,7 @@
  */
 package org.sonar.iac.helm.tree.impl;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.TreeOrBuilder;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
@@ -36,7 +35,7 @@ public class GoTemplateTreeImpl implements GoTemplateTree {
     this.root = root;
   }
 
-  @CheckForNull
+  @Nullable
   public static GoTemplateTree fromPbTree(@Nullable TreeOrBuilder treePb, String source) {
     if (treePb == null) {
       return null;

@@ -16,9 +16,9 @@
  */
 package org.sonar.iac.arm;
 
-import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.parser.BicepParser;
 import org.sonar.iac.arm.parser.utils.ParserAssert;
 import org.sonar.iac.arm.tree.api.ArmTree;

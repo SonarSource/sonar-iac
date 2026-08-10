@@ -19,7 +19,7 @@ package org.sonar.iac.common.reports;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
@@ -96,12 +96,12 @@ class AbstractExternalReportSensorTest {
     }
 
     @Override
-    protected TestImporter createImporter(@Nonnull SensorContext sensorContext) {
+    protected TestImporter createImporter(@NonNull SensorContext sensorContext) {
       return new TestImporter(sensorContext, rulesDefinition, analysisWarnings, null);
     }
 
     @Override
-    protected Collection<File> getReportFiles(@Nonnull SensorContext sensorContext) {
+    protected Collection<File> getReportFiles(@NonNull SensorContext sensorContext) {
       return List.of();
     }
   }
@@ -114,7 +114,7 @@ class AbstractExternalReportSensorTest {
     }
 
     @Override
-    protected Collection<File> getReportFiles(@Nonnull SensorContext sensorContext) {
+    protected Collection<File> getReportFiles(@NonNull SensorContext sensorContext) {
       return REPORT_FILES;
     }
   }
@@ -125,7 +125,7 @@ class AbstractExternalReportSensorTest {
     }
 
     @Override
-    protected NewExternalIssue toExternalIssue(@Nonnull JSONObject issueJson) {
+    protected NewExternalIssue toExternalIssue(@NonNull JSONObject issueJson) {
       return mock(NewExternalIssue.class);
     }
   }

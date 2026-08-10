@@ -18,7 +18,7 @@ package org.sonar.iac.common.yaml;
 
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.TextUtils;

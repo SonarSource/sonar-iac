@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.jvmframeworkconfig.tree.api;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.PropertyTree;
 
 /**
@@ -31,6 +31,6 @@ public interface Tuple extends JvmFrameworkConfig, PropertyTree {
   /**
    * @return the value of the tuple, maybe null
    */
-  @CheckForNull
+  @Nullable
   Scalar value();
 }

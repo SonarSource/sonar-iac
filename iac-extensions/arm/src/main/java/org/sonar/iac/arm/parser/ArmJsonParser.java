@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.arm.parser;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.snakeyaml.engine.v2.exceptions.ScannerException;
 import org.snakeyaml.engine.v2.nodes.ScalarNode;
 import org.sonar.api.batch.fs.InputFile;

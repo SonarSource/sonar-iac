@@ -20,7 +20,7 @@ import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.arm.parser.bicep.BicepGrammar;
 import org.sonar.iac.arm.parser.bicep.BicepLexicalGrammar;

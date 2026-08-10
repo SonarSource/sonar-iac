@@ -17,7 +17,7 @@
 package org.sonar.iac.helm.tree.impl;
 
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.protobuf.IdentifierNodeOrBuilder;
 import org.sonar.iac.helm.tree.api.IdentifierNode;

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -44,8 +44,7 @@ public class DockerNodeBuilder implements NodeBuilder {
   private DockerPreprocessor.SourceOffset sourceOffset;
   private Iterator<Map.Entry<Integer, Comment>> commentMapIterator;
 
-  @Nullable
-  private Map.Entry<Integer, Comment> nextComment;
+  private Map.@Nullable Entry<Integer, Comment> nextComment;
 
   @Override
   public Object createNonTerminal(GrammarRuleKey ruleKey, Rule rule, List<Object> children, int startIndex, int endIndex) {

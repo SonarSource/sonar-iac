@@ -17,8 +17,7 @@
 package org.sonar.iac.arm.checkdsl;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -77,7 +76,7 @@ public class ContextualProperty extends ContextualPropertyTree<ContextualPropert
     return super.reportIfAbsent(message, secondaries, ruleDescriptionContextKey);
   }
 
-  @CheckForNull
+  @Nullable
   public Expression valueOrNull() {
     if (tree != null) {
       return tree.value();

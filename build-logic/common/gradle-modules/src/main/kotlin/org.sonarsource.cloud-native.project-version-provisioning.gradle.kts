@@ -17,7 +17,8 @@
 plugins {}
 
 tasks.named<ProcessResources>("processResources") {
+    val version = project.version.toString()
     filesMatching("**/pluginVersion.properties") {
-        expand(mapOf("version" to project.version))
+        expand(mapOf("version" to version))
     }
 }

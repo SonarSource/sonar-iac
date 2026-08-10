@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.jvmframeworkconfig.parser;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.extension.TreeParser;

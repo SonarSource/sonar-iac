@@ -26,6 +26,8 @@ plugins {
 description = "SonarSource IaC Analyzer :: Sonar Plugin"
 
 dependencies {
+    api(libs.jspecify)
+
     implementation(project(":iac-extensions:terraform"))
     implementation(project(":iac-extensions:cloudformation"))
     implementation(project(":iac-extensions:kubernetes"))

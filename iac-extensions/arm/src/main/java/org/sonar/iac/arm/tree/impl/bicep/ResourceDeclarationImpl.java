@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
 import org.sonar.iac.arm.tree.api.ObjectExpression;
@@ -89,7 +88,7 @@ public class ResourceDeclarationImpl extends AbstractDeclarationImpl<Expression>
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public Expression name() {
     return this.getResourceProperty("name")
       .filter(prop -> prop.value().is(Kind.STRING_LITERAL))
@@ -103,7 +102,7 @@ public class ResourceDeclarationImpl extends AbstractDeclarationImpl<Expression>
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public Expression version() {
     String text = TextUtils.getValue(typeAndVersion).orElse("");
     if (text.contains("@")) {
@@ -175,7 +174,7 @@ public class ResourceDeclarationImpl extends AbstractDeclarationImpl<Expression>
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public SyntaxToken existing() {
     return existing;
   }

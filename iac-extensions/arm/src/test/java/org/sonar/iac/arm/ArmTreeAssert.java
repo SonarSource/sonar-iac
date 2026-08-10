@@ -18,9 +18,9 @@ package org.sonar.iac.arm;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.SoftAssertions;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.common.testing.IacCommonAssertions;

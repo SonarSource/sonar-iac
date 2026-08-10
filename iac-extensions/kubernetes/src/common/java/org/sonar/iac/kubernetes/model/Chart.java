@@ -16,13 +16,13 @@
  */
 package org.sonar.iac.kubernetes.model;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.yaml.tree.FileTree;
 
 public record Chart(String apiVersion) {
-  @CheckForNull
+  @Nullable
   public static Chart fromFileTree(FileTree fileTree) {
     return fileTree.documents().stream().findFirst()
       .flatMap(tree -> PropertyUtils.value(tree, "apiVersion", TextTree.class))

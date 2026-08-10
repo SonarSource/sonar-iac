@@ -16,14 +16,14 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Identifier;
 
 public interface ForVariableBlock extends ArmTree {
   Identifier itemIdentifier();
 
-  @CheckForNull
+  @Nullable
   Identifier indexIdentifier();
 
 }

@@ -23,8 +23,7 @@ import java.util.function.DoublePredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
@@ -123,7 +122,7 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
     }
   }
 
-  @CheckForNull
+  @Nullable
   private static Double computeRetentionInDays(ContextualObject retentionPolicyObject) {
     Double count = propertyValueAsDoubleOrNull(retentionPolicyObject.property("count").tree);
     String durationType = propertyValueAsStringOrNull(retentionPolicyObject.property("durationType").tree);
@@ -142,7 +141,7 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
     };
   }
 
-  @CheckForNull
+  @Nullable
   private static Double propertyValueAsDoubleOrNull(@Nullable Tree tree) {
     return Optional.ofNullable(tree)
       .map(Property.class::cast)
@@ -152,7 +151,7 @@ public class ShortBackupRetentionCheck extends AbstractArmResourceCheck {
       .orElse(null);
   }
 
-  @CheckForNull
+  @Nullable
   private static String propertyValueAsStringOrNull(@Nullable Tree tree) {
     return Optional.ofNullable(tree)
       .map(Property.class::cast)

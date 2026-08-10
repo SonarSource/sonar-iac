@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.IacToken;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.Tree;

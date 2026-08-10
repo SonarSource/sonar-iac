@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.arm.parser;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.plugin.ArmParserStatistics;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.common.api.tree.Tree;

@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.kubernetes.tree.api;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.yaml.tree.FileTree;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 
@@ -25,6 +25,6 @@ import org.sonar.iac.helm.tree.api.GoTemplateTree;
  * If the file is a Helm file, the AST of Go template is also available.
  */
 public interface KubernetesFileTree extends FileTree {
-  @CheckForNull
+  @Nullable
   GoTemplateTree getGoTemplateAst();
 }

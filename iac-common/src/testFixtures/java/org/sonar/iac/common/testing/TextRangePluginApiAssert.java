@@ -16,10 +16,10 @@
  */
 package org.sonar.iac.common.testing;
 
-import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
+import org.jspecify.annotations.Nullable;
 import org.sonar.api.batch.fs.TextRange;
 
 /**

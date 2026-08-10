@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represent a variable in the explicit form with the curly braces which allow to specify modifiers.

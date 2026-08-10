@@ -19,8 +19,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.AsClause;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
@@ -82,13 +81,13 @@ public class ExtensionDeclarationImpl extends AbstractArmTreeImpl implements Ext
     return specification;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public WithClause withClause() {
     return withClause;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public AsClause asClause() {
     return asClause;

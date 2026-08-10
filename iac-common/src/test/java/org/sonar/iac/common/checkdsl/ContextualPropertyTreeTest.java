@@ -18,7 +18,7 @@ package org.sonar.iac.common.checkdsl;
 
 import java.util.Collections;
 import java.util.function.Predicate;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.PropertyTree;

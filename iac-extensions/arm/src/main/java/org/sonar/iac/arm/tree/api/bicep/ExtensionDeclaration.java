@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Statement;
 
@@ -38,12 +38,12 @@ public interface ExtensionDeclaration extends Statement, HasDecorators, HasKeywo
   /**
    * @return the with clause of the extension declaration, or null if not present
    */
-  @CheckForNull
+  @Nullable
   WithClause withClause();
 
   /**
    * @return the as clause of the extension declaration, or null if not present
    */
-  @CheckForNull
+  @Nullable
   AsClause asClause();
 }

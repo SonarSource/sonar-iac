@@ -16,8 +16,7 @@
  */
 package org.sonar.iac.docker.tree.impl;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.SyntaxTokenShellCode;
 
@@ -30,7 +29,7 @@ public class SyntaxTokenShellCodeImpl extends AbstractShellCodeImpl<SyntaxToken>
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public String originalSourceCode() {
     return originalSourceCode;
   }

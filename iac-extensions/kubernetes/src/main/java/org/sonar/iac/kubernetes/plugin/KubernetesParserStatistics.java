@@ -17,7 +17,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;

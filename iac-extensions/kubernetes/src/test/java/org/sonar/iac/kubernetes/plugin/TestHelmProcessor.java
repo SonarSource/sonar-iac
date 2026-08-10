@@ -17,7 +17,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.util.Map;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 
@@ -53,7 +53,7 @@ public class TestHelmProcessor extends HelmProcessor {
     return true;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   String processHelmTemplate(String source, HelmInputFileContext inputFileContext) {
     if (expectedInputOutputMapping.containsKey(SINGLE_INPUT)) {

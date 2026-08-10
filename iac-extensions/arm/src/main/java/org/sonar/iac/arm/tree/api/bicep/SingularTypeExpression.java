@@ -16,6 +16,8 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
+import org.jspecify.annotations.Nullable;
+
 public interface SingularTypeExpression extends TypeExpressionAble {
   @Override
   default Kind getKind() {
@@ -24,7 +26,9 @@ public interface SingularTypeExpression extends TypeExpressionAble {
 
   TypeExpressionAble expression();
 
+  @Nullable
   SyntaxToken questionMark();
 
+  @Nullable
   SyntaxToken nonNullAssertion();
 }

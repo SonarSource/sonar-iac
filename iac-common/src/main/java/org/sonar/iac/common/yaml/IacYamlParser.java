@@ -19,7 +19,7 @@ package org.sonar.iac.common.yaml;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.composer.Composer;
 import org.snakeyaml.engine.v2.nodes.Node;

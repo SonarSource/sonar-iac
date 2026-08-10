@@ -18,7 +18,7 @@ package org.sonar.iac.jvmframeworkconfig.parser.yaml;
 
 import java.util.List;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.snakeyaml.engine.v2.nodes.Node;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.yaml.IacYamlConverter;

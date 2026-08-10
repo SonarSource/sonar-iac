@@ -19,7 +19,7 @@ package org.sonar.iac.arm.checks;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.ObjectExpression;

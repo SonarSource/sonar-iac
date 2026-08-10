@@ -19,7 +19,7 @@ package org.sonar.iac.jvmframeworkconfig.checks.spring;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -63,7 +63,7 @@ public class ExcessiveFileUploadSizeLimitCheck extends AbstractSensitiveKeyCheck
    * Parses a string representing data size similarly to
    * <a href=https://github.com/spring-projects/spring-framework/blob/main/spring-core/src/main/java/org/springframework/util/unit/DataSize.java>Spring's DataSize</a>.
    */
-  @CheckForNull
+  @Nullable
   static Long sizeBytes(String input) {
     var normalized = input.toLowerCase(Locale.ROOT);
 

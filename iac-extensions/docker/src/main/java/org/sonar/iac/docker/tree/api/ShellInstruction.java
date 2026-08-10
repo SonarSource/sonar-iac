@@ -16,6 +16,8 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Interface to define the contract of the <a href="https://docs.docker.com/engine/reference/builder/#shell">SHELL</> instruction.
  * <pre>
@@ -24,5 +26,6 @@ package org.sonar.iac.docker.tree.api;
  */
 public interface ShellInstruction extends Instruction {
 
+  @Nullable
   ExecForm arguments();
 }

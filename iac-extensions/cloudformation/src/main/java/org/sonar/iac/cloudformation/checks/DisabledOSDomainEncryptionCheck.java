@@ -17,7 +17,7 @@
 package org.sonar.iac.cloudformation.checks;
 
 import java.util.Optional;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -68,7 +68,7 @@ public class DisabledOSDomainEncryptionCheck extends AbstractResourceCheck {
     ctx.reportIssue(resourceType, OMITTING_MESSAGE.formatted(sensitiveDomain.messageSubstitution));
   }
 
-  @CheckForNull
+  @Nullable
   private static SensitiveDomains checkForSensitiveDomain(Resource resource) {
     if (resource.isType("AWS::Elasticsearch::Domain")) {
       return SensitiveDomains.ELASTICSEARCH;

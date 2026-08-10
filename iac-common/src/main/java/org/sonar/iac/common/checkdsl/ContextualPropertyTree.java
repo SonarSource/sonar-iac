@@ -19,8 +19,7 @@ package org.sonar.iac.common.checkdsl;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.PropertyTree;
@@ -54,7 +53,7 @@ public abstract class ContextualPropertyTree<S extends ContextualPropertyTree<S,
     }
   }
 
-  @CheckForNull
+  @Nullable
   public String asString() {
     return Optional.ofNullable(tree).flatMap(tree -> TextUtils.getValue(tree.value())).orElse(null);
   }

@@ -23,8 +23,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
@@ -136,7 +135,7 @@ public class SecretsHandlingCheck implements IacCheck {
     return false;
   }
 
-  @CheckForNull
+  @Nullable
   private static ArgumentResolution resolveReferencedValue(Variable variable) {
     if (variable.symbol() == null) {
       return null;

@@ -29,6 +29,7 @@ description = "SonarSource IaC Analyzer :: Extensions :: Terraform"
 
 dependencies {
     api(project(":iac-common"))
+    api(libs.jspecify)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)

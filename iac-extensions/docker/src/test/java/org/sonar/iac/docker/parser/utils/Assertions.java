@@ -18,8 +18,8 @@ package org.sonar.iac.docker.parser.utils;
 
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
-import javax.annotation.Nullable;
 import org.assertj.core.api.ObjectAssert;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.docker.parser.DockerParser;

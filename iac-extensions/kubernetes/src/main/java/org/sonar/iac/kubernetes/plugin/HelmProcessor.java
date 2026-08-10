@@ -18,8 +18,7 @@ package org.sonar.iac.kubernetes.plugin;
 
 import java.io.IOException;
 import java.util.Map;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -75,7 +74,7 @@ public class HelmProcessor {
     return "";
   }
 
-  @CheckForNull
+  @Nullable
   String processHelmTemplate(String source, HelmInputFileContext inputFileContext) {
     if (!isHelmEvaluatorInitialized()) {
       throw new IllegalStateException("Attempt to process Helm template with uninitialized Helm evaluator");

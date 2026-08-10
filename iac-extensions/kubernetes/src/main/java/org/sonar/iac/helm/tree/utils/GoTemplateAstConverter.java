@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -92,7 +92,7 @@ public final class GoTemplateAstConverter {
     // utility class
   }
 
-  @CheckForNull
+  @Nullable
   public static Node unpackNode(Any nodePb, String source) {
     try {
       var typeName = typeName(nodePb);

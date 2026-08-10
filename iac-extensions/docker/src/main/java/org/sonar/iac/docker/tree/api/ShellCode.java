@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 
 public interface ShellCode<T extends Tree> extends DockerTree {
@@ -28,6 +28,6 @@ public interface ShellCode<T extends Tree> extends DockerTree {
    *
    * @return the original source code, or null if not available (e.g., in Community edition)
    */
-  @CheckForNull
+  @Nullable
   String originalSourceCode();
 }

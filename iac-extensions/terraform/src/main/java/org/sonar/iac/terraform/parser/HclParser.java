@@ -18,7 +18,7 @@ package org.sonar.iac.terraform.parser;
 
 import com.sonar.sslr.api.typed.ActionParser;
 import java.nio.charset.StandardCharsets;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;

@@ -19,7 +19,7 @@ package org.sonar.iac.terraform.plugin;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Optional;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;

@@ -19,7 +19,7 @@ package org.sonar.iac.helm.tree.utils;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.helm.tree.api.CommandNode;

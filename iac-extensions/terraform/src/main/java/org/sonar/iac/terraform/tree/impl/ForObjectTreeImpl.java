@@ -19,7 +19,7 @@ package org.sonar.iac.terraform.tree.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.ForObjectTree;
@@ -36,7 +36,7 @@ public class ForObjectTreeImpl extends AbstractForTree implements ForObjectTree 
   private final SyntaxToken closeBrace;
 
   public ForObjectTreeImpl(SyntaxToken openBrace, ForIntro intro, ExpressionTree firstExpression, SyntaxToken arrow, ExpressionTree secondExpression,
-    @Nullable SyntaxToken ellipsis, @Nullable TreeFactory.Pair<SyntaxToken, ExpressionTree> condition, SyntaxToken closeBrace) {
+    @Nullable SyntaxToken ellipsis, TreeFactory.@Nullable Pair<SyntaxToken, ExpressionTree> condition, SyntaxToken closeBrace) {
     super(intro);
     this.openBrace = openBrace;
     this.firstExpression = firstExpression;

@@ -20,7 +20,7 @@ import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.AttributeSplatAccessTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;

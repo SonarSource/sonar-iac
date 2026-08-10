@@ -19,8 +19,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.symbols.Symbol;
 import org.sonar.iac.arm.tree.BicepTypeExpressionResolution;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -100,7 +99,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public ParameterType type() {
     if (typeExpression != null) {
       ParameterType parameterType = ParameterType.fromName(BicepTypeExpressionResolution.resolve(typeExpression));
@@ -116,14 +115,14 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     return null;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public TextTree resourceType() {
     return typeInterp;
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public Expression defaultValue() {
     return defaultValue;
   }
@@ -135,7 +134,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public StringLiteral description() {
     return (StringLiteral) findDecoratorByName("description")
       .map(Decorator::functionCallOrMemberFunctionCall)
@@ -144,28 +143,28 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public NumericLiteral minValue() {
     return findDecoratorByName("minValue").map(Decorator::functionCallOrMemberFunctionCall).map(
       d -> ((NumericLiteral) (d.argumentList().elements().get(0)))).orElse(null);
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public NumericLiteral maxValue() {
     return findDecoratorByName("maxValue").map(Decorator::functionCallOrMemberFunctionCall).map(
       d -> ((NumericLiteral) (d.argumentList().elements().get(0)))).orElse(null);
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public NumericLiteral minLength() {
     return findDecoratorByName("minLength").map(Decorator::functionCallOrMemberFunctionCall).map(
       d -> ((NumericLiteral) (d.argumentList().elements().get(0)))).orElse(null);
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public NumericLiteral maxLength() {
     return findDecoratorByName("maxLength").map(Decorator::functionCallOrMemberFunctionCall).map(
       d -> ((NumericLiteral) (d.argumentList().elements().get(0)))).orElse(null);
@@ -194,7 +193,7 @@ public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements Par
     return keyword;
   }
 
-  @CheckForNull
+  @Nullable
   public TypeExpressionAble typeExpression() {
     return typeExpression;
   }

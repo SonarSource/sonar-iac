@@ -18,8 +18,7 @@ package org.sonar.iac.common.checkdsl;
 
 import java.util.List;
 import java.util.function.Consumer;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
@@ -81,7 +80,7 @@ public abstract class ContextualTree<S extends ContextualTree<S, T>, T extends T
     return (S) this;
   }
 
-  @CheckForNull
+  @Nullable
   public SecondaryLocation toSecondary(String message) {
     HasTextRange toHighlight = toHighlight();
     if (toHighlight != null) {
@@ -90,7 +89,7 @@ public abstract class ContextualTree<S extends ContextualTree<S, T>, T extends T
     return null;
   }
 
-  @CheckForNull
+  @Nullable
   protected HasTextRange toHighlight() {
     return tree;
   }

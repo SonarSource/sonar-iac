@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.arm.plugin;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 

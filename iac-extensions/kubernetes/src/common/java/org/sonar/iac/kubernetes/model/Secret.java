@@ -17,7 +17,7 @@
 package org.sonar.iac.kubernetes.model;
 
 import java.util.Map;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 
 public record Secret(

@@ -19,7 +19,7 @@ package org.sonar.iac.kubernetes.plugin;
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.api.tree.Tree;

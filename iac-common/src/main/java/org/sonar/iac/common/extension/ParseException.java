@@ -18,8 +18,7 @@ package org.sonar.iac.common.extension;
 
 import com.sonar.sslr.api.RecognitionException;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.exceptions.MarkedYamlEngineException;
 import org.sonar.api.batch.fs.InputFile;
@@ -78,12 +77,12 @@ public class ParseException extends RuntimeException {
     this.details = details;
   }
 
-  @CheckForNull
+  @Nullable
   public TextPointer getPosition() {
     return position;
   }
 
-  @CheckForNull
+  @Nullable
   public String getDetails() {
     return details;
   }

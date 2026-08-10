@@ -18,7 +18,7 @@ package org.sonar.iac.arm;
 
 import java.util.List;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.arm.parser.ArmParser;
 import org.sonar.iac.arm.plugin.ArmLanguage;

@@ -2,13 +2,13 @@
 blowdryer-gradle = "1.7.1"
 develocity = "4.4.2"
 gradle-license-report = "3.1.4"
-gradle-plugin-shadow = "9.4.2"
-jackson = "2.22.0"
+gradle-plugin-shadow = "9.5.1"
+jackson = "2.22.1"
 jfrog-gradle = "6.0.4"
-log4j = "2.26.0"
+log4j = "2.26.1"
 plexus-utils = "4.0.3"
 sonar-scanner-gradle = "7.3.1.8318"
-spotless-gradle = "8.6.0"
+spotless-gradle = "8.8.0"
 
 [libraries]
 develocity = { module = "com.gradle.develocity:com.gradle.develocity.gradle.plugin", version.ref = "develocity" }

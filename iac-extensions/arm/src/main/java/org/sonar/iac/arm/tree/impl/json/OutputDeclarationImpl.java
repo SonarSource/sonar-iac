@@ -18,8 +18,7 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
@@ -59,25 +58,25 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
     return type;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public StringLiteral condition() {
     return condition;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public StringLiteral copyCount() {
     return copyCount;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public Expression copyInput() {
     return copyInput;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public Expression value() {
     return value;

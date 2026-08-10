@@ -17,12 +17,12 @@
 package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 
 public interface File extends ArmTree, HasSymbolTable {
   Scope targetScope();
 
-  @CheckForNull
+  @Nullable
   Expression targetScopeLiteral();
 
   List<Statement> statements();

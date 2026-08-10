@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.TextTree;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -46,7 +46,7 @@ public final class ProjectResourceFactory {
     // utility class
   }
 
-  @CheckForNull
+  @Nullable
   public static ProjectResource createResource(String path, MappingTree tree) {
     var kind = PropertyUtils.value(tree, "kind")
       .map(ScalarTree.class::cast)
@@ -122,7 +122,7 @@ public final class ProjectResourceFactory {
       .toList();
   }
 
-  @CheckForNull
+  @Nullable
   private static Subject computeSubject(YamlTree tree) {
     if (tree instanceof MappingTree mappingTree) {
       String kind = retrieveField(mappingTree, "kind");
@@ -143,7 +143,7 @@ public final class ProjectResourceFactory {
       .collect(Collectors.toMap(tupleTree -> ((ScalarTree) tupleTree.key()).value(), tupleTree -> tupleTree));
   }
 
-  @CheckForNull
+  @Nullable
   private static String retrieveNameFromMetadata(MappingTree tree) {
     return PropertyUtils.value(tree, "metadata")
       .flatMap(it -> PropertyUtils.value(it, "name"))
@@ -153,7 +153,7 @@ public final class ProjectResourceFactory {
       .orElse(null);
   }
 
-  @CheckForNull
+  @Nullable
   private static String retrieveField(MappingTree tree, String fieldName) {
     return PropertyUtils.value(tree, fieldName)
       .filter(ScalarTree.class::isInstance)

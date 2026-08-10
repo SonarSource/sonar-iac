@@ -23,7 +23,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -182,7 +182,7 @@ public class KustomizationAnalyzer {
     return !path.startsWith("http://") && !path.startsWith("https://");
   }
 
-  @Nonnull
+  @NonNull
   private static Stream<String> extractMappingTreePaths(MappingTree document, String key) {
     return PropertyUtils.value(document, key)
       .filter(SequenceTree.class::isInstance)
@@ -199,7 +199,7 @@ public class KustomizationAnalyzer {
         .stream());
   }
 
-  @Nonnull
+  @NonNull
   private static Stream<String> extractScalarsFromSequence(MappingTree document, String key) {
     return PropertyUtils.value(document, key)
       .filter(SequenceTree.class::isInstance)

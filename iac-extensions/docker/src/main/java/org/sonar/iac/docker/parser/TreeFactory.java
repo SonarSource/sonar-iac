@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.SeparatedList;
 import org.sonar.iac.common.api.tree.impl.Tuple;
 import org.sonar.iac.docker.tree.api.AddInstruction;

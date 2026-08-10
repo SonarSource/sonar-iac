@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.arm.tree.api;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.symbols.SymbolTable;
 
 /**

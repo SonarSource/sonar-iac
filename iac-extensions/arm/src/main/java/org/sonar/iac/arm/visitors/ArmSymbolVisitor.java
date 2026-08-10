@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.symbols.SymbolTable;
 import org.sonar.iac.arm.symbols.Usage;
 import org.sonar.iac.arm.tree.api.ArmTree;
@@ -126,7 +125,7 @@ public class ArmSymbolVisitor extends TreeVisitor<InputFileContext> {
     }
   }
 
-  @CheckForNull
+  @Nullable
   private static String containsMentionOfVariable(String value) {
     var matcher = ASSIGNED_IDENTITIES_PATTERN.matcher(value);
     if (matcher.find()) {

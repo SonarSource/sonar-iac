@@ -16,10 +16,10 @@
  */
 package org.sonar.iac.jvmframeworkconfig.parser.properties;
 
-import javax.annotation.Nullable;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.TextPointer;

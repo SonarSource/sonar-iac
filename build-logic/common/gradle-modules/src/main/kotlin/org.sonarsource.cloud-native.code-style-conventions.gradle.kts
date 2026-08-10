@@ -60,7 +60,7 @@ spotless {
     }
     format("javaMisc") {
         target("src/**/package-info.java")
-        licenseHeaderFile(licenseHeaderFile, "@javax.annotation")
+        licenseHeaderFile(licenseHeaderFile, "(@javax.annotation|@org.jspecify)")
     }
 }
 

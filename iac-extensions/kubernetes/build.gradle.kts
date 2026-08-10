@@ -44,6 +44,7 @@ tasks.named<Jar>("jar") {
 }
 
 dependencies {
+    "commonCompileOnly"(libs.jspecify)
     "commonImplementation"(projects.iacCommon)
 
     // Alternatively, `implementation(common.output)` could be used. However, it cannot be analyzed by the releasability check.

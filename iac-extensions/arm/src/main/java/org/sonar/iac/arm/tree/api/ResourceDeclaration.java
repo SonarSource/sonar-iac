@@ -18,7 +18,7 @@ package org.sonar.iac.arm.tree.api;
 
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.bicep.ObjectProperty;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.api.tree.HasProperties;
@@ -33,17 +33,17 @@ public interface ResourceDeclaration extends Statement, HasProperties, ObjectPro
    * An easy way to do this is via {@link TextUtils#isValue(Tree, String)}.
    * @see <a href=”https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules”>Microsoft - Naming rules and restrictions for Azure resources</a>
    */
-  @CheckForNull
+  @Nullable
   Expression name();
 
-  @CheckForNull
+  @Nullable
   Identifier symbolicName();
 
   /**
    * An API version of the resource. Should always be a {@link StringLiteral} in Bicep, but can be an ARM template expression in JSON.
    * @return An API version of the resource.
    */
-  @CheckForNull
+  @Nullable
   Expression version();
 
   TextTree type();
@@ -76,7 +76,7 @@ public interface ResourceDeclaration extends Statement, HasProperties, ObjectPro
    */
   List<Property> properties();
 
-  @CheckForNull
+  @Nullable
   SyntaxToken existing();
 
   /**

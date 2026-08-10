@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.common.checks;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A tree-value boolean: true, false, unknown.

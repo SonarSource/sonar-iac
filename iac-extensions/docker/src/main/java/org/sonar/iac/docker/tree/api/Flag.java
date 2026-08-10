@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.docker.tree.api;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Interface to define the contract of Flag elements, used by several instruction.
@@ -29,6 +29,6 @@ import javax.annotation.CheckForNull;
 public interface Flag extends DockerTree {
   String name();
 
-  @CheckForNull
+  @Nullable
   Argument value();
 }

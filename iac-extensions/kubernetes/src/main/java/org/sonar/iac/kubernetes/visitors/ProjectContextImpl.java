@@ -25,8 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.kubernetes.model.Chart;
 import org.sonar.iac.kubernetes.model.ProjectResource;
@@ -125,7 +124,7 @@ public final class ProjectContextImpl implements ProjectContext {
     return inputFileContextPerPath.get(path);
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public Chart getChart() {
     return chart;

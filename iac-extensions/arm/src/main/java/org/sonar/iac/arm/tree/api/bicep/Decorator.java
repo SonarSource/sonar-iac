@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.FunctionCall;
 
@@ -24,7 +24,7 @@ public interface Decorator extends HasKeyword {
 
   Expression expression();
 
-  @CheckForNull
+  @Nullable
   default FunctionCall functionCallOrMemberFunctionCall() {
     Expression decoratorExpression = expression();
     if (decoratorExpression instanceof FunctionCall functionCall) {

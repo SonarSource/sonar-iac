@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -89,7 +88,7 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
     return tree != null && tree.existing() != null;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   protected HasTextRange toHighlight() {
     if (tree != null) {

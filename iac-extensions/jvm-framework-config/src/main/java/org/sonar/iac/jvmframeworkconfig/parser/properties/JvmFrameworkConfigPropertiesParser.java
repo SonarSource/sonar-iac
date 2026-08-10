@@ -16,9 +16,9 @@
  */
 package org.sonar.iac.jvmframeworkconfig.parser.properties;
 
-import javax.annotation.Nullable;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.extension.visitors.InputFileContext;

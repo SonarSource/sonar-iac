@@ -18,7 +18,7 @@ package org.sonar.iac.kubernetes.visitors;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.rule.Checks;

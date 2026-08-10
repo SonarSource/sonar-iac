@@ -18,8 +18,7 @@ package org.sonar.iac.arm.checkdsl;
 
 import java.util.List;
 import java.util.function.Predicate;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.ParameterDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -54,7 +53,7 @@ public class ContextualParameter extends ContextualTree<ContextualParameter, Par
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   protected HasTextRange toHighlight() {
     Expression defaultValue = tree.defaultValue();
     return defaultValue != null ? defaultValue : tree;

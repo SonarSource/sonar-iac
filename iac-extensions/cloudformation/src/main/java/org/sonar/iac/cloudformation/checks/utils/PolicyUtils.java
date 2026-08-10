@@ -19,7 +19,7 @@ package org.sonar.iac.cloudformation.checks.utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;

@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.arm.tree.api.bicep;
 
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 
 /**
@@ -25,9 +25,9 @@ import org.sonar.iac.arm.tree.api.NumericLiteral;
 public interface ArrayTypeReference extends TypeExpressionAble {
   TypeExpressionAble getType();
 
-  @CheckForNull
+  @Nullable
   NumericLiteral getIndex();
 
-  @CheckForNull
+  @Nullable
   SyntaxToken getStar();
 }

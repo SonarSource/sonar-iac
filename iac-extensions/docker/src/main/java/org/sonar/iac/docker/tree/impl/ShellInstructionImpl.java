@@ -17,7 +17,7 @@
 package org.sonar.iac.docker.tree.impl;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.tree.api.ExecForm;
 import org.sonar.iac.docker.tree.api.ShellInstruction;
@@ -33,7 +33,7 @@ public class ShellInstructionImpl extends InstructionImpl implements ShellInstru
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public ExecForm arguments() {
     return arguments;
   }

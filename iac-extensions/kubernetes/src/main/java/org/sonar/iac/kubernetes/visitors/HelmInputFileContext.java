@@ -19,8 +19,7 @@ package org.sonar.iac.kubernetes.visitors;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -56,12 +55,12 @@ public class HelmInputFileContext extends InputFileContext {
     this.additionalFiles = additionalFiles;
   }
 
-  @CheckForNull
+  @Nullable
   public String getValuesFile() {
     return additionalFiles.get(VALUES_YAML);
   }
 
-  @CheckForNull
+  @Nullable
   public String getValuesFilePath() {
     if (additionalFiles.containsKey(VALUES_YAML)) {
       return VALUES_YAML;
@@ -73,7 +72,7 @@ public class HelmInputFileContext extends InputFileContext {
     return additionalFiles;
   }
 
-  @CheckForNull
+  @Nullable
   public GoTemplateTree getGoTemplateTree() {
     return goTemplateTree;
   }
@@ -86,7 +85,7 @@ public class HelmInputFileContext extends InputFileContext {
     this.sourceWithComments = sourceWithComments;
   }
 
-  @CheckForNull
+  @Nullable
   public String getSourceWithComments() {
     return sourceWithComments;
   }
@@ -99,7 +98,7 @@ public class HelmInputFileContext extends InputFileContext {
     return linesShifting;
   }
 
-  @CheckForNull
+  @Nullable
   public Path getHelmProjectDirectory() {
     return helmProjectDirectory;
   }

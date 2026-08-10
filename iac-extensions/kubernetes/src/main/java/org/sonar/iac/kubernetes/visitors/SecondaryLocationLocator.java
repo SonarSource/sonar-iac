@@ -18,8 +18,7 @@ package org.sonar.iac.kubernetes.visitors;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -72,7 +71,7 @@ public final class SecondaryLocationLocator {
     return secondaryLocations;
   }
 
-  @CheckForNull
+  @Nullable
   static TextRange toTextRangeInValuesFile(ValuePath valuePath, HelmInputFileContext inputFileContext) {
     var valuesFileContent = inputFileContext.getValuesFile();
     var valuesFileTree = buildTreeFrom(valuesFileContent);
@@ -98,7 +97,7 @@ public final class SecondaryLocationLocator {
     return node.textRange();
   }
 
-  @CheckForNull
+  @Nullable
   private static FileTree buildTreeFrom(@Nullable String yamlFileContent) {
     if (yamlFileContent != null && !yamlFileContent.isBlank()) {
       return PARSER.parse(yamlFileContent, null);
@@ -117,7 +116,7 @@ public final class SecondaryLocationLocator {
     };
   }
 
-  @CheckForNull
+  @Nullable
   private static YamlTree findByKey(Tree node, String key) {
     if (node instanceof TupleTree tuple &&
       tuple.key() instanceof ScalarTree scalarTree &&

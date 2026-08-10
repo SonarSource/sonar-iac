@@ -18,7 +18,7 @@ package org.sonar.iac.common.checks.azure;
 
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
 
 /**

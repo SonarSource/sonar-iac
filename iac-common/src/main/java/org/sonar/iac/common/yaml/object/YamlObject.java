@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.common.yaml.object;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.yaml.tree.YamlTree;
 

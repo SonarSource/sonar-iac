@@ -18,8 +18,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.Identifier;
@@ -93,14 +92,14 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
     }
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public StringLiteral condition() {
     // there is no possibility in Bicep to have a conditional output, only conditional value which get embedded in the expression
     return null;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public StringLiteral copyCount() {
     // The copy features in JSON ARM is the equivalent of an iterative output, which in Bicep is represented directly in the Expression as a
@@ -108,14 +107,14 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
     return null;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public Expression copyInput() {
     // Same as above for copyCount
     return null;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public Expression value() {
     return expression;

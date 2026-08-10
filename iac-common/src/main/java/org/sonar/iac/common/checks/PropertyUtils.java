@@ -23,8 +23,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.HasProperties;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
@@ -124,12 +123,12 @@ public final class PropertyUtils {
       .map(clazz::cast);
   }
 
-  @CheckForNull
+  @Nullable
   public static Tree valueOrNull(@Nullable Tree tree, String key) {
     return valueOrNull(tree, key, Tree.class);
   }
 
-  @CheckForNull
+  @Nullable
   public static <T extends Tree> T valueOrNull(@Nullable Tree tree, String key, Class<T> clazz) {
     return value(tree, key, clazz).orElse(null);
   }

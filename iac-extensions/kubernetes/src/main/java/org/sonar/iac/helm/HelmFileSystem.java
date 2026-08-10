@@ -19,7 +19,7 @@ package org.sonar.iac.helm;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.filesystem.FileSystemUtils;

@@ -17,7 +17,7 @@
 package org.sonar.iac.kubernetes.checks;
 
 import java.util.Optional;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.yaml.object.BlockObject;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
@@ -37,7 +37,7 @@ public final class CheckUtils {
       .orElse("");
   }
 
-  @CheckForNull
+  @Nullable
   public static String retrieveAttributeAsString(BlockObject document, String... path) {
     BlockObject block = document;
     for (var i = 0; i < path.length - 1; i++) {

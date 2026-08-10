@@ -13,6 +13,7 @@ junit-pioneer = "2.3.0"
 assertj = "3.27.7"
 mockito = "5.22.0"
 sonar-lint = "10.45.0.84373"
+jspecify = "1.0.0"
 sslr = "1.25.1.3886"
 archunit = "1.4.1"
 snakeyaml = "3.0.1"
@@ -53,6 +54,7 @@ sonar-lint-core = { module = "org.sonarsource.sonarlint.core:sonarlint-core", ve
 sonar-lint-plugin-api = { module = "org.sonarsource.sonarlint.core:sonarlint-plugin-api", version.ref = "sonar-lint" }
 sonar-lint-rpc-java-client = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-java-client", version.ref = "sonar-lint" }
 sonar-lint-rpc-impl = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-impl", version.ref = "sonar-lint" }
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 sonar-plugin-java = { module = "org.sonarsource.java:sonar-java-plugin", version = "8.24.0.42567" }
 sslr = { module = "org.sonarsource.sslr:sslr-core", version.ref = "sslr" }
 sslr-test = { module = "org.sonarsource.sslr:sslr-testing-harness", version.ref = "sslr" }

@@ -19,8 +19,7 @@ package org.sonar.iac.common.yaml.object;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
@@ -122,7 +121,7 @@ public class AttributeObject extends YamlObject<TupleTree> {
     return tree != null && predicate.test(tree.value());
   }
 
-  @CheckForNull
+  @Nullable
   public String asStringValue() {
     if (tree == null) {
       return null;

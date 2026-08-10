@@ -18,8 +18,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.bicep.SingularTypeExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.arm.tree.api.bicep.TypeExpressionAble;
@@ -47,13 +46,13 @@ public class SingularTypeExpressionImpl extends AbstractArmTreeImpl implements S
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public SyntaxToken questionMark() {
     return questionMark;
   }
 
   @Override
-  @CheckForNull
+  @Nullable
   public SyntaxToken nonNullAssertion() {
     return nonNullAssertion;
   }

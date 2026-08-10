@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -154,7 +154,7 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
     return statement.is(BLOCK) && isDataOfType((BlockTree) statement, "google_iam_policy") && getName((BlockTree) statement) != null;
   }
 
-  @CheckForNull
+  @Nullable
   private static String getName(BlockTree block) {
     return block.labels().size() >= 2 ? block.labels().get(1).value() : null;
   }

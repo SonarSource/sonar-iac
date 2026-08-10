@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -91,7 +91,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
     return isResource(tree, S3_BUCKET);
   }
 
-  @CheckForNull
+  @Nullable
   public static String getResourceType(BlockTree tree) {
     return tree.labels().isEmpty() ? null : tree.labels().get(0).value();
   }

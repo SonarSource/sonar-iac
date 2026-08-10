@@ -25,6 +25,7 @@ description = "SonarSource IaC Analyzer :: Common"
 
 dependencies {
     compileOnlyApi(libs.sonar.plugin.api)
+    api(libs.jspecify)
     api(libs.sonar.analyzer.commons)
     api(libs.sslr)
     api(libs.minimaljson)

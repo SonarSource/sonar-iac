@@ -18,8 +18,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.NumericLiteral;
 import org.sonar.iac.arm.tree.api.bicep.ArrayTypeReference;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
@@ -51,13 +50,13 @@ public class ArrayTypeReferenceImpl extends AbstractArmTreeImpl implements Array
     return type;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public NumericLiteral getIndex() {
     return index;
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public SyntaxToken getStar() {
     return star;

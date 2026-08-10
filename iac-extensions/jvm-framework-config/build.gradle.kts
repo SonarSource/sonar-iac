@@ -26,6 +26,7 @@ dependencies {
     antlr(libs.antlr4)
 
     api(project(":iac-common"))
+    api(libs.jspecify)
 
     compileOnly(project(":iac-extensions:cloudformation"))
     compileOnly(project(":iac-extensions:kubernetes"))

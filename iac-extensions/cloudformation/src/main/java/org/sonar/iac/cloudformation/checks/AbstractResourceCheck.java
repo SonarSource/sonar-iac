@@ -18,8 +18,7 @@ package org.sonar.iac.cloudformation.checks;
 
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -60,7 +59,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
       this.properties = properties;
     }
 
-    @CheckForNull
+    @Nullable
     private static Resource fromMapping(ScalarTree name, MappingTree mapping) {
       return PropertyUtils.value(mapping, "Type", YamlTree.class).map(typeTree -> new Resource(
         name,
@@ -81,7 +80,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
       return TextUtils.getValue(type).orElse("null");
     }
 
-    @CheckForNull
+    @Nullable
     public YamlTree properties() {
       return properties;
     }

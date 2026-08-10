@@ -17,7 +17,7 @@
 package org.sonar.iac.kubernetes.plugin;
 
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;

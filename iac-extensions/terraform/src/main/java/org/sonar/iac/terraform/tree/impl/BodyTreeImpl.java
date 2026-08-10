@@ -18,7 +18,7 @@ package org.sonar.iac.terraform.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.terraform.api.tree.BodyTree;
 import org.sonar.iac.terraform.api.tree.StatementTree;

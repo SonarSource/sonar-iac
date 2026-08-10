@@ -18,7 +18,7 @@ package org.sonar.iac.arm.checks;
 
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.ArmTreeUtils;
@@ -83,7 +83,7 @@ public class SubscriptionRoleAssignmentCheck extends AbstractArmResourceCheck im
     return value != null && TextUtils.getValue(value).filter(String::isBlank).isEmpty();
   }
 
-  @CheckForNull
+  @Nullable
   private static String extractRoleDefinitionId(ContextualResource resource) {
     Expression value = resource.property("roleDefinitionId").valueOrNull();
     if (value == null) {
@@ -106,7 +106,7 @@ public class SubscriptionRoleAssignmentCheck extends AbstractArmResourceCheck im
     return null;
   }
 
-  @CheckForNull
+  @Nullable
   private static String stringValue(ContextualResource resource, String property) {
     Expression value = resource.property(property).valueOrNull();
     return value == null ? null : TextUtils.getValue(value).orElse(null);

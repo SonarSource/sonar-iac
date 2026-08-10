@@ -18,8 +18,7 @@ package org.sonar.iac.arm.tree.impl.json;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.symbols.SymbolTable;
 import org.sonar.iac.arm.tree.api.File;
 import org.sonar.iac.arm.tree.api.Statement;
@@ -65,7 +64,7 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
     };
   }
 
-  @CheckForNull
+  @Nullable
   @Override
   public StringLiteral targetScopeLiteral() {
     return targetScope;
