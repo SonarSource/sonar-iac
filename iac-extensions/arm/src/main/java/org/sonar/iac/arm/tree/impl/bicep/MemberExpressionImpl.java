@@ -18,6 +18,7 @@ package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
 import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
@@ -40,6 +41,8 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
   @Nullable
   private final SyntaxToken closingBracket;
 
+  // Set right after construction through complete(), which the parser always calls.
+  @Nullable
   private Expression memberAccess;
 
   public MemberExpressionImpl(SyntaxToken separatingToken, @Nullable SyntaxToken safeDereference, @Nullable SyntaxToken reverseIndexAccessorToken, @Nullable Expression expression,
@@ -59,7 +62,7 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
   @Override
   public List<Tree> children() {
     List<Tree> result = new ArrayList<>();
-    result.add(memberAccess);
+    result.add(memberAccess());
     result.add(separatingToken);
     addChildrenIfPresent(result, safeDereference);
     addChildrenIfPresent(result, reverseIndexAccessorToken);
@@ -79,14 +82,18 @@ public class MemberExpressionImpl extends AbstractArmTreeImpl implements MemberE
     return separatingToken;
   }
 
+  /**
+   * The member access is assigned through {@link #complete(Expression)} by the parser, so it is always set by the time
+   * this is called, honouring the non-null {@link MemberExpression#memberAccess()} contract.
+   */
   @Override
   public Expression memberAccess() {
-    return memberAccess;
+    return Objects.requireNonNull(memberAccess, "Member access is not set yet");
   }
 
   @Override
   public String toString() {
-    return memberAccess.toString()
+    return memberAccess().toString()
       + separatingToken
       + (safeDereference != null ? safeDereference : "")
       + (reverseIndexAccessorToken != null ? reverseIndexAccessorToken : "")

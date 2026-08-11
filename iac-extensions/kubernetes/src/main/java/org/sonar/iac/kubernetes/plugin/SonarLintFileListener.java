@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -50,7 +51,10 @@ public class SonarLintFileListener implements ModuleFileListener {
 
   private final ModuleFileSystem moduleFileSystem;
   private final ProjectContextImpl projectContext = new ProjectContextImpl();
+  // Both are bound by initContext(), which the KubernetesSensor calls before any file event is processed
+  @Nullable
   private SensorContext sensorContext;
+  @Nullable
   private Analyzer analyzer;
   private Map<String, String> inputFilesContents = new HashMap<>();
   private boolean initialized = false;
@@ -87,7 +91,8 @@ public class SonarLintFileListener implements ModuleFileListener {
 
   private void updateProjectContext(SensorContext sensorContext, List<InputFile> inputFiles) {
     // it will fill the projectContext with the data needed for cross-file analysis
-    analyzer.analyseFiles(sensorContext, inputFiles, KubernetesLanguage.KEY);
+    Objects.requireNonNull(analyzer, "Context is not initialized")
+      .analyseFiles(sensorContext, inputFiles, KubernetesLanguage.KEY);
   }
 
   @Override
@@ -120,7 +125,8 @@ public class SonarLintFileListener implements ModuleFileListener {
     inputFilesContents.remove(uri);
     if (moduleFileEvent.getType() != ModuleFileEvent.Type.DELETED) {
       inputFilesContents.put(uri, content(moduleFileEvent.getTarget()));
-      updateProjectContext(sensorContext, List.of(moduleFileEvent.getTarget()));
+      // initialized implies initContext() has run, so the sensor context is set
+      updateProjectContext(Objects.requireNonNull(sensorContext, "Context is not initialized"), List.of(moduleFileEvent.getTarget()));
     }
   }
 

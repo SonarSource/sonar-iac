@@ -48,7 +48,7 @@ public final class MultiStageBuildInspector {
 
   public static boolean isLastStage(DockerImage dockerImage) {
     var body = (Body) dockerImage.parent();
-    return dockerImage == getLastStage(body);
+    return body != null && dockerImage == getLastStage(body);
   }
 
   public boolean isStageInFinalImage(DockerImage dockerImage) {

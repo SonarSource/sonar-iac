@@ -17,6 +17,7 @@
 package org.sonar.iac.terraform.tree.impl;
 
 import java.util.function.Supplier;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.HeredocLiteralTree;
 import org.sonar.iac.terraform.api.tree.SyntaxToken;
@@ -39,8 +40,9 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 public class HeredocLiteralTreeImpl extends LiteralExprTreeImpl implements HeredocLiteralTree {
 
   private final Supplier<ExpressionTree> contentSupplier;
+  // Built on the first content() call, see the class javadoc
+  @Nullable
   private ExpressionTree content;
-  private boolean contentBuilt;
 
   public HeredocLiteralTreeImpl(SyntaxToken token, Supplier<ExpressionTree> contentSupplier) {
     super(Kind.HEREDOC_LITERAL, token);
@@ -49,9 +51,8 @@ public class HeredocLiteralTreeImpl extends LiteralExprTreeImpl implements Hered
 
   @Override
   public ExpressionTree content() {
-    if (!contentBuilt) {
+    if (content == null) {
       content = contentSupplier.get();
-      contentBuilt = true;
     }
     return content;
   }

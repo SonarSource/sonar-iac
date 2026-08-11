@@ -59,9 +59,10 @@ public final class HelmFileSystem {
   }
 
   /**
-   * Returns a path where Chart.yaml file is located.
+   * Returns a path where Chart.yaml file is located, or {@code null} if no Chart.yaml was found for the given file.
    * This is a version for SonarLint context.
    */
+  @Nullable
   public static Path retrieveHelmProjectFolder(Path inputFilePath, FileSystem fileSystem, SonarLintFileListener sonarLintFileListener) {
     return FileSystemUtils.retrieveHelmProjectFolder(inputFilePath, fileSystem, path -> fileExistInSonarLint(sonarLintFileListener, path));
   }

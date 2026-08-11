@@ -19,13 +19,15 @@ package org.sonar.iac.jvmframeworkconfig.tree.api;
 import java.util.List;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
-import org.sonar.iac.common.api.tree.HasProperties;
 
 /**
  * Represents a Spring configuration profile.
  * Each profile contains all key value pairs belonging to this specific spring profile.
+ *
+ * <p>Deliberately not a {@link org.sonar.iac.common.api.tree.HasProperties}, as its properties are {@link Tuple}s,
+ * which are not {@link org.sonar.iac.common.api.tree.PropertyTree}s.
  */
-public interface Profile extends JvmFrameworkConfig, HasProperties, HasComments {
+public interface Profile extends JvmFrameworkConfig, HasComments {
   /**
    * @return a list of key value paris defined in this profile.
    */

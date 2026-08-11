@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.common.extension.visitors;
 
+import org.jspecify.annotations.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -29,7 +30,10 @@ import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 
 public abstract class SyntaxHighlightingVisitor extends TreeVisitor<InputFileContext> {
 
+  // Both are bound per file in before(), so they are null until the first file is visited.
+  @Nullable
   private NewHighlighting newHighlighting;
+  @Nullable
   private InputFile inputFile;
 
   protected SyntaxHighlightingVisitor() {

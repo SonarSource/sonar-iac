@@ -17,12 +17,15 @@
 package org.sonar.iac.jvmframeworkconfig.tree.api;
 
 import org.jspecify.annotations.Nullable;
-import org.sonar.iac.common.api.tree.PropertyTree;
 
 /**
  * Represents a key-value pair in a Spring configuration file.
+ *
+ * <p>Deliberately not a {@link org.sonar.iac.common.api.tree.PropertyTree}: that contract guarantees a non-null
+ * {@code value()}, while a property in a {@code .properties} or YAML configuration file can be declared without any
+ * value, e.g. {@code my.key=}.
  */
-public interface Tuple extends JvmFrameworkConfig, PropertyTree {
+public interface Tuple extends JvmFrameworkConfig {
   /**
    * @return the key of the tuple.
    */

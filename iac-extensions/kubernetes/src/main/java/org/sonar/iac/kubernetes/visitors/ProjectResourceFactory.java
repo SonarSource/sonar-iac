@@ -63,6 +63,7 @@ public final class ProjectResourceFactory {
     };
   }
 
+  @Nullable
   private static ProjectResource createServiceAccount(String path, MappingTree tree) {
     var name = retrieveNameFromMetadata(tree);
     if (name == null) {

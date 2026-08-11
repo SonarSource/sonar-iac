@@ -35,7 +35,6 @@ public class CompoundTextRange extends TextRange {
    */
   public TextRange computeTextRangeAtIndex(int startIndex, String token) {
     var rangeIterator = new TextRangeIterator(textRanges.iterator());
-    rangeIterator.next();
 
     int shift = navigateToRangeAtIndex(rangeIterator, startIndex);
     TextRange startRange = rangeIterator.current();
@@ -84,8 +83,13 @@ public class CompoundTextRange extends TextRange {
     private final Iterator<TextRange> iterator;
     private TextRange current;
 
+    /**
+     * Positions the iterator on the first range, which always exists as {@link CompoundTextRange} is built from a
+     * non-empty list of ranges.
+     */
     public TextRangeIterator(Iterator<TextRange> iterator) {
       this.iterator = iterator;
+      this.current = iterator.next();
     }
 
     public TextRange next() {

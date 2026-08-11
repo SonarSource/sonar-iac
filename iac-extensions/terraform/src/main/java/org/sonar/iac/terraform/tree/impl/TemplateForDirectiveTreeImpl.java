@@ -96,8 +96,9 @@ public class TemplateForDirectiveTreeImpl extends TerraformTreeImpl implements T
 
     @Override
     public Kind getKind() {
-      // this will never be used as this is just wrapper class to ease parsing
-      return null;
+      // This wrapper class only exists to ease parsing: it is never part of children() and therefore never visited,
+      // so no Kind is ever needed for it.
+      throw new UnsupportedOperationException("Parsing wrapper classes have no Kind");
     }
 
     @Override

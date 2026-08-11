@@ -31,8 +31,7 @@ import org.sonar.iac.common.extension.DurationStatistics;
  */
 public abstract class AbstractTimedFilePredicate implements FilePredicate {
 
-  @Nullable
-  private DurationStatistics.Timer timer;
+  private DurationStatistics.@Nullable Timer timer;
 
   protected AbstractTimedFilePredicate() {
     // The timer is bound later through applyTimers, so that the same predicate instance can be reused across sensor executions.

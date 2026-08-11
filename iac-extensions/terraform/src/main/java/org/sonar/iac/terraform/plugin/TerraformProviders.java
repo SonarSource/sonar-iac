@@ -105,6 +105,8 @@ public class TerraformProviders {
       }
     }
 
+    // null when the provider version is not configured, see isUnknown()
+    @Nullable
     final Version providerVersion;
 
     public Provider(@Nullable Version providerVersion) {

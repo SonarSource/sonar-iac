@@ -48,7 +48,7 @@ import org.sonar.iac.common.yaml.AbstractYamlLanguageSensor;
 // path, combining a Bicep language match with the AZURE_RESOURCE_MANAGER file type resolved for JSON files.
 public class ArmSensor extends AbstractYamlLanguageSensor {
 
-  private ArmParserStatistics armParserStatistics;
+  private ArmParserStatistics armParserStatistics = new ArmParserStatistics();
 
   public ArmSensor(SonarRuntime sonarRuntime, FileLinesContextFactory fileLinesContextFactory, CheckFactory checkFactory,
     NoSonarFilter noSonarFilter, ArmLanguage language, YamlFileTypeResolver yamlFileTypeResolver, IacProjectSensor projectSensor) {

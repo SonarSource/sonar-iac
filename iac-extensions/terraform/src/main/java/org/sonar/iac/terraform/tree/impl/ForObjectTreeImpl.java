@@ -31,8 +31,9 @@ public class ForObjectTreeImpl extends AbstractForTree implements ForObjectTree 
   private final ExpressionTree firstExpression;
   private final SyntaxToken arrow;
   private final ExpressionTree secondExpression;
+  @Nullable
   private final SyntaxToken ellipsis;
-  private final TreeFactory.Pair<SyntaxToken, ExpressionTree> condition;
+  private final TreeFactory.@Nullable Pair<SyntaxToken, ExpressionTree> condition;
   private final SyntaxToken closeBrace;
 
   public ForObjectTreeImpl(SyntaxToken openBrace, ForIntro intro, ExpressionTree firstExpression, SyntaxToken arrow, ExpressionTree secondExpression,

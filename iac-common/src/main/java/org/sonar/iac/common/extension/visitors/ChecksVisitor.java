@@ -82,6 +82,8 @@ public class ChecksVisitor extends TreeVisitor<InputFileContext> {
   public class ContextAdapter implements InitContext, CheckContext {
 
     public final RuleKey ruleKey;
+    // Assigned on every visit, before the registered check consumer is invoked; null until the first visit happens.
+    @Nullable
     protected InputFileContext currentCtx;
 
     public ContextAdapter(RuleKey ruleKey) {

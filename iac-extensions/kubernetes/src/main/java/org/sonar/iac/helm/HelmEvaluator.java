@@ -22,9 +22,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
@@ -44,7 +46,10 @@ public class HelmEvaluator implements Startable {
   private static final int N_THREADS = 2;
 
   private final File workingDir;
+  // Bound by the component lifecycle: the thread pool in start(), the process builder in initialize()
+  @Nullable
   private ExecutorService processMonitor;
+  @Nullable
   private ProcessBuilder processBuilder;
 
   public HelmEvaluator(TempFolder tempFolder) {
@@ -62,14 +67,17 @@ public class HelmEvaluator implements Startable {
 
   @Override
   public void stop() {
-    this.processMonitor.shutdownNow();
+    if (this.processMonitor != null) {
+      this.processMonitor.shutdownNow();
+    }
   }
 
   public TemplateEvaluationResult evaluateTemplate(String path, String content, Map<String, String> templateDependencies) throws IOException {
+    var monitor = Objects.requireNonNull(processMonitor, "HelmEvaluator must be started before evaluating a template");
     var process = startProcess();
-    processMonitor.submit(() -> ExecutableHelper.readProcessErrorOutput(process));
+    monitor.submit(() -> ExecutableHelper.readProcessErrorOutput(process));
     writeTemplateAndDependencies(process, path, content, templateDependencies);
-    processMonitor.submit(() -> monitorProcess(process));
+    monitor.submit(() -> monitorProcess(process));
 
     byte[] rawEvaluationResult = ExecutableHelper.readProcessOutput(process);
     if (rawEvaluationResult.length == 0) {
@@ -99,7 +107,7 @@ public class HelmEvaluator implements Startable {
   }
 
   Process startProcess() throws IOException {
-    return this.processBuilder.start();
+    return Objects.requireNonNull(this.processBuilder, "HelmEvaluator must be initialized before evaluating a template").start();
   }
 
   void writeTemplateAndDependencies(Process process, String name, String content, Map<String, String> templateDependencies) throws IOException {

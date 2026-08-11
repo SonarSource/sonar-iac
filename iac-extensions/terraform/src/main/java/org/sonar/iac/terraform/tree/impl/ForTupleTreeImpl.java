@@ -29,7 +29,7 @@ import org.sonar.iac.terraform.parser.TreeFactory;
 public class ForTupleTreeImpl extends AbstractForTree implements ForTupleTree {
   private final SyntaxToken openBracket;
   private final ExpressionTree expression;
-  private final TreeFactory.Pair<SyntaxToken, ExpressionTree> condition;
+  private final TreeFactory.@Nullable Pair<SyntaxToken, ExpressionTree> condition;
   private final SyntaxToken closeBracket;
 
   public ForTupleTreeImpl(SyntaxToken openBracket, ForIntro intro, ExpressionTree expression, TreeFactory.@Nullable Pair<SyntaxToken, ExpressionTree> condition,

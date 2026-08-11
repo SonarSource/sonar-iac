@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 
@@ -29,9 +30,11 @@ public class SourceCodeFinder {
     .compile("^(?<leading>\\s*+)(?<openMarker><<-?)(?<tagName>\\w++)(?<content>[\\s\\S]*)(?<closeTag>\\k<tagName>)$");
 
   private String source = "";
+  // Both are computed lazily by getSourceLines(); setSource() clears the cached lines so that they are recomputed
   // Visible for testing
-  List<String> cachedSourceLines = null;
-  private String lineSeparator;
+  @Nullable
+  List<String> cachedSourceLines;
+  private String lineSeparator = "\n";
 
   // Allow to set the current source file being parsed, used to retrieve the original non-preprocessed shell code to parse
   public void setSource(String source) {
@@ -65,9 +68,8 @@ public class SourceCodeFinder {
   }
 
   public String lineSeparator() {
-    if (lineSeparator == null) {
-      getSourceLines();
-    }
+    // Computes the separator of the current source on first use, no-op once the lines are cached
+    getSourceLines();
     return lineSeparator;
   }
 

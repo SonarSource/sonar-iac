@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -113,6 +114,7 @@ public class KustomizationAnalyzer {
    * @param relativePath the relative path from the kustomization file
    * @return normalized absolute URI, or null if resolution fails
    */
+  @Nullable
   private static URI resolvePath(Path parentDirPath, String relativePath) {
     try {
       var resolvedPath = parentDirPath.resolve(relativePath).normalize();

@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextPointer;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
@@ -52,14 +54,27 @@ final class JsonBodyHandler extends JsonHandler<List<ExpressionTree>, JsonBodyHa
   private final int heredocStartLine;
 
   private final Deque<Location> valueStartStack = new ArrayDeque<>();
+  // The value built by the last completed value callback; null until the parser reports the first one
+  @Nullable
   private ExpressionTree currentValue;
 
   JsonBodyHandler(int heredocStartLine) {
     this.heredocStartLine = heredocStartLine;
   }
 
+  /**
+   * @return the tree built for the parsed body, or {@code null} if the parser did not report any value
+   */
+  @Nullable
   ExpressionTree getResult() {
     return currentValue;
+  }
+
+  /**
+   * The parser always completes a value before reporting the end of the array element or object member it belongs to.
+   */
+  private ExpressionTree currentValue() {
+    return Objects.requireNonNull(currentValue, "No value has been parsed yet");
   }
 
   // ----- scalars -----
@@ -122,7 +137,7 @@ final class JsonBodyHandler extends JsonHandler<List<ExpressionTree>, JsonBodyHa
 
   @Override
   public void endArrayValue(List<ExpressionTree> array) {
-    array.add(currentValue);
+    array.add(currentValue());
   }
 
   @Override
@@ -174,7 +189,7 @@ final class JsonBodyHandler extends JsonHandler<List<ExpressionTree>, JsonBodyHa
   public void endObjectValue(ObjectState state, String name) {
     Location end = getLocation();
     TextRange memberRange = rangeBetween(state.memberStart, end);
-    state.members.add(new JsonObjectElementTreeImpl(state.pendingKey, state.pendingColon, currentValue, memberRange));
+    state.members.add(new JsonObjectElementTreeImpl(state.pendingKey, state.pendingColon, currentValue(), memberRange));
     state.memberStart = null;
     state.pendingKey = null;
     state.pendingColon = null;

@@ -28,11 +28,10 @@ public abstract class TerraformTreeImpl implements TerraformTree {
 
   @Override
   public final boolean is(Kind... kind) {
-    if (getKind() != null) {
-      for (Kind kindIter : kind) {
-        if (getKind() == kindIter) {
-          return true;
-        }
+    var treeKind = getKind();
+    for (Kind kindIter : kind) {
+      if (treeKind == kindIter) {
+        return true;
       }
     }
     return false;

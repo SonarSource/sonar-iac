@@ -18,6 +18,7 @@ package org.sonar.iac.jvmframeworkconfig.parser.properties;
 
 import java.util.ArrayList;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.impl.CommentImpl;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -70,6 +71,10 @@ public class PropertiesParseTreeVisitor extends PropertiesParserBaseVisitor<JvmF
     return new ScalarImpl(new SyntaxTokenImpl(keyText, textRange(keyContext)));
   }
 
+  /**
+   * @return {@code null} for a property without a value, e.g. {@code my.key=}
+   */
+  @Nullable
   private static Scalar createValueScalar(PropertiesParser.RowContext row) {
     Scalar valueScalar = null;
     var valueContext = row.line().value;

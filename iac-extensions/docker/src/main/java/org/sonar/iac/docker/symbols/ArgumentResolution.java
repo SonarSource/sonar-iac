@@ -140,23 +140,23 @@ public class ArgumentResolution {
 
     private final boolean stripQuotes;
     private final boolean keepQuotesForced;
-    Builder builder;
+    private final Builder builder;
     Set<Variable> visitedVariable = new HashSet<>();
 
-    private ArgumentResolver(boolean stripQuotes, boolean keepQuotesForced) {
+    private ArgumentResolver(Argument argument, boolean stripQuotes, boolean keepQuotesForced) {
       this.stripQuotes = stripQuotes;
       this.keepQuotesForced = keepQuotesForced;
+      this.builder = new Builder(argument);
     }
 
     private static ArgumentResolution resolve(@Nullable Argument argument, boolean stripQuotes, boolean keepQuotesForced) {
-      return new ArgumentResolver(stripQuotes, keepQuotesForced).resolveArgument(argument);
-    }
-
-    private ArgumentResolution resolveArgument(@Nullable Argument argument) {
       if (argument == null) {
         return ArgumentResolution.EMPTY;
       }
-      builder = new Builder(argument);
+      return new ArgumentResolver(argument, stripQuotes, keepQuotesForced).resolveArgument(argument);
+    }
+
+    private ArgumentResolution resolveArgument(Argument argument) {
       resolveExpressions(argument.expressions());
       return builder.build();
     }

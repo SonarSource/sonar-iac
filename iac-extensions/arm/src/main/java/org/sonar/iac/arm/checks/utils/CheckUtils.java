@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.checkdsl.ContextualResource;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
@@ -127,6 +128,7 @@ public final class CheckUtils {
     return expr -> TextUtils.matchesValue(expr, collection::contains).isTrue();
   }
 
+  @Nullable
   public static Double asNumericValueOrNull(ArmTree expr) {
     if (expr.is(ArmTree.Kind.NUMERIC_LITERAL)) {
       return ((NumericLiteral) expr).asDouble();

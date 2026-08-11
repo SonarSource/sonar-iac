@@ -30,6 +30,7 @@ import static org.sonar.iac.terraform.checks.utils.TerraformUtils.attributeAcces
 
 public class ReferenceSymbol extends ContextualTree<ReferenceSymbol, AttributeTree> {
 
+  @Nullable
   private final AttributeAccessTree reference;
 
   private ReferenceSymbol(CheckContext ctx, @Nullable AttributeTree tree, String name, BlockSymbol parent, @Nullable AttributeAccessTree reference) {

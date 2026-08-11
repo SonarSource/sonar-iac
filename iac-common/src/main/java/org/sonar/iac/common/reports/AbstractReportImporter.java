@@ -56,7 +56,7 @@ public abstract class AbstractReportImporter implements ReportImporter {
   protected final SensorContext context;
   private final AnalysisWarningsWrapper analysisWarnings;
   private final String warningPrefix;
-  private Set<String> unresolvedPaths;
+  private Set<String> unresolvedPaths = new LinkedHashSet<>();
 
   protected AbstractReportImporter(SensorContext context,
     AbstractExternalRulesDefinition externalRulesDefinition,

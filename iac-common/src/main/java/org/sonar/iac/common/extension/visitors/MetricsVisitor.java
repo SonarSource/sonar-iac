@@ -38,9 +38,9 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
   private final SensorTelemetry sensorTelemetry;
   protected final String language;
 
-  private Set<Integer> linesOfCode;
-  private Set<Integer> commentLines;
-  private Set<Integer> noSonarLines;
+  private Set<Integer> linesOfCode = new HashSet<>();
+  private Set<Integer> commentLines = new HashSet<>();
+  private Set<Integer> noSonarLines = new HashSet<>();
 
   protected MetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetry sensorTelemetry,
     String language) {

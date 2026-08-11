@@ -16,8 +16,16 @@
  */
 package org.sonar.iac.common.api.tree;
 
+import org.jspecify.annotations.Nullable;
+
 public interface PropertyTree extends HasTextRange {
   Tree key();
 
+  /**
+   * @return the value of the property, or {@code null} for languages where a property can be declared without a value,
+   *   e.g. {@code my.key=} in a {@code .properties} file. For most languages this is never {@code null}, and their
+   *   implementations narrow the contract accordingly.
+   */
+  @Nullable
   Tree value();
 }

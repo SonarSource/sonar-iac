@@ -62,6 +62,8 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
   private final SonarLintFileListener sonarLintFileListener;
   private final KustomizationInfoProvider kustomizationInfoProvider;
   private final ProjectContextImpl projectContextImpl;
+  // Only created when Helm analysis is enabled and supported on the current platform, see initContext(SensorContext)
+  @Nullable
   private HelmProcessor helmProcessor;
   private final KubernetesParserStatistics kubernetesParserStatistics = new KubernetesParserStatistics();
 

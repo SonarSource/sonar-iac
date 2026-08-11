@@ -27,6 +27,7 @@ import org.sonar.iac.terraform.api.tree.TemplateIfDirectiveTree;
 
 public class TemplateIfDirectiveTreeImpl extends TerraformTreeImpl implements TemplateIfDirectiveTree {
   private final IfPart ifPart;
+  @Nullable
   private final ElsePart elsePart;
   private final SyntaxToken endIfOpenToken;
   private final SyntaxToken endIfToken;
@@ -94,8 +95,9 @@ public class TemplateIfDirectiveTreeImpl extends TerraformTreeImpl implements Te
 
     @Override
     public Kind getKind() {
-      // this will never be used as this is just wrapper class to ease parsing
-      return null;
+      // This wrapper class only exists to ease parsing: it is never part of children() and therefore never visited,
+      // so no Kind is ever needed for it.
+      throw new UnsupportedOperationException("Parsing wrapper classes have no Kind");
     }
 
     @Override
@@ -119,8 +121,9 @@ public class TemplateIfDirectiveTreeImpl extends TerraformTreeImpl implements Te
 
     @Override
     public Kind getKind() {
-      // this will never be used as this is just wrapper class to ease parsing
-      return null;
+      // This wrapper class only exists to ease parsing: it is never part of children() and therefore never visited,
+      // so no Kind is ever needed for it.
+      throw new UnsupportedOperationException("Parsing wrapper classes have no Kind");
     }
 
     @Override

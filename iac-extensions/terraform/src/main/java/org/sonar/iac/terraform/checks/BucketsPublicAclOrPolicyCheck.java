@@ -110,7 +110,10 @@ public class BucketsPublicAclOrPolicyCheck implements IacCheck {
   private static class S3Bucket {
     private final Map<String, BlockTree> resources = new HashMap<>();
     private final LabelTree label;
+    // Both are absent for buckets declared without a second label, respectively without a "bucket" literal attribute
+    @Nullable
     private final String resourceName;
+    @Nullable
     private final String bucketName;
 
     private S3Bucket(BlockTree bucket) {
