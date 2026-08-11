@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
 
 /**
  * This class provides utility methods to convert a list of strings into a regex pattern.
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class OptimizedListToPatternBuilder {
 
   private final Collection<String> strings;
+  @Nullable
   private String prefix;
   private UnaryOperator<String> transformation;
 

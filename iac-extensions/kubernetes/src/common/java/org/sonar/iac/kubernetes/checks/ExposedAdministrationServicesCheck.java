@@ -19,6 +19,7 @@ package org.sonar.iac.kubernetes.checks;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.check.Rule;
@@ -40,6 +41,7 @@ public class ExposedAdministrationServicesCheck extends AbstractKubernetesObject
   private static final String DEFAULT_SENSITIVE_PORTS = "22, 23, 3389, 5800, 5900";
   private static final Pattern PORTS_SPLIT_PATTERN = Pattern.compile(",\\s*+");
 
+  @Nullable
   private List<String> sensitivePorts;
 
   @RuleProperty(

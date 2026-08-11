@@ -43,7 +43,7 @@ public class DebugModeCheck extends AbstractFinalImageCheck {
     for (KeyValuePair variable : envInstruction.environmentVariables()) {
       String name = ArgumentResolution.of(variable.key()).value();
       String value = ArgumentResolution.of(variable.value()).value();
-      if (name != null && value != null && isVariableSensitive(name, value)) {
+      if (isVariableSensitive(name, value)) {
         ctx.reportIssue(variable, MESSAGE);
       }
     }

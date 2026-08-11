@@ -31,9 +31,12 @@ public class EncapsulatedVariableImpl extends AbstractDockerTreeImpl implements 
 
   private final SyntaxToken openDollarCurly;
   private final SyntaxToken identifier;
+  @Nullable
   private final SyntaxToken modifierSeparator;
+  @Nullable
   private final Argument modifier;
   private final SyntaxToken closeCurly;
+  @Nullable
   private Symbol symbol;
 
   public EncapsulatedVariableImpl(SyntaxToken openDollarCurly,

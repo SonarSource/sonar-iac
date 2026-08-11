@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.common.reports;
 
+import org.jspecify.annotations.Nullable;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -23,6 +24,7 @@ import org.sonar.iac.common.extension.UsesRulesFolder;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
 public abstract class AbstractExternalRulesDefinition implements RulesDefinition, UsesRulesFolder {
+  @Nullable
   private final ExternalRuleLoader ruleLoader;
 
   protected AbstractExternalRulesDefinition(SonarRuntime sonarRuntime, String reportName) {
@@ -40,9 +42,12 @@ public abstract class AbstractExternalRulesDefinition implements RulesDefinition
 
   @Override
   public void define(Context context) {
-    ruleLoader.createExternalRuleRepository(context);
+    if (ruleLoader != null) {
+      ruleLoader.createExternalRuleRepository(context);
+    }
   }
 
+  @Nullable
   public ExternalRuleLoader getRuleLoader() {
     return ruleLoader;
   }

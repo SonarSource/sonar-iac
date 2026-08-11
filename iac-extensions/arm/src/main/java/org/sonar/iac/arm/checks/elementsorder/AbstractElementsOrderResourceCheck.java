@@ -19,6 +19,8 @@ package org.sonar.iac.arm.checks.elementsorder;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Property;
 import org.sonar.iac.arm.tree.api.ResourceDeclaration;
 import org.sonar.iac.common.api.checks.CheckContext;
@@ -50,6 +52,7 @@ public abstract class AbstractElementsOrderResourceCheck implements IacCheck {
     }
   }
 
+  @Nullable
   private static Property findFirstViolation(List<Property> properties, Map<String, Integer> elementsOrder) {
     var prevIndex = 0;
     for (Property property : properties) {

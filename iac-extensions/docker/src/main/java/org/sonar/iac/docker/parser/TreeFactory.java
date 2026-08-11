@@ -108,6 +108,7 @@ public class TreeFactory {
 
   private static final DockerHeredocParser HEREDOC_PARSER = DockerHeredocParser.create();
 
+  @Nullable
   protected final SourceCodeFinder sourceCodeFinder;
 
   // Empty constructor is needed for SSLR compatibility, as it uses reflection to instantiate a TreeFactory,

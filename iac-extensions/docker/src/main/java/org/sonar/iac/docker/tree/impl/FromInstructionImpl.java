@@ -28,8 +28,10 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public class FromInstructionImpl extends InstructionImpl implements FromInstruction {
 
+  @Nullable
   private final Flag platform;
   private final Argument image;
+  @Nullable
   private final Alias alias;
 
   public FromInstructionImpl(SyntaxToken keyword, @Nullable Flag platform, Argument image, @Nullable Alias alias) {

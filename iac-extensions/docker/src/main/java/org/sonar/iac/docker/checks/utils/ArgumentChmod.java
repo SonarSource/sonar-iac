@@ -31,7 +31,9 @@ import org.sonar.iac.docker.tree.api.Argument;
 public class ArgumentChmod {
   private static final Pattern FLAG_PATTERN = Pattern.compile("-[a-zA-Z]|--[a-zA-Z-]++");
 
+  @Nullable
   public final Argument chmodArg;
+  @Nullable
   public final Argument permissionsArg;
   public final Chmod chmod;
 
@@ -65,6 +67,7 @@ public class ArgumentChmod {
       .toList();
   }
 
+  @Nullable
   private static Integer skipOptions(int index, List<String> arguments) {
     do {
       index++;

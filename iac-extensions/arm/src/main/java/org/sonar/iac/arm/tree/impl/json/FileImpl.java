@@ -33,6 +33,7 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
   private final StringLiteral targetScope;
   private final List<Statement> statements;
   private final MappingTree document;
+  @Nullable
   private SymbolTable symbolTable;
 
   public FileImpl(@Nullable StringLiteral targetScope, List<Statement> statements, MappingTree document) {

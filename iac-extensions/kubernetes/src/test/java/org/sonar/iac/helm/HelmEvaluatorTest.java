@@ -30,7 +30,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.junitpioneer.jupiter.RetryingTest;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
@@ -104,12 +103,10 @@ class HelmEvaluatorTest {
     }
   }
 
-  @ParameterizedTest
-  @ValueSource(booleans = {true, false})
-  void shouldThrowIfRawEvaluationResultIsEmptyOrNull(boolean isNull) throws IOException {
-    var expectedBytes = isNull ? null : new byte[0];
+  @Test
+  void shouldThrowIfRawEvaluationResultIsEmpty() throws IOException {
     try (var ignored = Mockito.mockStatic(ExecutableHelper.class)) {
-      when(ExecutableHelper.readProcessOutput(any())).thenReturn(expectedBytes);
+      when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[0]);
       var helmEvaluatorSpy = Mockito.spy(this.helmEvaluator);
       var process = mock(Process.class);
       when(process.isAlive()).thenReturn(false);

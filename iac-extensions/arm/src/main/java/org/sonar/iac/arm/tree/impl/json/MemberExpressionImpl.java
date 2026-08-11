@@ -16,7 +16,7 @@
  */
 package org.sonar.iac.arm.tree.impl.json;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -24,6 +24,8 @@ import org.sonar.iac.arm.tree.api.bicep.MemberExpression;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
+
+import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 
 public class MemberExpressionImpl extends ExpressionImpl implements MemberExpression {
   @Nullable
@@ -57,9 +59,10 @@ public class MemberExpressionImpl extends ExpressionImpl implements MemberExpres
 
   @Override
   public List<Tree> children() {
-    return Arrays.asList(
-      expression,
-      separatingToken,
-      memberAccess);
+    var children = new ArrayList<Tree>();
+    addChildrenIfPresent(children, expression);
+    children.add(separatingToken);
+    children.add(memberAccess);
+    return children;
   }
 }

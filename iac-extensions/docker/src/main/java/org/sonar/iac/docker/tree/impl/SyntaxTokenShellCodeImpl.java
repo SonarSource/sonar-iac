@@ -21,6 +21,7 @@ import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.SyntaxTokenShellCode;
 
 public class SyntaxTokenShellCodeImpl extends AbstractShellCodeImpl<SyntaxToken> implements SyntaxTokenShellCode {
+  @Nullable
   private final String originalSourceCode;
 
   public SyntaxTokenShellCodeImpl(SyntaxToken code, @Nullable String originalSourceCode) {

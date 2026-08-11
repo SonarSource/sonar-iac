@@ -23,8 +23,9 @@ import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 
 public class Policy {
-
+  @Nullable
   private final Tree version;
+  @Nullable
   private final Tree id;
   private final List<Statement> statement;
 
@@ -53,14 +54,23 @@ public class Policy {
   }
 
   public static class Statement {
+    @Nullable
     private final Tree sid;
+    @Nullable
     private final Tree effect;
+    @Nullable
     private final Tree principal;
+    @Nullable
     private final Tree notPrincipal;
+    @Nullable
     private final Tree action;
+    @Nullable
     private final Tree notAction;
+    @Nullable
     private final Tree resource;
+    @Nullable
     private final Tree notResource;
+    @Nullable
     private final Tree condition;
 
     public Statement(Tree statement) {

@@ -16,11 +16,8 @@
  */
 package org.sonar.iac.common.api.tree;
 
-import org.jspecify.annotations.Nullable;
-
 public interface PropertyTree extends HasTextRange {
   Tree key();
 
-  @Nullable
   Tree value();
 }

@@ -71,7 +71,7 @@ public class HadolintImporter extends AbstractJsonArrayReportImporter {
 
     var externalIssue = context.newExternalIssue();
     var loadPropertiesFromRepository = true;
-    if (!externalRuleLoader.ruleKeys().contains(ruleId)) {
+    if (!externalRuleLoader().ruleKeys().contains(ruleId)) {
       if (ruleId.startsWith("DL") || ruleId.startsWith("SC")) {
         // imported a rule which isn't (yet) contained in our rule repository, but is a valid rule from hadolint
         loadPropertiesFromRepository = false;
@@ -87,14 +87,14 @@ public class HadolintImporter extends AbstractJsonArrayReportImporter {
     RuleType type;
 
     if (loadPropertiesFromRepository) {
-      effortInMinutes = externalRuleLoader.ruleConstantDebtMinutes(ruleId);
-      severity = externalRuleLoader.ruleSeverity(ruleId);
-      type = externalRuleLoader.ruleType(ruleId);
+      effortInMinutes = externalRuleLoader().ruleConstantDebtMinutes(ruleId);
+      severity = externalRuleLoader().ruleSeverity(ruleId);
+      type = externalRuleLoader().ruleType(ruleId);
     } else {
       severity = Severity.valueOf(reportFormat.getSeverity(issueJson));
       type = RuleType.valueOf(reportFormat.getRuleType(issueJson));
       // using default cause property is missing in report
-      effortInMinutes = externalRuleLoader.ruleConstantDebtMinutes("hadolint.fallback");
+      effortInMinutes = externalRuleLoader().ruleConstantDebtMinutes("hadolint.fallback");
     }
     externalIssue
       .ruleId(ruleId)

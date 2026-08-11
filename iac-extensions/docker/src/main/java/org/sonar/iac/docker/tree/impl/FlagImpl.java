@@ -29,7 +29,9 @@ public class FlagImpl extends AbstractDockerTreeImpl implements Flag {
 
   private final SyntaxToken prefix;
   private final SyntaxToken name;
+  @Nullable
   private final SyntaxToken equals;
+  @Nullable
   private final Argument value;
 
   public FlagImpl(SyntaxToken prefix, SyntaxToken name, @Nullable SyntaxToken equals, @Nullable Argument value) {

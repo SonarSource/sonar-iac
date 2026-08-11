@@ -35,6 +35,7 @@ public class VariableDeclarationImpl extends AbstractDeclaration implements Vari
   private final List<Decorator> decorators;
   @Nullable
   private final TypeExpressionAble typeExpression;
+  @Nullable
   private Symbol symbol;
 
   public VariableDeclarationImpl(List<Decorator> decorators, SyntaxToken keyword, Identifier identifier, @Nullable TypeExpressionAble typeExpression, SyntaxToken equals,

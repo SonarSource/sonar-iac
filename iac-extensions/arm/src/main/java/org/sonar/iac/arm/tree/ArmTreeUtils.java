@@ -27,6 +27,8 @@ import java.util.Queue;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.ArrayExpression;
 import org.sonar.iac.arm.tree.api.Expression;
@@ -134,6 +136,7 @@ public class ArmTreeUtils {
   /**
    * If the provided expression is a function call, return the function name, otherwise return null.
    */
+  @Nullable
   public static Identifier functionCallNameOrNull(Expression expression) {
     if (expression instanceof FunctionCall functionCall) {
       return functionCall.name();

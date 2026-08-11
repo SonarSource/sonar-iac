@@ -41,16 +41,16 @@ public class CfnLintImporter extends AbstractJsonArrayReportImporter {
     var inputFile = inputFile(path);
 
     var ruleId = (String) ((JSONObject) issueJson.get("Rule")).get("Id");
-    if (!externalRuleLoader.ruleKeys().contains(ruleId)) {
+    if (!externalRuleLoader().ruleKeys().contains(ruleId)) {
       ruleId = "cfn-lint.fallback";
     }
 
     NewExternalIssue externalIssue = context.newExternalIssue()
       .ruleId(ruleId)
-      .type(externalRuleLoader.ruleType(ruleId))
+      .type(externalRuleLoader().ruleType(ruleId))
       .engineId(CfnLintRulesDefinition.LINTER_KEY)
-      .severity(externalRuleLoader.ruleSeverity(ruleId))
-      .remediationEffortMinutes(externalRuleLoader.ruleConstantDebtMinutes(ruleId));
+      .severity(externalRuleLoader().ruleSeverity(ruleId))
+      .remediationEffortMinutes(externalRuleLoader().ruleConstantDebtMinutes(ruleId));
     externalIssue.at(getIssueLocation(issueJson, externalIssue, inputFile));
 
     return externalIssue;

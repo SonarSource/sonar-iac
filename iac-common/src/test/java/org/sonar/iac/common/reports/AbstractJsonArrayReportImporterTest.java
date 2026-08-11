@@ -19,6 +19,7 @@ package org.sonar.iac.common.reports;
 import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import java.io.File;
 import java.nio.file.Paths;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -143,7 +144,7 @@ class TestImporter extends AbstractJsonArrayReportImporter {
   }
 
   @Override
-  protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
+  protected NewExternalIssue toExternalIssue(@NonNull JSONObject issueJson) {
     LOG.info("Issue saved");
     return mock(NewExternalIssue.class);
   }
@@ -157,7 +158,7 @@ class TestImporterThrowReportImporterExceptionWhenSaveIssue extends AbstractJson
   }
 
   @Override
-  protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
+  protected NewExternalIssue toExternalIssue(@NonNull JSONObject issueJson) {
     addUnresolvedPath("foo/bar");
     throw new ReportImporterException("saveIssue");
   }

@@ -18,6 +18,7 @@ package org.sonar.iac.docker.symbols;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.HasSymbol;
 
@@ -55,6 +56,11 @@ public class Symbol {
     return usages;
   }
 
+  /**
+   * A {@link Symbol} is only ever created together with an {@link Usage.Kind#ASSIGNMENT} usage
+   * (see {@code DockerSymbolVisitor}, which resolves accesses against already declared symbols only),
+   * so a declaration is always present.
+   */
   public Usage lastDeclaration() {
     Usage lastDeclaration = null;
     for (int i = usages.size() - 1; i >= 0; i--) {
@@ -64,7 +70,7 @@ public class Symbol {
         break;
       }
     }
-    return lastDeclaration;
+    return Objects.requireNonNull(lastDeclaration, () -> "Symbol '" + name + "' has no declaration");
   }
 
   public Scope.Kind lastDeclarationScope() {

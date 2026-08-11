@@ -18,11 +18,14 @@ package org.sonar.iac.common.extension.visitors;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 
 public class TreeContext {
 
   private final Deque<Tree> ancestors;
+  @Nullable
   private Tree current;
 
   public TreeContext() {

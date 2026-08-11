@@ -57,6 +57,7 @@ public abstract class AbstractAnalyzer implements Analyzer {
     return new InputFileContext(sensorContext, inputFile, IacLanguage.createFromLanguage(languageName));
   }
 
+  @Nullable
   protected static String readContent(InputFileContext inputFileContext) {
     String content;
     try {

@@ -33,6 +33,7 @@ public class FileImpl extends AbstractArmTreeImpl implements File {
 
   private final List<Statement> statements;
   private final SyntaxToken eof;
+  @Nullable
   private SymbolTable symbolTable;
 
   public FileImpl(List<Statement> statements, SyntaxToken eof) {

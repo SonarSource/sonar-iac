@@ -66,9 +66,6 @@ public class PosixPermissionCheck implements IacCheck {
       return false;
     }
     String permissionString = ArgumentResolution.of(permission).value();
-    if (permissionString == null) {
-      return false;
-    }
     return Chmod.fromString(permissionString).hasPermission("o+w");
   }
 }

@@ -77,7 +77,7 @@ class ExecutableHelperTest {
   }
 
   @Test
-  void shouldReturnNullOnIoErrorProcessOutput() throws IOException {
+  void shouldReturnEmptyArrayOnIoErrorProcessOutput() throws IOException {
     var process = mock(Process.class);
     var is = mock(InputStream.class);
     when(process.getInputStream()).thenReturn(is);
@@ -85,7 +85,7 @@ class ExecutableHelperTest {
 
     var bytes = ExecutableHelper.readProcessOutput(process);
 
-    Assertions.assertThat(bytes).isNull();
+    Assertions.assertThat(bytes).isEmpty();
   }
 
   @Test

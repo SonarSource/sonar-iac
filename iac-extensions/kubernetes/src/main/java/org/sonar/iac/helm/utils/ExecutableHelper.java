@@ -28,7 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Arrays;
 import java.util.Locale;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.iac.helm.HelmEvaluator;
@@ -75,13 +74,16 @@ public final class ExecutableHelper {
     }
   }
 
-  @Nullable
+  /**
+   * @return the bytes written by the process, or an empty array if they could not be read. Callers treat both an
+   *   unreadable and an empty output as a failed evaluation, so no distinction is made between them.
+   */
   public static byte[] readProcessOutput(Process process) {
     try (var output = process.getInputStream()) {
       return output.readAllBytes();
     } catch (IOException e) {
       LOG.debug("Error reading process output for {}", HelmEvaluator.HELM_FOR_IAC_EXECUTABLE, e);
-      return null;
+      return new byte[0];
     }
   }
 

@@ -24,8 +24,6 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.jvmframeworkconfig.tree.api.Tuple;
 
-import static org.sonar.iac.jvmframeworkconfig.tree.utils.JvmFrameworkConfigUtils.getStringValue;
-
 @Rule(key = "S4830")
 public class UnsecureConnectionCheck implements IacCheck {
 
@@ -41,9 +39,9 @@ public class UnsecureConnectionCheck implements IacCheck {
   private static void checkTuple(CheckContext ctx, Tuple tuple) {
     var key = tuple.key().value().value();
     if (SENSITIVE_KEY_PREDICATE.test(key)) {
-      var valueString = getStringValue(tuple);
-      if ("true".equalsIgnoreCase(valueString)) {
-        ctx.reportIssue(tuple.value(), MESSAGE);
+      var value = tuple.value();
+      if (value != null && "true".equalsIgnoreCase(value.value().value())) {
+        ctx.reportIssue(value, MESSAGE);
       }
     }
   }

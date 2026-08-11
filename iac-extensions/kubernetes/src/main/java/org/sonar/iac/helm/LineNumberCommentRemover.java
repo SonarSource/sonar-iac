@@ -19,6 +19,8 @@ package org.sonar.iac.helm;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.kubernetes.visitors.HelmInputFileContext;
 import org.sonar.iac.kubernetes.visitors.LocationShifter;
 
@@ -93,7 +95,9 @@ public final class LineNumberCommentRemover {
 
   private static class LineAndComment {
     private final String contentWithoutComment;
+    @Nullable
     private final Integer lineCommentRangeStart;
+    @Nullable
     private final Integer lineCommentRangeEnd;
 
     public LineAndComment(String contentWithoutComment) {

@@ -72,7 +72,7 @@ public class HelmEvaluator implements Startable {
     processMonitor.submit(() -> monitorProcess(process));
 
     byte[] rawEvaluationResult = ExecutableHelper.readProcessOutput(process);
-    if (rawEvaluationResult == null || rawEvaluationResult.length == 0) {
+    if (rawEvaluationResult.length == 0) {
       if (!process.isAlive() && process.exitValue() != 0) {
         throw new IllegalStateException(HELM_FOR_IAC_EXECUTABLE + " exited with non-zero exit code: " + process.exitValue() + ", possible serialization failure");
       }

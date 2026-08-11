@@ -90,20 +90,20 @@ public abstract class AbstractSarifReportImporter extends AbstractReportImporter
     var ruleId = (String) issueJson.get("ruleId");
 
     Severity severity;
-    if (!externalRuleLoader.ruleKeys().contains(ruleId)) {
+    if (!externalRuleLoader().ruleKeys().contains(ruleId)) {
       // Use fallback rule for unknown rule IDs
       ruleId = getFallbackId();
       severity = extractSeverity(issueJson);
     } else {
-      severity = externalRuleLoader.ruleSeverity(ruleId);
+      severity = externalRuleLoader().ruleSeverity(ruleId);
     }
 
     NewExternalIssue externalIssue = context.newExternalIssue()
       .ruleId(ruleId)
-      .type(externalRuleLoader.ruleType(ruleId))
+      .type(externalRuleLoader().ruleType(ruleId))
       .engineId(getLinterKey())
       .severity(severity)
-      .remediationEffortMinutes(externalRuleLoader.ruleConstantDebtMinutes(ruleId));
+      .remediationEffortMinutes(externalRuleLoader().ruleConstantDebtMinutes(ruleId));
     externalIssue.at(getIssueLocation(issueJson, externalIssue, inputFile, ruleId));
 
     return externalIssue;

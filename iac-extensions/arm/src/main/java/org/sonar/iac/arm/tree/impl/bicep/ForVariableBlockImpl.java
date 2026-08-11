@@ -28,10 +28,14 @@ import org.sonar.iac.common.api.tree.Tree;
 
 public class ForVariableBlockImpl extends AbstractArmTreeImpl implements ForVariableBlock {
 
+  @Nullable
   private final SyntaxToken leftParenthesis;
   private final Identifier itemIdentifier;
+  @Nullable
   private final SyntaxToken comma;
+  @Nullable
   private final Identifier indexIdentifier;
+  @Nullable
   private final SyntaxToken rightParenthesis;
 
   public ForVariableBlockImpl(Identifier itemIdentifier) {

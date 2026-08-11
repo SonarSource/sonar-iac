@@ -51,6 +51,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
   public static class Resource {
     private final ScalarTree name;
     private final YamlTree type;
+    @Nullable
     private final YamlTree properties;
 
     Resource(ScalarTree name, YamlTree type, @Nullable YamlTree properties) {

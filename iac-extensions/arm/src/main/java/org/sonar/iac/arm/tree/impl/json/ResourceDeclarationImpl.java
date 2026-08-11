@@ -34,6 +34,7 @@ import org.sonar.iac.common.api.tree.Tree;
 public class ResourceDeclarationImpl extends AbstractArmTreeImpl implements ResourceDeclaration {
 
   private static final Set<String> IGNORED_CHILDREN_RESOURCE_PROPERTIES = Set.of("type", "apiversion", "name", "resources");
+  @Nullable
   private final Identifier symbolicName;
   private final Expression name;
   private final Expression version;

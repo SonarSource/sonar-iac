@@ -60,8 +60,10 @@ public class SubscriptionRoleAssignmentCheck extends AbstractArmResourceCheck im
     }
     File file = (File) ArmTreeUtils.getRootNode(resource.tree);
     String sensitiveScope = SENSITIVE_SCOPE_WITH_NAME.get(file.targetScope());
-    if (sensitiveScope != null) {
-      resource.report(String.format(MESSAGE, sensitiveScope), new SecondaryLocation(file.targetScopeLiteral(), sensitiveScope));
+    // A sensitive scope is only ever derived from a target scope literal, so the literal is present whenever the scope matched.
+    Expression targetScopeLiteral = file.targetScopeLiteral();
+    if (sensitiveScope != null && targetScopeLiteral != null) {
+      resource.report(String.format(MESSAGE, sensitiveScope), new SecondaryLocation(targetScopeLiteral, sensitiveScope));
       recordTelemetry(resource);
     }
   }

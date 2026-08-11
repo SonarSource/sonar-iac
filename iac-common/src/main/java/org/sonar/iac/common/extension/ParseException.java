@@ -26,8 +26,9 @@ import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 
 public class ParseException extends RuntimeException {
-
+  @Nullable
   private final transient TextPointer position;
+  @Nullable
   private final transient String details;
 
   public static ParseException createGeneralParseException(String action, @Nullable InputFile inputFile, Exception cause, @Nullable TextPointer position) {

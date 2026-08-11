@@ -59,7 +59,7 @@ public class UnencryptedProtocolCheck implements IacCheck {
   private static void checkUnencryptedProtocols(CheckContext ctx, List<Argument> paths) {
     for (Argument path : paths) {
       String resolvedPath = ArgumentResolution.of(path).value();
-      if (resolvedPath != null && isSensitiveUnencryptedUrl(resolvedPath)) {
+      if (isSensitiveUnencryptedUrl(resolvedPath)) {
         ctx.reportIssue(path, MESSAGE);
       }
     }

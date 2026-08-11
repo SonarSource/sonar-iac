@@ -30,6 +30,7 @@ public class VariableDeclarationImpl extends AbstractArmTreeImpl implements Vari
 
   private final Identifier name;
   private final Expression value;
+  @Nullable
   private Symbol symbol;
 
   public VariableDeclarationImpl(Identifier name, Expression value) {

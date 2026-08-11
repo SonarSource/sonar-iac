@@ -19,6 +19,8 @@ package org.sonar.iac.terraform.parser;
 import com.eclipsesource.json.JsonParser;
 import com.eclipsesource.json.ParseException;
 import java.util.Collections;
+
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 import org.sonar.iac.terraform.api.tree.ExpressionTree;
 import org.sonar.iac.terraform.api.tree.LiteralExprTree;
@@ -82,6 +84,7 @@ public final class HeredocContentParser {
    * Strip the {@code <<TAG\n} / {@code <<-TAG\n} prefix and the closing {@code \nTAG} suffix from a heredoc
    * literal text. Returns {@code null} if the literal does not match the expected heredoc shape.
    */
+  @Nullable
   static String stripMarkers(String text) {
     if (!text.startsWith("<<")) {
       return null;

@@ -38,14 +38,23 @@ import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
 public class ParameterDeclarationImpl extends AbstractArmTreeImpl implements ParameterDeclaration {
 
   private final Identifier identifier;
+  @Nullable
   private final StringLiteral type;
+  @Nullable
   private final Expression defaultValue;
+  @Nullable
   private final ArrayExpression allowedValues;
+  @Nullable
   private final StringLiteral description;
+  @Nullable
   private final NumericLiteral minValue;
+  @Nullable
   private final NumericLiteral maxValue;
+  @Nullable
   private final NumericLiteral minLength;
+  @Nullable
   private final NumericLiteral maxLength;
+  @Nullable
   private Symbol symbol;
 
   // Methods should not have too many parameters

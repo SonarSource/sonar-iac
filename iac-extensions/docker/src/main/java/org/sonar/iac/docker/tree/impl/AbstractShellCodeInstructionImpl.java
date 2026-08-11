@@ -25,7 +25,7 @@ import org.sonar.iac.docker.tree.api.DockerTree;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 
 public abstract class AbstractShellCodeInstructionImpl extends InstructionImpl implements CodeInstruction {
-
+  @Nullable
   protected final DockerTree code;
 
   protected AbstractShellCodeInstructionImpl(SyntaxToken keyword, @Nullable DockerTree code) {
@@ -44,6 +44,7 @@ public abstract class AbstractShellCodeInstructionImpl extends InstructionImpl i
   }
 
   @Override
+  @Nullable
   public DockerTree code() {
     return code;
   }

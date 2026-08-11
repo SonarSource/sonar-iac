@@ -46,8 +46,10 @@ public abstract class AbstractHardcodedSecrets extends AbstractSensitiveKeyCheck
 
   @Override
   protected void checkValue(CheckContext ctx, Tuple tuple, String value) {
-    if (!value.isEmpty() && !SecretClassifier.isKnownNonSecret(value)) {
-      ctx.reportIssue(tuple.value(), MESSAGE);
+    // `value` is extracted from the value scalar by the caller, so the scalar is always present here.
+    var valueTree = tuple.value();
+    if (valueTree != null && !value.isEmpty() && !SecretClassifier.isKnownNonSecret(value)) {
+      ctx.reportIssue(valueTree, MESSAGE);
     }
   }
 

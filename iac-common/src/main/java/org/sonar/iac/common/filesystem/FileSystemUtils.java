@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Predicate;
+
+import org.jspecify.annotations.Nullable;
 import org.sonar.api.batch.fs.FileSystem;
 
 public class FileSystemUtils {
@@ -30,11 +32,13 @@ public class FileSystemUtils {
    * Returns a path where Chart.yaml file is located.
    * This is a version for SonarQube and SonarCloud context.
    */
+  @Nullable
   public static Path retrieveHelmProjectFolder(Path inputFilePath, FileSystem fileSystem) {
     return retrieveHelmProjectFolder(inputFilePath, fileSystem, Files::exists);
   }
 
-  public static Path retrieveHelmProjectFolder(Path inputFilePath, FileSystem fileSystem, Predicate<Path> chartYamlExist) {
+  @Nullable
+  public static Path retrieveHelmProjectFolder(@Nullable Path inputFilePath, FileSystem fileSystem, Predicate<Path> chartYamlExist) {
     if (inputFilePath == null) {
       return null;
     }

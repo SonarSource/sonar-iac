@@ -19,6 +19,7 @@ package org.sonar.iac.arm.parser;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
@@ -47,6 +48,7 @@ import org.sonar.iac.arm.tree.impl.json.ObjectExpressionImpl;
 import org.sonar.iac.arm.tree.impl.json.PropertyImpl;
 import org.sonar.iac.arm.tree.impl.json.StringLiteralImpl;
 import org.sonar.iac.common.api.tree.HasProperties;
+import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
@@ -59,6 +61,7 @@ import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.SequenceTree;
 import org.sonar.iac.common.yaml.tree.TupleTree;
 import org.sonar.iac.common.yaml.tree.YamlTree;
+import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
 import static org.sonar.iac.common.extension.ParseException.createParseException;
 
@@ -72,6 +75,7 @@ public class ArmJsonBaseConverter {
     this.inputFileContext = inputFileContext;
   }
 
+  @Nullable
   public StringLiteral toStringLiteralOrNull(YamlTree tree, String key) {
     return PropertyUtils.get(tree, key::equalsIgnoreCase)
       .map(this::toStringLiteral)
@@ -89,7 +93,8 @@ public class ArmJsonBaseConverter {
     return new StringLiteralImpl(value.value(), value.metadata());
   }
 
-  public StringLiteral toNestedStringLiteralOrNull(YamlTree tree, String parentKey, String childKey) {
+  @Nullable
+  public StringLiteral toNestedStringLiteralOrNull(@Nullable YamlTree tree, String parentKey, String childKey) {
     return PropertyUtils.get(tree, parentKey).map(m -> extractPropertyOrNull(m, childKey)).orElse(null);
   }
 
@@ -110,7 +115,8 @@ public class ArmJsonBaseConverter {
     return value;
   }
 
-  public NumericLiteral toNumericLiteralOrNull(YamlTree tree, String key) {
+  @Nullable
+  public NumericLiteral toNumericLiteralOrNull(@Nullable YamlTree tree, String key) {
     return PropertyUtils.get(tree, key::equalsIgnoreCase)
       .map(this::toNumericLiteral)
       .orElse(null);
@@ -148,15 +154,16 @@ public class ArmJsonBaseConverter {
     return new ObjectExpressionImpl(properties, tree.textRange());
   }
 
-  public ArrayExpression toArrayExpressionOrNull(YamlTree tree, String key) {
+  @Nullable
+  public ArrayExpression toArrayExpressionOrNull(@Nullable YamlTree tree, String key) {
     return PropertyUtils.get(tree, key::equalsIgnoreCase).map(this::toArrayExpression).orElse(null);
   }
 
   private ArrayExpression toArrayExpression(PropertyTree property) {
-    if (!(property.value() instanceof SequenceTree)) {
+    if (!(property.value() instanceof SequenceTree sequenceTree)) {
       throw convertError(property, ArrayExpression.class.getSimpleName(), SequenceTree.class.getSimpleName());
     }
-    return toArrayExpression((SequenceTree) property.value());
+    return toArrayExpression(sequenceTree);
   }
 
   private ArrayExpression toArrayExpression(SequenceTree tree) {
@@ -166,6 +173,7 @@ public class ArmJsonBaseConverter {
         .toList());
   }
 
+  @Nullable
   public Expression toExpressionOrNull(TupleTree tree, String key) {
     return PropertyUtils.get(tree.value(), key::equalsIgnoreCase).map(this::toExpression).orElse(null);
   }
@@ -176,11 +184,16 @@ public class ArmJsonBaseConverter {
       .orElseThrow(() -> missingMandatoryAttributeError(tree, key));
   }
 
+  /**
+   * Every {@link PropertyTree} reaching the JSON converter originates from {@link MappingTree#elements()}, i.e. it is a
+   * {@link org.sonar.iac.common.yaml.tree.TupleTree}, whose {@code value()} narrows {@link PropertyTree#value()} to a
+   * non-null {@link YamlTree}. The cast is therefore safe.
+   */
   private Expression toExpression(PropertyTree tree) {
     return toExpression((YamlTree) tree.value());
   }
 
-  public Expression toExpression(YamlTree tree) {
+  public Expression toExpression(@Nullable YamlTree tree) {
     if (tree instanceof SequenceTree sequence) {
       return toArrayExpression(sequence);
     } else if (tree instanceof MappingTree mapping) {
@@ -191,9 +204,11 @@ public class ArmJsonBaseConverter {
       }
       return toLiteralExpression(scalar);
     } else {
-      throw createParseException("Couldn't convert to Expression, unsupported class " + tree.getClass().getSimpleName(),
+      var className = Optional.ofNullable(tree).map(Object::getClass).map(Class::getSimpleName).orElse("null");
+      var textPointer = Optional.ofNullable(tree).map(YamlTree::metadata).map(YamlTreeMetadata::textRange).map(BasicTextPointer::new).orElse(null);
+      throw createParseException("Couldn't convert to Expression, unsupported class " + className,
         inputFileContext,
-        new BasicTextPointer(tree.metadata().textRange()));
+        textPointer);
     }
   }
 
@@ -300,9 +315,10 @@ public class ArmJsonBaseConverter {
   }
 
   private ParseException convertError(PropertyTree property, String targetType, String expectedType) {
-    YamlTree value = (YamlTree) property.value();
-    String errorMessage = convertErrorMessage(property.key(), targetType, expectedType, value.getClass().getSimpleName());
-    return createParseException(errorMessage, inputFileContext, new BasicTextPointer(value.textRange()));
+    var valueTypeName = Optional.ofNullable(property.value()).map(Object::getClass).map(Class::getSimpleName).orElse("null");
+    var textPointer = Optional.ofNullable(property.value()).map(HasTextRange::textRange).map(BasicTextPointer::new).orElse(null);
+    String errorMessage = convertErrorMessage(property.key(), targetType, expectedType, valueTypeName);
+    return createParseException(errorMessage, inputFileContext, textPointer);
   }
 
   private ParseException convertError(Tree tree, String targetType, String expectedType) {

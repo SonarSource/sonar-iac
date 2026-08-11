@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import org.assertj.core.api.SoftAssertions;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -203,7 +204,7 @@ class BaseTestImporter extends AbstractReportImporter {
   }
 
   @Override
-  protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
+  protected NewExternalIssue toExternalIssue(@NonNull JSONObject issueJson) {
     return mock(NewExternalIssue.class);
   }
 
@@ -225,7 +226,7 @@ class BaseTestImporterWithMultipleUnresolvedPaths extends BaseTestImporter {
   }
 
   @Override
-  protected NewExternalIssue toExternalIssue(JSONObject issueJson) {
+  protected NewExternalIssue toExternalIssue(@NonNull JSONObject issueJson) {
     callCount++;
     addUnresolvedPath("path" + callCount + ".txt");
     throw new ReportImporterException("Test exception");

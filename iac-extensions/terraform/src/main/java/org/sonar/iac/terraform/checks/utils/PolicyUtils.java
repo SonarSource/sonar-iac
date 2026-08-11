@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.policy.Policy;
@@ -105,6 +107,7 @@ public class PolicyUtils {
      * (HCL native object literal), the latter via {@link HeredocLiteralTree#content()} produced at
      * parse time. Returns {@code null} when the attribute does not resolve to a structured object.
      */
+    @Nullable
     private static TerraformTree policyRoot(Tree policyExpr) {
       if (policyExpr instanceof FunctionCallTree policyFunctionCall && !policyFunctionCall.arguments().trees().isEmpty()) {
         return policyFunctionCall.arguments().trees().get(0);

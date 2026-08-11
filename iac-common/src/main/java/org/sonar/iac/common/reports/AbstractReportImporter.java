@@ -46,7 +46,13 @@ import org.sonarsource.analyzer.commons.internal.json.simple.parser.ParseExcepti
 public abstract class AbstractReportImporter implements ReportImporter {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractReportImporter.class);
   protected static final JSONParser jsonParser = new JSONParser();
-  protected final ExternalRuleLoader externalRuleLoader;
+  /**
+   * {@code null} when the analyzer runs in SonarLint, where {@link AbstractExternalRulesDefinition} does not load any
+   * external rules. Importers are only registered outside of SonarLint, so the loader is always available on the paths
+   * that actually import a report; use {@link #externalRuleLoader()} to access it from there.
+   */
+  @Nullable
+  private final ExternalRuleLoader externalRuleLoader;
   protected final SensorContext context;
   private final AnalysisWarningsWrapper analysisWarnings;
   private final String warningPrefix;
@@ -60,6 +66,19 @@ public abstract class AbstractReportImporter implements ReportImporter {
     this.context = context;
     this.analysisWarnings = analysisWarnings;
     this.warningPrefix = warningPrefix;
+  }
+
+  /**
+   * Returns the loader used to map external rule ids onto rule metadata. Only meaningful while importing a report,
+   * which never happens in SonarLint.
+   *
+   * @throws IllegalStateException if no external rules were loaded, i.e. an importer is used in SonarLint
+   */
+  protected ExternalRuleLoader externalRuleLoader() {
+    if (externalRuleLoader == null) {
+      throw new IllegalStateException("External rules are not loaded, external reports cannot be imported");
+    }
+    return externalRuleLoader;
   }
 
   public void importReport(File reportFile) {

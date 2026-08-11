@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.docker.tree.api;
 
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -29,6 +30,7 @@ public interface DockerTree extends Tree {
 
   Kind getKind();
 
+  @Nullable
   DockerTree parent();
 
   void setParent(DockerTree parent);

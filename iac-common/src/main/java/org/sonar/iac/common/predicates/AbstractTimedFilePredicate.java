@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.common.predicates;
 
+import org.jspecify.annotations.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.extension.DurationStatistics;
@@ -30,6 +31,7 @@ import org.sonar.iac.common.extension.DurationStatistics;
  */
 public abstract class AbstractTimedFilePredicate implements FilePredicate {
 
+  @Nullable
   private DurationStatistics.Timer timer;
 
   protected AbstractTimedFilePredicate() {

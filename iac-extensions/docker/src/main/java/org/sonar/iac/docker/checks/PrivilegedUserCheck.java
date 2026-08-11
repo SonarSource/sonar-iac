@@ -102,6 +102,7 @@ public class PrivilegedUserCheck implements IacCheck {
     defaultValue = "")
   public String safeImages = "";
 
+  @Nullable
   private Set<String> safeImagesSet;
 
   private Set<String> userSafeImages() {
@@ -373,6 +374,7 @@ public class PrivilegedUserCheck implements IacCheck {
     return path.substring(path.lastIndexOf('/') + 1);
   }
 
+  @Nullable
   private static String getImageName(FromInstruction from) {
     ArgumentResolution resolvedImage = ArgumentResolution.of(from.image());
     String fullImageName = resolvedImage.value();

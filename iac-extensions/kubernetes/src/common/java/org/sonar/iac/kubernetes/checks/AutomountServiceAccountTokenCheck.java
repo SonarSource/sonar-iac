@@ -118,8 +118,10 @@ public class AutomountServiceAccountTokenCheck extends AbstractGlobalResourceChe
 
   private static void reportIssueWithLinkedAccount(AttributeObject accountNameAttribute, ServiceAccount linkedAccount) {
     List<SecondaryLocation> secondaryLocations = new ArrayList<>();
-    if (linkedAccount.automountServiceAccountToken().isTrue()) {
-      secondaryLocations.add(new SecondaryLocation(linkedAccount.valueLocation(), "Change this setting", linkedAccount.filePath()));
+    // The location is recorded from the `automountServiceAccountToken` scalar, so it is present whenever the flag resolved to true.
+    var valueLocation = linkedAccount.valueLocation();
+    if (valueLocation != null && linkedAccount.automountServiceAccountToken().isTrue()) {
+      secondaryLocations.add(new SecondaryLocation(valueLocation, "Change this setting", linkedAccount.filePath()));
     }
     accountNameAttribute.reportOnValue(MESSAGE_BIND_ACCOUNT_RESOURCE, secondaryLocations);
   }

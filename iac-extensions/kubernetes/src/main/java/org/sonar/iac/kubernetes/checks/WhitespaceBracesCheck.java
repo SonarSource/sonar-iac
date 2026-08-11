@@ -19,6 +19,8 @@ package org.sonar.iac.kubernetes.checks;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.jspecify.annotations.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
@@ -81,6 +83,7 @@ public class WhitespaceBracesCheck implements IacCheck {
     return helmContent.startsWith("/*") || helmContent.endsWith("*/");
   }
 
+  @Nullable
   private static String readContentWithComments(KubernetesCheckContext ctx) {
     if (ctx.inputFileContext() instanceof HelmInputFileContext helmContext) {
       return helmContext.getSourceWithComments();

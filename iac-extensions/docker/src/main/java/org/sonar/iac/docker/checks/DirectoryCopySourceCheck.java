@@ -54,7 +54,7 @@ public class DirectoryCopySourceCheck extends AbstractFinalImageCheck {
     for (Argument src : add.srcs()) {
       var resolution = ArgumentResolution.of(src);
       String path = resolution.value();
-      if (resolution.isResolved() && path != null && !path.startsWith("http://") && !path.startsWith("https://")) {
+      if (resolution.isResolved() && !path.startsWith("http://") && !path.startsWith("https://")) {
         reportIfSensitive(ctx, src, isSensitivePath(path), "Adding files");
       }
     }
@@ -67,7 +67,7 @@ public class DirectoryCopySourceCheck extends AbstractFinalImageCheck {
     for (Argument src : copyInstruction.srcs()) {
       var resolution = ArgumentResolution.of(src);
       String path = resolution.value();
-      if (resolution.isResolved() && path != null) {
+      if (resolution.isResolved()) {
         reportIfSensitive(ctx, src, isSensitivePath(path), "Copying");
       }
     }

@@ -18,6 +18,8 @@ package org.sonar.iac.docker.tree.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.docker.symbols.Scope;
 import org.sonar.iac.docker.tree.api.ArgInstruction;
@@ -28,6 +30,7 @@ public class BodyImpl extends AbstractDockerTreeImpl implements Body {
 
   private final List<ArgInstruction> globalArgs;
   private final List<DockerImage> dockerImages;
+  @Nullable
   private Scope scope;
 
   public BodyImpl(List<ArgInstruction> globalArgs, List<DockerImage> dockerImages) {
@@ -66,8 +69,12 @@ public class BodyImpl extends AbstractDockerTreeImpl implements Body {
     this.scope = scope;
   }
 
+  /**
+   * The scope is assigned by {@code DockerSymbolVisitor} before any check runs, so it is always set by the time
+   * this is called, honouring the non-null {@link org.sonar.iac.docker.tree.api.HasScope#scope()} contract.
+   */
   @Override
   public Scope scope() {
-    return scope;
+    return Objects.requireNonNull(scope, "Scope is not set yet");
   }
 }

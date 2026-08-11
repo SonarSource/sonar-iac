@@ -24,6 +24,7 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public class VariableImpl extends AbstractHasIdentifierImpl implements Variable {
 
+  @Nullable
   private Symbol symbol;
 
   public VariableImpl(Expression expression, TextRange textRange) {

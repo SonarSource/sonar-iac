@@ -28,6 +28,7 @@ public class RegularVariableImpl extends AbstractDockerTreeImpl implements Regul
 
   private final SyntaxToken dollar;
   private final SyntaxToken identifier;
+  @Nullable
   private Symbol symbol;
 
   public RegularVariableImpl(SyntaxToken dollar, SyntaxToken identifier) {

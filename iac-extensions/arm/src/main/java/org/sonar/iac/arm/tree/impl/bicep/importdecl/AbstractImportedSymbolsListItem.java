@@ -25,8 +25,11 @@ import org.sonar.iac.arm.tree.api.bicep.importdecl.ImportedSymbolsListItem;
 import org.sonar.iac.arm.tree.impl.AbstractArmTreeImpl;
 import org.sonar.iac.common.api.tree.Tree;
 
+import static org.sonar.iac.arm.tree.ArmHelper.addChildrenIfPresent;
+
 public abstract class AbstractImportedSymbolsListItem<T extends Expression> extends AbstractArmTreeImpl implements ImportedSymbolsListItem {
   private final T identifier;
+  @Nullable
   private final AsClause asClause;
 
   protected AbstractImportedSymbolsListItem(T identifier, @Nullable AsClause asClause) {
@@ -38,9 +41,7 @@ public abstract class AbstractImportedSymbolsListItem<T extends Expression> exte
   public List<Tree> children() {
     var result = new ArrayList<Tree>();
     result.add(identifier);
-    if (asClause != null) {
-      result.add(asClause);
-    }
+    addChildrenIfPresent(result, asClause);
     return result;
   }
 }

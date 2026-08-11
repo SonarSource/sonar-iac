@@ -33,9 +33,13 @@ public class OutputDeclarationImpl extends AbstractArmTreeImpl implements Output
 
   private final Identifier name;
   private final StringLiteral type;
+  @Nullable
   private final StringLiteral condition;
+  @Nullable
   private final StringLiteral copyCount;
+  @Nullable
   private final Expression copyInput;
+  @Nullable
   private final Expression value;
 
   public OutputDeclarationImpl(Identifier name, StringLiteral type, @Nullable StringLiteral condition, @Nullable StringLiteral copyCount,

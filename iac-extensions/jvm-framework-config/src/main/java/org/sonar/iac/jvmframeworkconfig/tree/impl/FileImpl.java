@@ -26,6 +26,7 @@ import org.sonar.iac.jvmframeworkconfig.tree.api.Profile;
 
 public class FileImpl extends AbstractJvmFrameworkConfigImpl implements File {
   private final List<Profile> profiles;
+  @Nullable
   private final YamlTree originalTree;
 
   public FileImpl(List<Profile> profiles, @Nullable YamlTree originalTree) {
