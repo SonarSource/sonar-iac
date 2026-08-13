@@ -32,3 +32,24 @@ resource "non_azurerm_cosmosdb_account" "s6364-cdba-cov" {
     retention_in_hours = 8
   }
 }
+
+resource "azurerm_cosmosdb_account" "s6364-cdba-c-continuous-no-retention" {
+  backup {
+    type = "Continuous"
+    # retention_in_hours is not configurable for Continuous backup, retention is governed by "tier" instead
+  }
+}
+
+resource "azurerm_cosmosdb_account" "s6364-cdba-nc-periodic-no-retention" {
+  # Noncompliant@+1 {{Omitting "retention_in_hours" results in a short backup retention duration. Make sure it is safe here.}}
+  backup {
+    type = "Periodic"
+  }
+}
+
+resource "azurerm_cosmosdb_account" "s6364-cdba-nc-unresolved-type" {
+  # Noncompliant@+1 {{Omitting "retention_in_hours" results in a short backup retention duration. Make sure it is safe here.}}
+  backup {
+    type = var.backup_type
+  }
+}

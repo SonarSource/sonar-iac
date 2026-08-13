@@ -26,6 +26,7 @@ import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isTrue;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.lessThan;
@@ -62,11 +63,17 @@ public class ShortBackupRetentionCheck extends AbstractNewResourceCheck {
         .reportIf(lessThan(backupRetentionDuration), MESSAGE));
 
     register("azurerm_cosmosdb_account",
-      resource -> resource.block("backup")
-        .reportIfAbsent(String.format(OMITTING_MESSAGE, "backup.retention_in_hours"))
-        .attribute("retention_in_hours")
-        .reportIfAbsent(OMITTING_MESSAGE)
-        .reportIf(lessThan(backupRetentionDuration * 24), MESSAGE));
+      resource -> {
+        BlockSymbol backup = resource.block("backup")
+          .reportIfAbsent(String.format(OMITTING_MESSAGE, "backup.retention_in_hours"));
+        // retention_in_hours only applies when type is "Periodic"; for "Continuous" backup, retention is governed by "tier" instead
+        if (backup.isAbsent() || backup.attribute("type").is(equalTo("Continuous"))) {
+          return;
+        }
+        backup.attribute("retention_in_hours")
+          .reportIfAbsent(OMITTING_MESSAGE)
+          .reportIf(lessThan(backupRetentionDuration * 24), MESSAGE);
+      });
 
     register("azurerm_app_service",
       resource -> {
