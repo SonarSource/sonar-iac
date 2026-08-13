@@ -73,6 +73,33 @@ class SonarLintFileListenerTest {
   }
 
   @Test
+  void shouldStoreHelmFilesContentsWhenInit() {
+    // predicate2 (HelmFilePredicate) is built directly from the SensorContext's file system in initContext(); a Helm
+    // template belonging to a chart (Chart.yaml present in its directory hierarchy on disk) must be selected too.
+    var helmTemplateFile = inputFile("helm-chart/templates/pod.yaml", BASE_DIR, "yaml");
+    var moduleFileSystem = new TestModuleFileSystem(List.of(helmTemplateFile));
+    var listener = new SonarLintFileListener(moduleFileSystem);
+
+    listener.initContext(context, null);
+
+    assertThat(listener.inputFilesContents().keySet())
+      .allMatch(key -> key.endsWith("helm-chart/templates/pod.yaml"));
+  }
+
+  @Test
+  void shouldNotStoreNonKubernetesFilesWhenInit() {
+    // Neither KubernetesFilePredicate nor HelmFilePredicate match a Java file or a plain YAML
+    // without Kubernetes identifiers, so initContext() must filter them out of inputFilesContents.
+    var plainYamlFile = inputFile("not_kubernetes.yaml", BASE_DIR, "key: value", "yaml");
+    var moduleFileSystem = new TestModuleFileSystem(List.of(inputFileJava, plainYamlFile));
+    var listener = new SonarLintFileListener(moduleFileSystem);
+
+    listener.initContext(context, null);
+
+    assertThat(listener.inputFilesContents()).isEmpty();
+  }
+
+  @Test
   void shouldStoreFilesContentsWhenInit() {
     sonarLintFileListener.initContext(context, null);
 

@@ -48,7 +48,7 @@ class YamlIdentifierFilePredicateTest {
     when(inputFile.charset()).thenReturn(StandardCharsets.UTF_8);
     when(inputFile.toString()).thenReturn("filename.txt");
 
-    var yamlFileIdentifier = new YamlIdentifierFilePredicate(identifiers);
+    var yamlFileIdentifier = new YamlIdentifierFilePredicate(identifiers, identifiers.size(), new SharedFileHeadReader());
     assertThat(yamlFileIdentifier.apply(inputFile)).isEqualTo(expectedResult);
   }
 
@@ -70,7 +70,7 @@ class YamlIdentifierFilePredicateTest {
     when(inputFile.inputStream()).thenThrow(new IOException("boom"));
     when(inputFile.toString()).thenReturn("filename.txt");
 
-    var yamlFileIdentifier = new YamlIdentifierFilePredicate(Set.of("foo"));
+    var yamlFileIdentifier = new YamlIdentifierFilePredicate(Set.of("foo"), 1, new SharedFileHeadReader());
     assertThat(yamlFileIdentifier.apply(inputFile)).isFalse();
     assertThat(logTester.logs(Level.WARN)).contains("Unable to read file: filename.txt.");
   }

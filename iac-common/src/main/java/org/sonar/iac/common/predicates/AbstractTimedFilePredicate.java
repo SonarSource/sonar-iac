@@ -22,31 +22,19 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.extension.DurationStatistics;
 
 /**
- * Base class for file predicates whose execution time should be recorded.
- * <p>
- * The timer is not provided at construction time: a predicate can be instantiated once (for example by
- * {@link YamlFileTypeResolver}) and reused across several sensor executions. Each predicate knows the name of its own
- * timer ({@link #timerName()}) and binds it to the current execution through {@link #applyTimers(DurationStatistics)},
- * which must be called before the predicate is applied.
+ * Base class for file predicates whose execution time should be recorded. The timer is bound after construction via
+ * {@link #applyTimers(DurationStatistics)}, so the predicate instance can be reused across sensor executions.
  */
 public abstract class AbstractTimedFilePredicate implements FilePredicate {
 
   private DurationStatistics.@Nullable Timer timer;
 
-  protected AbstractTimedFilePredicate() {
-    // The timer is bound later through applyTimers, so that the same predicate instance can be reused across sensor executions.
-  }
-
-  /**
-   * Binds this predicate to a timer of the given {@link DurationStatistics}, using {@link #timerName()} as the timer id.
-   */
   public final void applyTimers(DurationStatistics durationStatistics) {
     this.timer = durationStatistics.timer(timerName());
   }
 
   /**
-   * Name of the timer used to record this predicate's execution time. Defaults to the simple class name; predicates that
-   * need a more specific name (for example one per file kind) override this method.
+   * Defaults to the simple class name; override for a more specific name (e.g. one per file kind).
    */
   protected String timerName() {
     return getClass().getSimpleName();

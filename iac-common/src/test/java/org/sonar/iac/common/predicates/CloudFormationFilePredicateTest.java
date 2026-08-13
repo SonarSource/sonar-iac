@@ -27,6 +27,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.SharedFileHeadReader;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 
@@ -50,7 +51,7 @@ class CloudFormationFilePredicateTest {
   @ParameterizedTest
   @MethodSource
   void shouldMatchCloudFormationFile(String content, boolean shouldMatch) {
-    var predicate = new CloudFormationFilePredicate(context.config(), true);
+    var predicate = new CloudFormationFilePredicate(context.fileSystem().predicates(), context.config(), true, new SharedFileHeadReader());
     predicate.applyTimers(new DurationStatistics(mock(Configuration.class)));
     var matches = predicate.apply(IacTestUtils.inputFile("test.yaml", tempDir, content, "cloudformation"));
     assertThat(matches).isEqualTo(shouldMatch);
@@ -60,5 +61,24 @@ class CloudFormationFilePredicateTest {
     return Stream.of(
       of("AWSTemplateFormatVersion: X", true),
       of("apiVersion: v1", false));
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldMatchOnlyCandidateLanguages(String language, boolean shouldMatch) {
+    var predicate = new CloudFormationFilePredicate(context.fileSystem().predicates(), context.config(), true, new SharedFileHeadReader());
+    predicate.applyTimers(new DurationStatistics(mock(Configuration.class)));
+    var matches = predicate.apply(IacTestUtils.inputFile("test.yaml", tempDir, "AWSTemplateFormatVersion: X", language));
+    assertThat(matches).isEqualTo(shouldMatch);
+  }
+
+  static Stream<Arguments> shouldMatchOnlyCandidateLanguages() {
+    return Stream.of(
+      of("json", true),
+      of("yaml", true),
+      of("cloudformation", true),
+      of("terraform", false),
+      of("docker", false),
+      of((String) null, false));
   }
 }

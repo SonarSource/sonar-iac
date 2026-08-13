@@ -149,7 +149,7 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
   }
 
   @Override
-  protected Set<FileType> fileTypes() {
+  protected Set<FileType> fileTypesToRetrieveFromCache() {
     return Set.of(FileType.KUBERNETES, FileType.HELM);
   }
 

@@ -19,16 +19,21 @@ package org.sonar.iac.common.predicates;
 import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.SharedFileHeadReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -47,7 +52,7 @@ class GithubActionsFilePredicateTest {
   @BeforeEach
   void setUp() {
     var sensorContext = SensorContextTester.create(tempDir);
-    predicateNoLog = new GithubActionsFilePredicate(sensorContext.fileSystem().predicates(), false);
+    predicateNoLog = new GithubActionsFilePredicate(sensorContext.fileSystem().predicates(), false, new SharedFileHeadReader());
     predicateNoLog.applyTimers(new DurationStatistics(mock(Configuration.class)));
   }
 
@@ -151,11 +156,27 @@ class GithubActionsFilePredicateTest {
   @Test
   void shouldLogDebugMessageWhenEnabled() throws IOException {
     var sensorContext = SensorContextTester.create(tempDir);
-    var predicateWithLog = new GithubActionsFilePredicate(sensorContext.fileSystem().predicates(), true);
+    var predicateWithLog = new GithubActionsFilePredicate(sensorContext.fileSystem().predicates(), true, new SharedFileHeadReader());
     predicateWithLog.applyTimers(new DurationStatistics(mock(Configuration.class)));
     var inputFile = newInputFileMock(".github/workflows/deploy.yaml", "");
 
     assertThat(predicateWithLog.apply(inputFile)).isTrue();
     assertThat(logTester.logs()).contains("Identified as Github file: " + inputFile);
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldMatchOnlyCandidateLanguages(String language, boolean expectedMatch) throws IOException {
+    var inputFile = newInputFileMock(".github/workflows/deploy.yaml", "", language, InputFile.Type.MAIN);
+    assertThat(predicateNoLog.apply(inputFile)).isEqualTo(expectedMatch);
+  }
+
+  private static Stream<Arguments> shouldMatchOnlyCandidateLanguages() {
+    return Stream.of(
+      Arguments.of("yaml", true),
+      Arguments.of("githubactions", true),
+      Arguments.of("json", false),
+      Arguments.of("terraform", false),
+      Arguments.of((String) null, false));
   }
 }

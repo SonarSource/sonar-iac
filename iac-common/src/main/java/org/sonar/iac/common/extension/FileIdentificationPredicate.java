@@ -16,11 +16,9 @@
  */
 package org.sonar.iac.common.extension;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -28,20 +26,16 @@ import org.sonar.api.batch.fs.InputFile;
 
 public class FileIdentificationPredicate implements FilePredicate {
 
-  private static final int DEFAULT_BUFFER_SIZE = 8192;
   private static final Logger LOG = LoggerFactory.getLogger(FileIdentificationPredicate.class);
-  private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
 
   private final List<String> fileIdentifiers;
   private final boolean enablePredicateDebugLogs;
+  private final SharedFileHeadReader sharedFileHeadReader;
 
-  public FileIdentificationPredicate(String fileIdentifier, boolean enablePredicateDebugLogs) {
-    this(List.of(fileIdentifier), enablePredicateDebugLogs);
-  }
-
-  public FileIdentificationPredicate(List<String> fileIdentifiers, boolean enablePredicateDebugLogs) {
+  public FileIdentificationPredicate(List<String> fileIdentifiers, boolean enablePredicateDebugLogs, SharedFileHeadReader sharedFileHeadReader) {
     this.fileIdentifiers = fileIdentifiers;
     this.enablePredicateDebugLogs = enablePredicateDebugLogs;
+    this.sharedFileHeadReader = sharedFileHeadReader;
   }
 
   @Override
@@ -54,11 +48,8 @@ public class FileIdentificationPredicate implements FilePredicate {
       return true;
     }
 
-    try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputFile.inputStream())) {
-      // Only first 8k bytes is read to avoid slow execution for big one-line files
-      byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
-      String text = new String(bytes, inputFile.charset());
-      String[] lines = LINE_TERMINATOR.split(text);
+    try {
+      String[] lines = sharedFileHeadReader.readLines(inputFile);
       for (String line : lines) {
         if (containsAnyIdentifier(line)) {
           return true;

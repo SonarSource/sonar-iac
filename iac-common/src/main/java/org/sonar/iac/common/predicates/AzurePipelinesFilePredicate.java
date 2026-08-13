@@ -22,7 +22,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.iac.common.extension.SharedFileHeadReader;
 import org.sonar.iac.common.extension.YamlIdentifierFilePredicate;
+import org.sonar.iac.common.languages.IacLanguage;
 
 public class AzurePipelinesFilePredicate extends AbstractTimedFilePredicate implements YamlFileTypePredicate {
 
@@ -49,11 +51,13 @@ public class AzurePipelinesFilePredicate extends AbstractTimedFilePredicate impl
   private final FilePredicate delegate;
   private final boolean enablePredicateDebugLogs;
 
-  public AzurePipelinesFilePredicate(FilePredicates predicates, boolean enablePredicateDebugLogs) {
+  public AzurePipelinesFilePredicate(FilePredicates predicates, boolean enablePredicateDebugLogs, SharedFileHeadReader sharedFileHeadReader) {
     this.enablePredicateDebugLogs = enablePredicateDebugLogs;
-    this.delegate = predicates.or(
-      predicates.matchesPathPatterns(FILE_PATH_PATTERNS),
-      new YamlIdentifierFilePredicate(IDENTIFIER_PATTERNS, 1));
+    this.delegate = predicates.and(
+      predicates.hasLanguages(IacLanguage.YAML.getKey(), IacLanguage.AZURE_PIPELINES.getKey()),
+      predicates.or(
+        predicates.matchesPathPatterns(FILE_PATH_PATTERNS),
+        new YamlIdentifierFilePredicate(IDENTIFIER_PATTERNS, 1, sharedFileHeadReader)));
   }
 
   @Override

@@ -22,6 +22,7 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
+import org.sonar.iac.common.extension.SharedFileHeadReader;
 
 import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.JSON_LANGUAGE_KEY;
 
@@ -30,14 +31,14 @@ public class ArmJsonFilePredicate extends AbstractTimedFilePredicate implements 
   public static final String ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE = "https://schema.management.azure.com/schemas/,http://schema.management.azure.com/schemas/";
   private final FilePredicate delegate;
 
-  public ArmJsonFilePredicate(FilePredicates predicates, Configuration config, boolean enablePredicateDebugLogs) {
+  public ArmJsonFilePredicate(FilePredicates predicates, Configuration config, boolean enablePredicateDebugLogs, SharedFileHeadReader sharedFileHeadReader) {
     var identifiers = Arrays.stream(config.getStringArray(ARM_JSON_FILE_IDENTIFIER_KEY))
       .filter(s -> !s.isBlank()).toList();
     // Azure Resource Manager templates are JSON only (Bicep is matched by its own language by the sensor), so the
     // language is checked here to keep this predicate inert for the other (YAML) file types handled by the resolver.
     this.delegate = predicates.and(
       predicates.hasLanguage(JSON_LANGUAGE_KEY),
-      new FileIdentificationPredicate(identifiers, enablePredicateDebugLogs));
+      new FileIdentificationPredicate(identifiers, enablePredicateDebugLogs, sharedFileHeadReader));
   }
 
   @Override

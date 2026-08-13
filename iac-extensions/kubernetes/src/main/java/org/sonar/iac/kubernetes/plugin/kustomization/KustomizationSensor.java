@@ -22,12 +22,10 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.resources.Language;
-import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.IacProjectSensor;
 import org.sonar.iac.common.extension.TogglableSensor;
 import org.sonar.iac.common.extension.visitors.SensorTelemetry;
@@ -73,16 +71,8 @@ public class KustomizationSensor extends TogglableSensor {
   }
 
   private void processFiles(SensorContext context) {
-    context.fileSystem().inputFiles(getFilePredicate(context))
+    yamlFileTypeResolver.getInputFiles(FileType.KUSTOMIZE)
       .forEach(inputFile -> processKustomizationFile(context, inputFile));
-  }
-
-  private FilePredicate getFilePredicate(SensorContext context) {
-    var predicates = context.fileSystem().predicates();
-    var statistics = new DurationStatistics(context.config());
-    return predicates.and(
-      predicates.hasType(InputFile.Type.MAIN),
-      yamlFileTypeResolver.getFilePredicate(statistics, FileType.KUSTOMIZE));
   }
 
   private void addTelemetry(SensorContext sensorContext) {

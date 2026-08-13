@@ -17,10 +17,13 @@
 package org.sonar.iac.common.predicates;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -28,61 +31,184 @@ import static org.mockito.Mockito.when;
 
 class YamlFileTypeCacheTest {
 
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+
   @Test
-  void shouldStoreValueInCache() {
+  void shouldStoreAndReturnFilesPerType() {
     var cache = new YamlFileTypeCache();
-    var file = inputFile("file:///test.yaml");
-    cache.put(file, FileType.CLOUDFORMATION);
-    assertThat(cache.get(file.uri())).isEqualTo(FileType.CLOUDFORMATION);
+    var cloudFormationFile = inputFile("file:///cloudformation.yaml");
+    var kubernetesFile = inputFile("file:///kubernetes.yaml");
+
+    cache.putIfUncached(cloudFormationFile, FileType.CLOUDFORMATION);
+    cache.putIfUncached(kubernetesFile, FileType.KUBERNETES);
+
+    assertThat(cache.getInputFiles(Set.of(FileType.CLOUDFORMATION))).containsExactly(cloudFormationFile);
+    assertThat(cache.getInputFiles(Set.of(FileType.KUBERNETES))).containsExactly(kubernetesFile);
   }
 
   @Test
-  void shouldReturnNullWhenValueIsNotStored() {
+  void shouldReturnEmptyListForATypeWithNoStoredFiles() {
     var cache = new YamlFileTypeCache();
-    assertThat(cache.get(URI.create("file:///test.yaml"))).isNull();
+    assertThat(cache.getInputFiles(Set.of(FileType.HELM))).isEmpty();
   }
 
   @Test
-  void shouldOverwriteTypeWhenReclassified() {
+  void shouldReturnFilesOfAllRequestedTypesInFileTypeDeclarationOrder() {
     var cache = new YamlFileTypeCache();
-    var file = inputFile("file:///changing.yaml");
-    cache.put(file, FileType.CLOUDFORMATION);
-    cache.put(file, FileType.KUBERNETES);
+    var cloudFormationFile = inputFile("file:///cloudformation.yaml");
+    var kubernetesFile = inputFile("file:///kubernetes.yaml");
+    var helmFile = inputFile("file:///helm.yaml");
+    cache.putIfUncached(cloudFormationFile, FileType.CLOUDFORMATION);
+    cache.putIfUncached(kubernetesFile, FileType.KUBERNETES);
+    cache.putIfUncached(helmFile, FileType.HELM);
 
-    assertThat(cache.get(file.uri())).isEqualTo(FileType.KUBERNETES);
+    assertThat(cache.getInputFiles(Set.of(FileType.KUBERNETES, FileType.CLOUDFORMATION)))
+      .containsExactly(kubernetesFile, cloudFormationFile);
   }
 
   @Test
-  void shouldReturnNullForClassifiedCandidatesOfUnknownFileSystem() {
+  void shouldReturnEmptyListWhenNoTypeIsRequested() {
     var cache = new YamlFileTypeCache();
-    assertThat(cache.getClassifiedCandidates(mock(FileSystem.class))).isNull();
+    cache.putIfUncached(inputFile("file:///cloudformation.yaml"), FileType.CLOUDFORMATION);
+
+    assertThat(cache.getInputFiles(Set.of())).isEmpty();
   }
 
   @Test
-  void shouldMemoizeClassifiedCandidatesPerFileSystem() {
+  void shouldPreserveInsertionOrderWithinAType() {
+    var cache = new YamlFileTypeCache();
+    var firstFile = inputFile("file:///first.yaml");
+    var secondFile = inputFile("file:///second.yaml");
+    cache.putIfUncached(firstFile, FileType.CLOUDFORMATION);
+    cache.putIfUncached(secondFile, FileType.CLOUDFORMATION);
+
+    assertThat(cache.getInputFiles(Set.of(FileType.CLOUDFORMATION))).containsExactly(firstFile, secondFile);
+  }
+
+  @Test
+  void shouldSkipRequestedTypesWithNoStoredFiles() {
+    var cache = new YamlFileTypeCache();
+    var cloudFormationFile = inputFile("file:///cloudformation.yaml");
+    cache.putIfUncached(cloudFormationFile, FileType.CLOUDFORMATION);
+
+    assertThat(cache.getInputFiles(Set.of(FileType.HELM, FileType.CLOUDFORMATION))).containsExactly(cloudFormationFile);
+  }
+
+  @Test
+  void shouldReturnACopyThatDoesNotAffectTheCache() {
+    var cache = new YamlFileTypeCache();
+    var cloudFormationFile = inputFile("file:///cloudformation.yaml");
+    cache.putIfUncached(cloudFormationFile, FileType.CLOUDFORMATION);
+
+    var result = cache.getInputFiles(Set.of(FileType.CLOUDFORMATION));
+    result.clear();
+
+    assertThat(cache.getInputFiles(Set.of(FileType.CLOUDFORMATION))).containsExactly(cloudFormationFile);
+  }
+
+  @Test
+  void shouldTrackKnownFilesViaHasKnownType() {
+    var cache = new YamlFileTypeCache();
+    var knownFile = inputFile("file:///known.yaml");
+    var unknownFile = inputFile("file:///unknown.yaml");
+    cache.putIfUncached(knownFile, FileType.CLOUDFORMATION);
+
+    assertThat(cache.hasKnownType(knownFile)).isTrue();
+    assertThat(cache.hasKnownType(unknownFile)).isFalse();
+  }
+
+  @Test
+  void shouldNotHaveCacheDataForAnyFileSystemInitially() {
+    var cache = new YamlFileTypeCache();
+    assertThat(cache.hasCacheDataFor(mock(FileSystem.class))).isFalse();
+  }
+
+  @Test
+  void shouldBindToAFileSystemOnClearAndStartClassifyingFor() {
+    var cache = new YamlFileTypeCache();
+    var fileSystem = mock(FileSystem.class);
+
+    cache.clearAndStartClassifyingFor(fileSystem);
+
+    assertThat(cache.hasCacheDataFor(fileSystem)).isTrue();
+  }
+
+  @Test
+  void shouldNotClearDataWhenRebindingToTheSameFileSystem() {
+    var cache = new YamlFileTypeCache();
+    var fileSystem = mock(FileSystem.class);
+    var file = inputFile("file:///file.yaml");
+    cache.clearAndStartClassifyingFor(fileSystem);
+    cache.putIfUncached(file, FileType.CLOUDFORMATION);
+
+    cache.clearAndStartClassifyingFor(fileSystem);
+
+    assertThat(cache.getInputFiles(Set.of(FileType.CLOUDFORMATION))).containsExactly(file);
+    assertThat(cache.hasKnownType(file)).isTrue();
+  }
+
+  @Test
+  void shouldClearDataWhenRebindingToADifferentFileSystem() {
+    // A multi-module analysis (sonar.modules) builds one file system per module while sharing this cache; moving to a
+    // different module's file system must drop the previous module's data.
     var cache = new YamlFileTypeCache();
     var fileSystemA = mock(FileSystem.class);
     var fileSystemB = mock(FileSystem.class);
-    var a1 = inputFile("file:///a/1.yaml");
-    var a2 = inputFile("file:///a/2.yaml");
-    var b1 = inputFile("file:///b/1.yaml");
+    var file = inputFile("file:///file.yaml");
+    cache.clearAndStartClassifyingFor(fileSystemA);
+    cache.putIfUncached(file, FileType.CLOUDFORMATION);
 
-    cache.putClassifiedCandidates(fileSystemA, List.of(a1, a2));
-    cache.putClassifiedCandidates(fileSystemB, List.of(b1));
+    cache.clearAndStartClassifyingFor(fileSystemB);
 
-    // Order is preserved and each file system gets back only its own files (a multi-module analysis shares one cache).
-    assertThat(cache.getClassifiedCandidates(fileSystemA)).containsExactly(a1, a2);
-    assertThat(cache.getClassifiedCandidates(fileSystemB)).containsExactly(b1);
+    assertThat(cache.hasCacheDataFor(fileSystemA)).isFalse();
+    assertThat(cache.hasCacheDataFor(fileSystemB)).isTrue();
+    assertThat(cache.getInputFiles(Set.of(FileType.CLOUDFORMATION))).isEmpty();
+    assertThat(cache.hasKnownType(file)).isFalse();
   }
 
   @Test
-  void shouldTreatEmptyClassifiedCandidatesAsAHit() {
+  void shouldLogCountPerFileType() {
     var cache = new YamlFileTypeCache();
-    var fileSystem = mock(FileSystem.class);
-    cache.putClassifiedCandidates(fileSystem, List.of());
+    cache.putIfUncached(inputFile("file:///cloudformation1.yaml"), FileType.CLOUDFORMATION);
+    cache.putIfUncached(inputFile("file:///cloudformation2.yaml"), FileType.CLOUDFORMATION);
+    cache.putIfUncached(inputFile("file:///kubernetes.yaml"), FileType.KUBERNETES);
 
-    // An empty (non-null) list is a cache hit: the file system was classified and simply has no candidate file.
-    assertThat(cache.getClassifiedCandidates(fileSystem)).isNotNull().isEmpty();
+    cache.logClassifiedCount();
+
+    // Entries are ordered by FileType's declaration order (EnumMap), not insertion order - KUBERNETES is declared
+    // before CLOUDFORMATION.
+    assertThat(logTester.logs(Level.DEBUG)).containsExactly("Classified input files for: KUBERNETES: 1 file, CLOUDFORMATION: 2 files");
+  }
+
+  @Test
+  void shouldUseSingularSuffixForASingleFile() {
+    var cache = new YamlFileTypeCache();
+    cache.putIfUncached(inputFile("file:///cloudformation.yaml"), FileType.CLOUDFORMATION);
+
+    cache.logClassifiedCount();
+
+    assertThat(logTester.logs(Level.DEBUG)).containsExactly("Classified input files for: CLOUDFORMATION: 1 file");
+  }
+
+  @Test
+  void shouldLogAnEmptySummaryWhenNothingWasClassified() {
+    var cache = new YamlFileTypeCache();
+
+    cache.logClassifiedCount();
+
+    assertThat(logTester.logs(Level.DEBUG)).containsExactly("Classified input files for: ");
+  }
+
+  @Test
+  void shouldNotLogWhenDebugIsDisabled() {
+    logTester.setLevel(Level.INFO);
+    var cache = new YamlFileTypeCache();
+    cache.putIfUncached(inputFile("file:///cloudformation.yaml"), FileType.CLOUDFORMATION);
+
+    cache.logClassifiedCount();
+
+    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
   }
 
   private static InputFile inputFile(String uri) {

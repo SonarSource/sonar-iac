@@ -20,10 +20,12 @@ import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +35,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -253,16 +254,16 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertNoSourceFileIsParsed();
 
     var logs = logTester.logs(Level.DEBUG);
-    // The shared YamlFileTypeResolver evaluates the CloudFormation predicate after the Kubernetes one, so its
-    // "File without identifier" message is also logged.
-    assertThat(logs).hasSize(5);
-    assertThat(logs.get(0)).startsWith("Kubernetes sensor initialized with");
-    assertThat(logs.get(1)).isEqualTo("Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
-    assertThat(logs.get(2)).isEqualTo("Initializing Helm processor");
-    assertThat(logs.get(3))
+    // The shared resolver also evaluates the CloudFormation predicate, so its "File without identifier" log appears too.
+    assertThat(logs).hasSize(6);
+    assertThat(logs.get(0))
       .startsWith("File without Kubernetes identifier:").endsWith("templates/k8.yaml");
-    assertThat(logs.get(4))
+    assertThat(logs.get(1))
       .startsWith("File without identifier 'AWSTemplateFormatVersion':").endsWith("templates/k8.yaml");
+    assertThat(logs.get(2)).startsWith("Classified input files for:");
+    assertThat(logs.get(3)).startsWith("Kubernetes sensor initialized with");
+    assertThat(logs.get(4)).isEqualTo("Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
+    assertThat(logs.get(5)).isEqualTo("Initializing Helm processor");
     verifyLinesOfCodeTelemetry(0);
   }
 
@@ -273,9 +274,10 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertNoSourceFileIsParsed();
 
     assertThat(logTester.logs(Level.DEBUG))
-      .hasSize(3)
+      .hasSize(4)
       .noneMatch(log -> log.startsWith("File without Kubernetes identifier:"))
       .anyMatch(log -> log.startsWith("Kubernetes sensor initialized with"))
+      .anyMatch(log -> log.startsWith("Classified input files for:"))
       .contains("Initializing Helm processor", "Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
   }
 
@@ -287,9 +289,10 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     assertNoSourceFileIsParsed();
 
     assertThat(logTester.logs(Level.DEBUG))
-      .hasSize(3)
+      .hasSize(4)
       .noneMatch(log -> log.startsWith("File without Kubernetes identifier:"))
       .anyMatch(log -> log.startsWith("Kubernetes sensor initialized with"))
+      .anyMatch(log -> log.startsWith("Classified input files for:"))
       .contains("Initializing Helm processor", "Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
   }
 
@@ -512,18 +515,17 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     InputFile largeFileWithIdentifier = IacTestUtils.inputFile("large_file_with_identifier.yaml", "yaml");
     InputFile mediumFileWithIdentifier = IacTestUtils.inputFile("medium_file_with_identifier.yaml", "yaml");
 
-    FilePredicate filePredicate = kubernetesOrHelmPredicate(context, new DurationStatistics(mock(Configuration.class)));
-    assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();
-    assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
+    var matched = kubernetesOrHelmFiles(context, new DurationStatistics(mock(Configuration.class)), largeFileWithIdentifier, mediumFileWithIdentifier);
+    assertThat(matched).doesNotContain(largeFileWithIdentifier).contains(mediumFileWithIdentifier);
   }
 
   @Test
   void shouldDetectFilesWithExplicitKubernetesLanguage() {
     var mediumFileWithIdentifier = IacTestUtils.inputFile("medium_file_with_identifier.yaml", KubernetesLanguage.KEY);
 
-    var filePredicate = kubernetesOrHelmPredicate(context, new DurationStatistics(mock(Configuration.class)));
+    var matched = kubernetesOrHelmFiles(context, new DurationStatistics(mock(Configuration.class)), mediumFileWithIdentifier);
 
-    assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
+    assertThat(matched).contains(mediumFileWithIdentifier);
   }
 
   @Test
@@ -548,11 +550,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     InputFile pod3 = IacTestUtils.inputFile("helm/templates/nested/double-nested/pod.yaml", "yaml");
     InputFile pod4 = IacTestUtils.inputFile("helm/templates/no-identifiers.yaml", "yaml");
 
-    FilePredicate filePredicate = kubernetesOrHelmPredicate(context, new DurationStatistics(mock(Configuration.class)));
-    assertThat(filePredicate.apply(pod1)).isTrue();
-    assertThat(filePredicate.apply(pod2)).isTrue();
-    assertThat(filePredicate.apply(pod3)).isTrue();
-    assertThat(filePredicate.apply(pod4)).isTrue();
+    var matched = kubernetesOrHelmFiles(context, new DurationStatistics(mock(Configuration.class)), pod1, pod2, pod3, pod4);
+    assertThat(matched).contains(pod1, pod2, pod3, pod4);
   }
 
   @Test
@@ -561,9 +560,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     InputFile valuesFile = IacTestUtils.inputFile("helm/values.yaml", "yaml");
     InputFile valuesFile2 = IacTestUtils.inputFile("helm/values.yml", "yaml");
 
-    FilePredicate filePredicate = kubernetesOrHelmPredicate(context, new DurationStatistics(mock(Configuration.class)));
-    assertThat(filePredicate.apply(valuesFile)).isTrue();
-    assertThat(filePredicate.apply(valuesFile2)).isTrue();
+    var matched = kubernetesOrHelmFiles(context, new DurationStatistics(mock(Configuration.class)), valuesFile, valuesFile2);
+    assertThat(matched).contains(valuesFile, valuesFile2);
   }
 
   @Test
@@ -572,10 +570,11 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     InputFile valuesFile = IacTestUtils.inputFile("helm/Chart.yaml", "yaml");
     InputFile valuesFile2 = IacTestUtils.inputFile("helm/Chart.yml", "yaml");
 
-    FilePredicate filePredicate = kubernetesOrHelmPredicate(context, new DurationStatistics(mock(Configuration.class)));
-    assertThat(filePredicate.apply(valuesFile)).isTrue();
-    // only Chart.yaml is accepted by helm command, the Chart.yml is invalid and not recognized as Chart directory
-    assertThat(filePredicate.apply(valuesFile2)).isFalse();
+    var matched = kubernetesOrHelmFiles(context, new DurationStatistics(mock(Configuration.class)), valuesFile, valuesFile2);
+    assertThat(matched)
+      .contains(valuesFile)
+      // only Chart.yaml is accepted by helm command, the Chart.yml is invalid and not recognized as Chart directory
+      .doesNotContain(valuesFile2);
   }
 
   @Test
@@ -583,8 +582,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     var context = SensorContextTester.create(Path.of("src/test/resources").toAbsolutePath());
     InputFile tplFile = IacTestUtils.inputFile("helm/templates/_helpers.tpl", (String) null);
 
-    FilePredicate filePredicate = kubernetesOrHelmPredicate(context, new DurationStatistics(mock(Configuration.class)));
-    assertThat(filePredicate.apply(tplFile)).isTrue();
+    var matched = kubernetesOrHelmFiles(context, new DurationStatistics(mock(Configuration.class)), tplFile);
+    assertThat(matched).contains(tplFile);
   }
 
   @Test
@@ -713,20 +712,30 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     return checkFactory;
   }
 
-  private static FilePredicate kubernetesOrHelmPredicate(SensorContextTester sensorContext, DurationStatistics statistics) {
+  /**
+   * Adds the given files to the sensor context's file system, runs the shared classification scan, and returns the
+   * subset classified as Kubernetes or Helm - the two file types the Kubernetes sensor reads from the cache.
+   */
+  private static Set<InputFile> kubernetesOrHelmFiles(SensorContextTester sensorContext, DurationStatistics statistics, InputFile... files) {
+    for (InputFile file : files) {
+      sensorContext.fileSystem().add(file);
+    }
     var yamlFileTypeResolver = new YamlFileTypeResolver(sensorContext.fileSystem(), sensorContext.config(), new YamlFileTypeCache());
-    return yamlFileTypeResolver.getFilePredicate(statistics, FileType.KUBERNETES, FileType.HELM);
+    yamlFileTypeResolver.classifyInputFiles(sensorContext, statistics);
+    var matched = new HashSet<>(yamlFileTypeResolver.getInputFiles(FileType.KUBERNETES));
+    matched.addAll(yamlFileTypeResolver.getInputFiles(FileType.HELM));
+    return matched;
   }
 
   @Override
   protected KubernetesSensor sensor(CheckFactory checkFactory) {
-    var yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
+    yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
     return new KubernetesSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter, new KubernetesLanguage(),
       mock(HelmEvaluator.class), new KustomizationInfoProvider(), yamlFileTypeResolver, projectSensor);
   }
 
   protected KubernetesSensor sensorSonarLint() {
-    var yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
+    yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
     return new KubernetesSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory(), noSonarFilter, new KubernetesLanguage(),
       mock(HelmEvaluator.class), sonarLintFileListener, new KustomizationInfoProvider(), yamlFileTypeResolver, projectSensor);
   }
@@ -781,16 +790,18 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
     assertThat(logTester.logs(Level.DEBUG).get(0))
-      .startsWith("Kubernetes sensor initialized with");
+      .startsWith("Classified input files for:");
     assertThat(logTester.logs(Level.DEBUG).get(1))
-      .isEqualTo("Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
+      .startsWith("Kubernetes sensor initialized with");
     assertThat(logTester.logs(Level.DEBUG).get(2))
-      .isEqualTo("Initializing Helm processor");
+      .isEqualTo("Checking conditions for enabling Helm analysis; Activated Helm analysis:true, Helm supported for this platform:true");
     assertThat(logTester.logs(Level.DEBUG).get(3))
-      .isEqualTo(message1);
+      .isEqualTo("Initializing Helm processor");
     assertThat(logTester.logs(Level.DEBUG).get(4))
+      .isEqualTo(message1);
+    assertThat(logTester.logs(Level.DEBUG).get(5))
       .startsWith(message2);
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(5);
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(6);
   }
 
   @Test
@@ -816,6 +827,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
   private KubernetesSensor sonarLintSensor(String... rules) {
     var slfl = mock(SonarLintFileListener.class);
     when(slfl.getProjectContext()).thenReturn(new ProjectContextImpl());
+    yamlFileTypeResolver = new YamlFileTypeResolver(sonarLintContext.fileSystem(), sonarLintContext.config(), new YamlFileTypeCache());
     return new KubernetesSensor(
       SONARLINT_RUNTIME_9_9,
       fileLinesContextFactory,
@@ -825,7 +837,7 @@ class KubernetesSensorTest extends ExtensionSensorTest {
       mock(HelmEvaluator.class),
       slfl,
       new KustomizationInfoProvider(),
-      new YamlFileTypeResolver(sonarLintContext.fileSystem(), sonarLintContext.config(), new YamlFileTypeCache()),
+      yamlFileTypeResolver,
       projectSensor);
   }
 }

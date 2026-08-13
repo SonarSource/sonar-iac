@@ -94,17 +94,17 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
    * instead of re-scanning the file system with {@link #mainFilePredicate}. Sensors that select files differently (the
    * YAML/JSON catch-all, or sensors that also handle non-YAML/JSON files) leave this empty and keep the predicate path.
    */
-  protected Set<FileType> fileTypes() {
+  protected Set<FileType> fileTypesToRetrieveFromCache() {
     return Set.of();
   }
 
   @Override
   protected List<InputFile> inputFiles(SensorContext sensorContext, DurationStatistics statistics) {
-    var types = fileTypes();
+    var types = fileTypesToRetrieveFromCache();
     if (types.isEmpty()) {
       return super.inputFiles(sensorContext, statistics);
     }
-    return yamlFileTypeResolver.getInputFiles(sensorContext.fileSystem(), statistics, types.toArray(new FileType[0]));
+    return yamlFileTypeResolver.getInputFiles(types);
   }
 
   @Override

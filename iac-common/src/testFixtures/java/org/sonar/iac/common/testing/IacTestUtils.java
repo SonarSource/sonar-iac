@@ -81,12 +81,22 @@ public final class IacTestUtils {
   }
 
   public static InputFile inputFile(String fileName, Path baseDir, String content, @Nullable String language) {
+    return inputFile(fileName, baseDir, content, language, false);
+  }
+
+  /**
+   * @param hidden whether the file is hidden, i.e. has a path segment starting with a dot (e.g. {@code .github}). Needed
+   *   to exercise the hidden-file predicate branch in {@code YamlFileTypeResolver#classifyInputFiles}, which the scanner
+   *   only reaches for {@link InputFile#isHidden()} files.
+   */
+  public static InputFile inputFile(String fileName, Path baseDir, String content, @Nullable String language, boolean hidden) {
     return new TestInputFileBuilder("moduleKey", fileName)
       .setModuleBaseDir(baseDir)
       .setType(InputFile.Type.MAIN)
       .setCharset(StandardCharsets.UTF_8)
       .setLanguage(language)
       .setContents(content)
+      .setHidden(hidden)
       .build();
   }
 

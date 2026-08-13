@@ -20,7 +20,11 @@ import java.util.Locale;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.iac.common.languages.IacLanguage;
+import org.sonar.iac.common.yaml.YamlLanguage;
 
 /**
  * Matches <a href="https://kustomize.io/">Kustomize</a> configuration files, identified solely by their file name
@@ -35,13 +39,16 @@ public class KustomizationFilePredicate extends AbstractTimedFilePredicate imple
   private static final Set<String> KUSTOMIZATION_FILE_NAMES = Set.of("kustomization.yaml", "kustomization.yml");
 
   private final boolean enablePredicateDebugLogs;
+  private final FilePredicate delegate;
 
-  public KustomizationFilePredicate(boolean enablePredicateDebugLogs) {
+  public KustomizationFilePredicate(FilePredicates filePredicates, boolean enablePredicateDebugLogs) {
     this.enablePredicateDebugLogs = enablePredicateDebugLogs;
+    this.delegate = filePredicates.and(
+      filePredicates.hasLanguages(YamlLanguage.KEY, IacLanguage.KUBERNETES.getKey()),
+      this::hasKustomizationFileName);
   }
 
-  @Override
-  protected boolean accept(InputFile inputFile) {
+  protected boolean hasKustomizationFileName(InputFile inputFile) {
     if (KUSTOMIZATION_FILE_NAMES.contains(inputFile.filename().toLowerCase(Locale.ROOT))) {
       if (enablePredicateDebugLogs) {
         LOG.debug("Identified as Kustomization file: {}", inputFile);
@@ -49,6 +56,11 @@ public class KustomizationFilePredicate extends AbstractTimedFilePredicate imple
       return true;
     }
     return false;
+  }
+
+  @Override
+  protected boolean accept(InputFile inputFile) {
+    return delegate.apply(inputFile);
   }
 
   @Override

@@ -105,8 +105,12 @@ public abstract class IacSensor extends TogglableSensor {
   }
 
   protected List<InputFile> inputFiles(SensorContext sensorContext, DurationStatistics statistics) {
-    var fileSystem = sensorContext.fileSystem();
     var predicate = mainFilePredicate(sensorContext, statistics);
+    return retrieveFromFileSystem(sensorContext, statistics, predicate);
+  }
+
+  protected List<InputFile> retrieveFromFileSystem(SensorContext sensorContext, DurationStatistics statistics, FilePredicate predicate) {
+    var fileSystem = sensorContext.fileSystem();
     return statistics.time("Scanner file retrieval", () -> StreamSupport.stream(fileSystem.inputFiles(predicate).spliterator(), false)
       .toList());
   }

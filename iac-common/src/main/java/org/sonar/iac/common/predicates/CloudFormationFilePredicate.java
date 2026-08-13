@@ -16,24 +16,29 @@
  */
 package org.sonar.iac.common.predicates;
 
+import java.util.List;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.iac.common.extension.FileIdentificationPredicate;
+import org.sonar.iac.common.extension.SharedFileHeadReader;
+
+import static org.sonar.iac.common.languages.IacLanguage.CLOUDFORMATION;
+import static org.sonar.iac.common.languages.IacLanguage.JSON;
+import static org.sonar.iac.common.languages.IacLanguage.YAML;
 
 public class CloudFormationFilePredicate extends AbstractTimedFilePredicate implements YamlFileTypePredicate {
   public static final String CLOUDFORMATION_FILE_IDENTIFIER_KEY = "sonar.cloudformation.file.identifier";
   public static final String CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE = "AWSTemplateFormatVersion";
   private final FilePredicate delegate;
 
-  public CloudFormationFilePredicate(Configuration config, boolean shouldLogPredicateFailure) {
-    // Fall back to the default identifier when the property is absent (e.g. tests or programmatic setups where the
-    // PropertyDefinition default is not applied), so the predicate does not degrade to matching every file. An
-    // explicitly cleared identifier is returned by Configuration.get as a present empty string, so it still bypasses
-    // this fallback and keeps the documented "no identifier means analyze all files" behavior.
-    this.delegate = new FileIdentificationPredicate(
-      config.get(CLOUDFORMATION_FILE_IDENTIFIER_KEY).orElse(CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE),
-      shouldLogPredicateFailure);
+  public CloudFormationFilePredicate(FilePredicates filePredicates, Configuration config, boolean shouldLogPredicateFailure, SharedFileHeadReader sharedFileHeadReader) {
+    this.delegate = filePredicates.and(
+      filePredicates.hasLanguages(JSON.getKey(), YAML.getKey(), CLOUDFORMATION.getKey()),
+      new FileIdentificationPredicate(
+        List.of(config.get(CLOUDFORMATION_FILE_IDENTIFIER_KEY).orElse(CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE)),
+        shouldLogPredicateFailure, sharedFileHeadReader));
   }
 
   @Override

@@ -22,8 +22,7 @@ import org.sonar.iac.common.extension.DurationStatistics;
 
 /**
  * A {@link FilePredicate} that, when it matches a file, identifies it as being of a given {@link FileType}.
- * {@link YamlFileTypeResolver} applies such predicates in order and maps the first match to its {@link #fileType()},
- * which removes the need to pair each predicate with its file type externally.
+ * {@link YamlFileTypeResolver#classify} iterates such predicates in order, first match wins.
  */
 public interface YamlFileTypePredicate extends FilePredicate {
 

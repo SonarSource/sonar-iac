@@ -31,7 +31,15 @@ public class FilePredicateTestUtils {
     // util class
   }
 
+  /**
+   * Defaults the language to "yaml" and the type to MAIN, matching what the scanner assigns to a plain YAML file in
+   * production. Use the 4-arg overload to exercise a specific language/type combination.
+   */
   public static InputFile newInputFileMock(String path, String validContent) throws IOException {
+    return newInputFileMock(path, validContent, "yaml", InputFile.Type.MAIN);
+  }
+
+  public static InputFile newInputFileMock(String path, String validContent, String language, InputFile.Type type) throws IOException {
     InputFile inputFile = mock(InputFile.class);
     String filename = path.substring(path.lastIndexOf("/") + 1);
     // the file is sometimes read twice by 2 predicates
@@ -42,11 +50,6 @@ public class FilePredicateTestUtils {
     when(inputFile.uri()).thenReturn(Path.of(path).toUri());
     when(inputFile.filename()).thenReturn(filename);
     when(inputFile.relativePath()).thenReturn(path);
-    return inputFile;
-  }
-
-  public static InputFile newInputFileMock(String path, String validContent, String language, InputFile.Type type) throws IOException {
-    InputFile inputFile = newInputFileMock(path, validContent);
     when(inputFile.language()).thenReturn(language);
     when(inputFile.type()).thenReturn(type);
     return inputFile;

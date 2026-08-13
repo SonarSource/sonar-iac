@@ -33,6 +33,7 @@ import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
+import org.sonar.iac.common.predicates.FileType;
 import org.sonar.iac.common.predicates.YamlFileTypeCache;
 import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
@@ -70,9 +71,16 @@ class ArmSensorTest extends ExtensionSensorTest {
 
     settings.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
 
-    FilePredicate filePredicate = sensor().customFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
-    assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();
-    assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
+    // ArmSensor no longer overrides customFilePredicate(): ARM JSON files are now selected via the shared
+    // YamlFileTypeResolver cache, so we classify through the resolver instead of applying a raw predicate.
+    context.fileSystem().add(largeFileWithIdentifier);
+    context.fileSystem().add(mediumFileWithIdentifier);
+    var resolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
+    resolver.classifyInputFiles(context, new DurationStatistics(mock(Configuration.class)));
+
+    assertThat(resolver.getInputFiles(FileType.AZURE_RESOURCE_MANAGER))
+      .contains(mediumFileWithIdentifier)
+      .doesNotContain(largeFileWithIdentifier);
   }
 
   @Test
@@ -87,9 +95,43 @@ class ArmSensorTest extends ExtensionSensorTest {
       .setType(InputFile.Type.TEST)
       .build();
 
-    FilePredicate filePredicate = sensor().mainFilePredicate(context, new DurationStatistics(mock(Configuration.class)));
+    FilePredicate filePredicate = sensor().bicepFilePredicate(context);
     assertThat(filePredicate.apply(mainBicepInputFile)).isTrue();
     assertThat(filePredicate.apply(testBicepInputFile)).isFalse();
+  }
+
+  @Test
+  void shouldSelectBicepFilesFromFileSystemAndArmJsonFilesFromCache() {
+    settings.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
+
+    InputFile bicepFile = IacTestUtils.inputFile(
+      "main.bicep",
+      baseDir.toPath(),
+      "param environmentName string",
+      "azureresourcemanager");
+    InputFile armJsonFile = IacTestUtils.inputFile(
+      "template.json",
+      baseDir.toPath(),
+      "{\"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\"}",
+      "json");
+    InputFile jsonWithoutIdentifier = IacTestUtils.inputFile("plain.json", baseDir.toPath(), "{\"key\": \"value\"}", "json");
+    InputFile cloudFormationFile = IacTestUtils.inputFile("template.yaml", baseDir.toPath(), "AWSTemplateFormatVersion: X", "yaml");
+    InputFile testBicepFile = TestInputFileBuilder.create("moduleKey", "test.bicep")
+      .setModuleBaseDir(baseDir.toPath())
+      .setLanguage("azureresourcemanager")
+      .setType(InputFile.Type.TEST)
+      .build();
+    context.fileSystem().add(bicepFile);
+    context.fileSystem().add(armJsonFile);
+    context.fileSystem().add(jsonWithoutIdentifier);
+    context.fileSystem().add(cloudFormationFile);
+    context.fileSystem().add(testBicepFile);
+    var sensor = sensor();
+    classifyYamlFileTypes(context);
+
+    var inputFiles = sensor.inputFiles(context, new DurationStatistics(mock(Configuration.class)));
+
+    assertThat(inputFiles).containsExactlyInAnyOrder(bicepFile, armJsonFile);
   }
 
   @Override
@@ -99,7 +141,7 @@ class ArmSensorTest extends ExtensionSensorTest {
 
   @Override
   protected ArmSensor sensor(CheckFactory checkFactory) {
-    var yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
+    yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
     return new ArmSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter,
       new ArmLanguage(new MapSettings().asConfig()), yamlFileTypeResolver, projectSensor);
   }
@@ -212,7 +254,7 @@ class ArmSensorTest extends ExtensionSensorTest {
     analyze(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
     assertThat(context.allIssues()).isEmpty();
 
-    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG)).satisfiesExactly(log -> assertThat(log).startsWith("Classified input files for:"));
     verifyLinesOfCodeTelemetry(0);
   }
 
@@ -262,7 +304,7 @@ class ArmSensorTest extends ExtensionSensorTest {
     analyze(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
     assertThat(context.allIssues()).isEmpty();
 
-    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG)).satisfiesExactly(log -> assertThat(log).startsWith("Classified input files for:"));
     verifyLinesOfCodeTelemetry(0);
   }
 }

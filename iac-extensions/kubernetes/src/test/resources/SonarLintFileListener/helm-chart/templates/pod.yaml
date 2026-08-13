@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+  namespace: helm-namespace
+spec:
+  automountServiceAccountToken: false
+  containers:
+    - name: helm-container
+      image: nginx:1.2.3

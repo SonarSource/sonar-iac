@@ -20,12 +20,12 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.iac.common.extension.SharedFileHeadReader;
 import org.sonar.iac.common.extension.YamlIdentifierFilePredicate;
 import org.sonar.iac.common.languages.IacLanguage;
-
-import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.YAML_LANGUAGE_KEY;
+import org.sonar.iac.common.yaml.YamlLanguage;
 
 /**
  * Matches plain Kubernetes manifests: a YAML (or Kubernetes language) file whose content carries the Kubernetes
@@ -40,12 +40,11 @@ public class KubernetesFilePredicate extends AbstractTimedFilePredicate implemen
   private final FilePredicate delegate;
   private final boolean enablePredicateDebugLogs;
 
-  public KubernetesFilePredicate(FileSystem fileSystem, boolean enablePredicateDebugLogs) {
-    var predicates = fileSystem.predicates();
-    this.identifierPredicate = new YamlIdentifierFilePredicate(IDENTIFIER_PATTERNS);
+  public KubernetesFilePredicate(FilePredicates filePredicates, boolean enablePredicateDebugLogs, SharedFileHeadReader sharedFileHeadReader) {
+    this.identifierPredicate = new YamlIdentifierFilePredicate(IDENTIFIER_PATTERNS, IDENTIFIER_PATTERNS.size(), sharedFileHeadReader);
     this.enablePredicateDebugLogs = enablePredicateDebugLogs;
-    this.delegate = predicates.and(
-      predicates.hasLanguages(YAML_LANGUAGE_KEY, IacLanguage.KUBERNETES.getKey()),
+    this.delegate = filePredicates.and(
+      filePredicates.hasLanguages(YamlLanguage.KEY, IacLanguage.KUBERNETES.getKey()),
       this::hasKubernetesIdentifier);
   }
 

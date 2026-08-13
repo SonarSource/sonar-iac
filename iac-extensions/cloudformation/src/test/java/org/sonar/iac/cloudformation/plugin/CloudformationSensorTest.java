@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -76,9 +75,10 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     assertThat(context.allIssues()).isEmpty();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).hasSize(1);
+    assertThat(logs).hasSize(2);
     assertThat(logs.get(0))
       .startsWith("File without identifier 'myIdentifier':").endsWith("parserError.json");
+    assertThat(logs.get(1)).startsWith("Classified input files for:");
     verifyLinesOfCodeTelemetry(0);
   }
 
@@ -89,7 +89,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     analyze(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
     assertThat(context.allIssues()).isEmpty();
 
-    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG)).satisfiesExactly(log -> assertThat(log).startsWith("Classified input files for:"));
     verifyLinesOfCodeTelemetry(0);
   }
 
@@ -101,7 +101,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     analyze(sensor("S2260"), inputFile("parserError.json", "\"noIdentifier'"));
     assertThat(context.allIssues()).isEmpty();
 
-    assertThat(logTester.logs(Level.DEBUG)).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG)).satisfiesExactly(log -> assertThat(log).startsWith("Classified input files for:"));
     verifyLinesOfCodeTelemetry(0);
   }
 
@@ -125,23 +125,26 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     InputFile mediumFileWithIdentifier = IacTestUtils.inputFile("medium_file_with_identifier.json", "json");
 
     context.settings().setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE);
+    context.fileSystem().add(largeFileWithIdentifier);
+    context.fileSystem().add(mediumFileWithIdentifier);
 
     var resolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
-    FilePredicate filePredicate = resolver.getFilePredicate(new DurationStatistics(mock(Configuration.class)), FileType.CLOUDFORMATION);
-    assertThat(filePredicate.apply(largeFileWithIdentifier)).isFalse();
-    assertThat(filePredicate.apply(mediumFileWithIdentifier)).isTrue();
+    resolver.classifyInputFiles(context, new DurationStatistics(mock(Configuration.class)));
+    var matched = resolver.getInputFiles(FileType.CLOUDFORMATION);
+    assertThat(matched).doesNotContain(largeFileWithIdentifier).contains(mediumFileWithIdentifier);
   }
 
   @Test
   void shouldSkipCloudFormationFileInGithubWorkflowFolder() {
-    var githubWorkflowFile = inputFile(".github/workflows/deploy.yaml", "AWSTemplateFormatVersion: 2010-09-09");
+    var githubWorkflowFile = IacTestUtils.inputFile(".github/workflows/deploy.yaml", baseDir.toPath(), "AWSTemplateFormatVersion: 2010-09-09", "yaml");
 
     analyze(sensor(checkFactory()), githubWorkflowFile);
     assertThat(context.allIssues()).isEmpty();
 
     var logs = logTester.logs(Level.DEBUG);
-    assertThat(logs).hasSize(1);
+    assertThat(logs).hasSize(2);
     assertThat(logs.get(0)).contains("Identified as Github file: .github/workflows/deploy.yaml");
+    assertThat(logs.get(1)).startsWith("Classified input files for:");
     assertThat(logTester.logs(Level.INFO)).contains("There are no files to be analyzed for the CloudFormation language");
     verifyLinesOfCodeTelemetry(0);
   }
@@ -166,7 +169,7 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
   @Override
   protected CloudformationSensor sensor(CheckFactory checkFactory) {
-    var yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
+    yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
     return new CloudformationSensor(SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION, fileLinesContextFactory, checkFactory, noSonarFilter,
       new CloudformationLanguage(), yamlFileTypeResolver, projectSensor);
   }
@@ -205,7 +208,9 @@ class CloudformationSensorTest extends ExtensionSensorTest {
 
   @Override
   protected void verifyDebugMessages(List<String> logs) {
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
+    List<String> debugLogs = logTester.logs(Level.DEBUG);
+    assertThat(debugLogs).hasSize(3);
+    assertThat(debugLogs.get(0)).startsWith("Classified input files for:");
     String message1 = """
       while scanning a quoted scalar
        in reader, line 1, column 27:
@@ -219,9 +224,19 @@ class CloudformationSensorTest extends ExtensionSensorTest {
     String message2 = "org.sonar.iac.common.extension.ParseException: Cannot parse 'error.json:1:1'" +
       System.lineSeparator() +
       "\tat org.sonar.iac.common";
-    assertThat(logTester.logs(Level.DEBUG).get(0)).isEqualTo(message1);
-    assertThat(logTester.logs(Level.DEBUG).get(1)).startsWith(message2);
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(2);
+    assertThat(debugLogs.get(1)).isEqualTo(message1);
+    assertThat(debugLogs.get(2)).startsWith(message2);
+  }
+
+  @Test
+  void shouldFindNoFilesToAnalyzeWhenClassificationSensorHasNotRunYet() {
+    var sensor = sensor(checkFactory());
+    context.fileSystem().add(validFile());
+
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).isEmpty();
+    assertThat(logTester.logs(Level.INFO)).contains("There are no files to be analyzed for the CloudFormation language");
   }
 
   @Test

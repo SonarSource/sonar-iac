@@ -16,7 +16,6 @@
  */
 package org.sonar.iac.common.extension;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -31,19 +30,15 @@ import static org.sonar.iac.common.yaml.AbstractYamlLanguageSensor.FILE_SEPARATO
 
 public class YamlIdentifierFilePredicate implements FilePredicate {
 
-  private static final Pattern LINE_TERMINATOR = Pattern.compile("[\\n\\r\\u2028\\u2029]");
-  private static final int DEFAULT_BUFFER_SIZE = 8192;
   private static final Logger LOG = LoggerFactory.getLogger(YamlIdentifierFilePredicate.class);
   private final List<Predicate<String>> identifierPatterns;
   private final int requiredMatches;
+  private final SharedFileHeadReader sharedFileHeadReader;
 
-  public YamlIdentifierFilePredicate(Set<String> patternsIdentifiers, int requiredMatches) {
+  public YamlIdentifierFilePredicate(Set<String> patternsIdentifiers, int requiredMatches, SharedFileHeadReader sharedFileHeadReader) {
     this.identifierPatterns = patternsIdentifiers.stream().map(pattern -> Pattern.compile(pattern).asPredicate()).toList();
     this.requiredMatches = requiredMatches;
-  }
-
-  public YamlIdentifierFilePredicate(Set<String> patternsIdentifiers) {
-    this(patternsIdentifiers, patternsIdentifiers.size());
+    this.sharedFileHeadReader = sharedFileHeadReader;
   }
 
   @Override
@@ -52,11 +47,9 @@ public class YamlIdentifierFilePredicate implements FilePredicate {
   }
 
   private boolean hasExpectedStructure(InputFile inputFile) {
-    try (var bufferedInputStream = new BufferedInputStream(inputFile.inputStream())) {
-      // Only first 8k bytes is read to avoid slow execution for big one-line files
-      byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
-      var text = new String(bytes, inputFile.charset());
-      return isTextMatchingRequiredIdentifiers(text);
+    try {
+      String[] lines = sharedFileHeadReader.readLines(inputFile);
+      return isTextMatchingRequiredIdentifiers(lines);
     } catch (IOException e) {
       LOG.warn("Unable to read file: {}.", inputFile);
       LOG.warn(e.getMessage());
@@ -64,9 +57,8 @@ public class YamlIdentifierFilePredicate implements FilePredicate {
     }
   }
 
-  private boolean isTextMatchingRequiredIdentifiers(String text) {
+  private boolean isTextMatchingRequiredIdentifiers(String[] lines) {
     var identifierCount = 0;
-    String[] lines = LINE_TERMINATOR.split(text);
     for (String line : lines) {
       if (identifierPatterns.stream().anyMatch(pred -> pred.test(line))) {
         identifierCount++;

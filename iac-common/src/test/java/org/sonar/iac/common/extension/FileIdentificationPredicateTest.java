@@ -49,7 +49,7 @@ class FileIdentificationPredicateTest {
   @ParameterizedTest
   @MethodSource
   void shouldReturnTrueForEmptyIdentifier(List<String> identifiers) {
-    var filePredicate = new FileIdentificationPredicate(identifiers, true);
+    var filePredicate = new FileIdentificationPredicate(identifiers, true, new SharedFileHeadReader());
     assertThat(filePredicate.apply(inputFile("small_file.txt", "text"))).isTrue();
     assertThat(filePredicate.apply(inputFile("big_file_identifier_in_buffer.txt", "text"))).isTrue();
     assertThat(filePredicate.apply(inputFile("big_file_identifier_after_buffer.txt", "text"))).isTrue();
@@ -57,19 +57,19 @@ class FileIdentificationPredicateTest {
 
   @Test
   void shouldFindIdentifierInSmallFile() {
-    var filePredicate = new FileIdentificationPredicate(IDENTIFIER, true);
+    var filePredicate = new FileIdentificationPredicate(List.of(IDENTIFIER), true, new SharedFileHeadReader());
     assertThat(filePredicate.apply(inputFile("small_file.txt", "text"))).isTrue();
   }
 
   @Test
   void shouldFindIdentifierInBigFileIdentifierInBuffer() {
-    var filePredicate = new FileIdentificationPredicate(IDENTIFIER, true);
+    var filePredicate = new FileIdentificationPredicate(List.of(IDENTIFIER), true, new SharedFileHeadReader());
     assertThat(filePredicate.apply(inputFile("big_file_identifier_in_buffer.txt", "text"))).isTrue();
   }
 
   @Test
   void shouldNotFindIdentifierInBigFileIdentifierAfterBuffer() {
-    var filePredicate = new FileIdentificationPredicate(IDENTIFIER, true);
+    var filePredicate = new FileIdentificationPredicate(List.of(IDENTIFIER), true, new SharedFileHeadReader());
     assertThat(filePredicate.apply(inputFile("big_file_identifier_after_buffer.txt", "text"))).isFalse();
   }
 
@@ -79,7 +79,7 @@ class FileIdentificationPredicateTest {
     when(noFile.inputStream()).thenThrow(new IOException("File not found mock"));
     when(noFile.toString()).thenReturn("nofile.txt");
 
-    var filePredicate = new FileIdentificationPredicate(IDENTIFIER, true);
+    var filePredicate = new FileIdentificationPredicate(List.of(IDENTIFIER), true, new SharedFileHeadReader());
     assertThat(filePredicate.apply(noFile)).isFalse();
     assertThat(logTester.logs(Level.WARN)).hasSize(2);
     assertThat(logTester.logs(Level.WARN).get(0)).isEqualTo("Unable to read file: nofile.txt.");
@@ -94,7 +94,7 @@ class FileIdentificationPredicateTest {
     when(noFile.inputStream()).thenThrow(new IOException("File not found mock"));
     when(noFile.toString()).thenReturn("nofile.txt");
 
-    var filePredicate = new FileIdentificationPredicate(List.of(IDENTIFIER, IDENTIFIER), true);
+    var filePredicate = new FileIdentificationPredicate(List.of(IDENTIFIER, IDENTIFIER), true, new SharedFileHeadReader());
     assertThat(filePredicate.apply(noFile)).isFalse();
     assertThat(logTester.logs(Level.WARN)).hasSize(2);
     assertThat(logTester.logs(Level.WARN).get(0)).isEqualTo("Unable to read file: nofile.txt.");
@@ -110,7 +110,7 @@ class FileIdentificationPredicateTest {
     when(noFile.inputStream()).thenThrow(new IOException("File not found mock"));
     when(noFile.toString()).thenReturn("nofile.txt");
 
-    var filePredicate = new FileIdentificationPredicate(IDENTIFIER, false);
+    var filePredicate = new FileIdentificationPredicate(List.of(IDENTIFIER), false, new SharedFileHeadReader());
     assertThat(filePredicate.apply(noFile)).isFalse();
     assertThat(logTester.logs(Level.WARN)).hasSize(2);
     assertThat(logTester.logs(Level.WARN).get(0)).isEqualTo("Unable to read file: nofile.txt.");

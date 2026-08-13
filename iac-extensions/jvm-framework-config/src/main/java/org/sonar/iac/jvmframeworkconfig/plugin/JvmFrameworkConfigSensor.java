@@ -19,7 +19,7 @@ package org.sonar.iac.jvmframeworkconfig.plugin;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -110,8 +110,8 @@ public class JvmFrameworkConfigSensor extends IacSensor {
   }
 
   @Override
-  protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
-    return yamlFileTypeResolver.getFilePredicate(statistics, FileType.JVM_CONFIG);
+  protected List<InputFile> inputFiles(SensorContext sensorContext, DurationStatistics statistics) {
+    return yamlFileTypeResolver.getInputFiles(FileType.JVM_CONFIG);
   }
 
   @Override

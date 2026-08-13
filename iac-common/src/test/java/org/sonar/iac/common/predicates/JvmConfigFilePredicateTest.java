@@ -135,6 +135,23 @@ class JvmConfigFilePredicateTest {
   }
 
   @Test
+  void shouldExposePatternBasedCandidatesWithoutProfileFiltering() {
+    // getPatternBasedCandidates() is the raw path-pattern predicate, without the ProfileNameFilePredicate that excludes
+    // dev/test profiles from the full predicate; YamlFileTypeResolver's createCandidatePredicate relies on this to still
+    // scan such files (in case their language is not a YAML/JSON candidate) even though they are not classified as JVM_CONFIG.
+    var sensorContext = SensorContextTester.create(tempDir);
+    var predicate = new JvmConfigFilePredicate(sensorContext.fileSystem().predicates(), sensorContext.config(), false);
+    predicate.applyTimers(new DurationStatistics(mock(Configuration.class)));
+    var filename = "application-dev.yaml";
+    var inputFile = mock(InputFile.class);
+    when(inputFile.filename()).thenReturn(filename);
+    when(inputFile.relativePath()).thenReturn("src/main/resources/" + filename);
+
+    assertThat(predicate.getPatternBasedCandidates().apply(inputFile)).isTrue();
+    assertThat(predicate.apply(inputFile)).isFalse();
+  }
+
+  @Test
   void shouldUseProvidedPatternInsteadOfDefault() {
     var config = mock(Configuration.class);
     when(config.getStringArray(JVM_CONFIG_FILE_PATTERNS_KEY)).thenReturn(new String[] {"myPattern", ""});

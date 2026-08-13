@@ -30,6 +30,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.predicates.YamlFileTypeCache;
+import org.sonar.iac.common.predicates.YamlFileTypeClassificationSensor;
 import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.kubernetes.plugin.KubernetesLanguage;
 import org.sonar.iac.kubernetes.plugin.KubernetesSettings;
@@ -52,6 +53,7 @@ class KustomizationSensorTest {
   private KustomizationInfoProvider kustomizationInfoProvider;
   private KustomizationSensor sensor;
   private org.sonar.iac.common.extension.IacProjectSensor projectSensor;
+  private YamlFileTypeResolver yamlFileTypeResolver;
 
   @BeforeEach
   void setUp() {
@@ -61,8 +63,18 @@ class KustomizationSensorTest {
     context.setSettings(settings);
     kustomizationInfoProvider = new KustomizationInfoProvider();
     projectSensor = new org.sonar.iac.common.extension.IacProjectSensor(context.config());
-    var yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
+    yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
     sensor = new KustomizationSensor(kustomizationInfoProvider, new KubernetesLanguage(), yamlFileTypeResolver, projectSensor);
+  }
+
+  /**
+   * KustomizationSensor no longer falls back to classifying files itself; it only reads the shared cache. This runs the
+   * real PRE-phase classification sensor against the same resolver instance first, reproducing what happens in
+   * production before this sensor runs, then executes the sensor under test.
+   */
+  private void executeSensor() {
+    new YamlFileTypeClassificationSensor(context.runtime(), yamlFileTypeResolver).execute(context);
+    sensor.execute(context);
   }
 
   @Test
@@ -88,7 +100,7 @@ class KustomizationSensorTest {
       """;
     var inputFile = createInputFile("kustomization.yaml", kustomizationContent);
     context.fileSystem().add(inputFile);
-    sensor.execute(context);
+    executeSensor();
 
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).isEmpty();
   }
@@ -105,7 +117,7 @@ class KustomizationSensorTest {
     var inputFile = createInputFile("kustomization.yaml", kustomizationContent);
     context.fileSystem().add(inputFile);
 
-    sensor.execute(context);
+    executeSensor();
 
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).hasSize(2);
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles())
@@ -125,7 +137,7 @@ class KustomizationSensorTest {
     var inputFile = createInputFile("kustomization.yml", kustomizationContent);
     context.fileSystem().add(inputFile);
 
-    sensor.execute(context);
+    executeSensor();
 
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).hasSize(1);
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles())
@@ -144,7 +156,7 @@ class KustomizationSensorTest {
     var inputFile = createInputFile(filename, kustomizationContent);
     context.fileSystem().add(inputFile);
 
-    sensor.execute(context);
+    executeSensor();
 
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).hasSize(1);
   }
@@ -159,7 +171,7 @@ class KustomizationSensorTest {
       """);
     context.fileSystem().add(inputFile);
 
-    sensor.execute(context);
+    executeSensor();
 
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).isEmpty();
   }
@@ -176,10 +188,41 @@ class KustomizationSensorTest {
       """);
     context.fileSystem().add(inputFile);
 
-    sensor.execute(context);
+    executeSensor();
 
     assertThat(kustomizationInfoProvider.kustomizationFilesCount()).isEqualTo(1);
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).isEmpty();
+  }
+
+  @Test
+  void shouldIgnoreKustomizationFileWithNonCandidateLanguage() {
+    // KustomizationFilePredicate now has a hasLanguages(...) gate; a kustomization.yaml assigned a language that is
+    // not a YAML/JSON classification candidate (e.g. terraform) must not be classified as KUSTOMIZE and therefore not
+    // be processed by this sensor at all.
+    var kustomizationContent = """
+      apiVersion: kustomize.config.k8s.io/v1beta1
+      kind: Kustomization
+      resources:
+        - deployment.yaml
+        - service.yaml
+      """;
+    var inputFile = new TestInputFileBuilder("moduleKey", "kustomization.yaml")
+      .setModuleBaseDir(BASE_DIR)
+      .setType(org.sonar.api.batch.fs.InputFile.Type.MAIN)
+      .setLanguage("terraform")
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents(kustomizationContent)
+      .build();
+    context.fileSystem().add(inputFile);
+
+    executeSensor();
+    projectSensor.execute(context);
+
+    assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).isEmpty();
+    assertThat(context.getTelemetryProperties())
+      .containsEntry(KUSTOMIZE_PRESENT, "0")
+      .containsEntry(KUSTOMIZE_FILES_COUNT, "0")
+      .containsEntry(KUSTOMIZE_REFERENCED_FILES_COUNT, "0");
   }
 
   @Test
@@ -200,7 +243,7 @@ class KustomizationSensorTest {
     context.fileSystem().add(kustomization1);
     context.fileSystem().add(kustomization2);
 
-    sensor.execute(context);
+    executeSensor();
 
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).hasSize(3);
   }
@@ -220,7 +263,7 @@ class KustomizationSensorTest {
     var inputFile = createInputFile("kustomization.yaml", kustomizationContent);
     context.fileSystem().add(inputFile);
 
-    sensor.execute(context);
+    executeSensor();
 
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).hasSize(2);
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles())
@@ -243,7 +286,7 @@ class KustomizationSensorTest {
     var inputFile = createInputFile("kustomization.yaml", kustomizationContent);
     context.fileSystem().add(inputFile);
 
-    sensor.execute(context);
+    executeSensor();
 
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).hasSize(3);
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles())
@@ -262,7 +305,7 @@ class KustomizationSensorTest {
     var inputFile = createInputFile("kustomization.yaml", kustomizationContent);
     context.fileSystem().add(inputFile);
 
-    sensor.execute(context);
+    executeSensor();
 
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).isEmpty();
   }
@@ -279,7 +322,7 @@ class KustomizationSensorTest {
     var inputFile = createInputFile("overlays/kustomization.yaml", kustomizationContent);
     context.fileSystem().add(inputFile);
 
-    sensor.execute(context);
+    executeSensor();
 
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles()).hasSize(2);
     assertThat(kustomizationInfoProvider.kustomizationReferencedFiles())
@@ -300,7 +343,7 @@ class KustomizationSensorTest {
     var inputFile = createInputFile("kustomization.yaml", kustomizationContent);
     context.fileSystem().add(inputFile);
 
-    sensor.execute(context);
+    executeSensor();
 
     var debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs)
@@ -326,7 +369,7 @@ class KustomizationSensorTest {
     context.fileSystem().add(kustomization1);
     context.fileSystem().add(kustomization2);
 
-    sensor.execute(context);
+    executeSensor();
 
     var debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs)
@@ -338,7 +381,7 @@ class KustomizationSensorTest {
 
   @Test
   void shouldLogTelemetryWhenNoKustomizationFiles() {
-    sensor.execute(context);
+    executeSensor();
 
     var debugLogs = logTester.logs(Level.DEBUG);
     assertThat(debugLogs)
@@ -357,7 +400,7 @@ class KustomizationSensorTest {
     var inputFile = createInputFile("kustomization.yaml", kustomizationContent);
     context.fileSystem().add(inputFile);
 
-    sensor.execute(context);
+    executeSensor();
     projectSensor.execute(context);
 
     assertThat(context.getTelemetryProperties())
@@ -384,7 +427,7 @@ class KustomizationSensorTest {
     context.fileSystem().add(kustomization1);
     context.fileSystem().add(kustomization2);
 
-    sensor.execute(context);
+    executeSensor();
     projectSensor.execute(context);
 
     assertThat(context.getTelemetryProperties())
@@ -395,7 +438,7 @@ class KustomizationSensorTest {
 
   @Test
   void shouldAddTelemetryPropertiesWhenNoKustomizationFiles() {
-    sensor.execute(context);
+    executeSensor();
     projectSensor.execute(context);
 
     assertThat(context.getTelemetryProperties())
@@ -413,7 +456,7 @@ class KustomizationSensorTest {
     var inputFile = createInputFile("kustomization.yaml", kustomizationContent);
     context.fileSystem().add(inputFile);
 
-    sensor.execute(context);
+    executeSensor();
     projectSensor.execute(context);
 
     assertThat(context.getTelemetryProperties())

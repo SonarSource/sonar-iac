@@ -23,6 +23,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.iac.common.extension.SharedFileHeadReader;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +37,7 @@ class AzurePipelinesFilePredicateTest {
   @MethodSource
   void shouldDetectAzurePipelinesFile(String content, boolean expectedMatch) {
     var predicates = SensorContextTester.create(tempDir).fileSystem().predicates();
-    var predicate = new AzurePipelinesFilePredicate(predicates, false);
+    var predicate = new AzurePipelinesFilePredicate(predicates, false, new SharedFileHeadReader());
     assertThat(predicate.accept(IacTestUtils.inputFile("pipeline.yaml", tempDir, content, "yaml"))).isEqualTo(expectedMatch);
   }
 
@@ -77,5 +78,27 @@ class AzurePipelinesFilePredicateTest {
             - script: echo hello
         """, false),
       Arguments.of("", false));
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldMatchOnlyCandidateLanguages(String language, boolean expectedMatch) {
+    var predicates = SensorContextTester.create(tempDir).fileSystem().predicates();
+    var predicate = new AzurePipelinesFilePredicate(predicates, false, new SharedFileHeadReader());
+    var content = """
+      trigger:
+        - main
+      steps:
+        - script: echo hello
+      """;
+    assertThat(predicate.accept(IacTestUtils.inputFile("pipeline.yaml", tempDir, content, language))).isEqualTo(expectedMatch);
+  }
+
+  private static Stream<Arguments> shouldMatchOnlyCandidateLanguages() {
+    return Stream.of(
+      Arguments.of("yaml", true),
+      Arguments.of("azurepipelines", true),
+      Arguments.of("docker", false),
+      Arguments.of((String) null, false));
   }
 }

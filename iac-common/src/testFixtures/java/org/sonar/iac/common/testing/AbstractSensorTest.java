@@ -24,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -35,11 +34,15 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.IacProjectSensor;
+import org.sonar.iac.common.predicates.YamlFileTypeClassificationSensor;
+import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 import org.sonar.scanner.plugin.api.impl.rule.ActiveRulesBuilder;
 import org.sonar.scanner.plugin.api.impl.rule.NewActiveRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.extension.IacSensor.EXTENDED_LOGGING_PROPERTY_NAME;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
@@ -51,8 +54,8 @@ public abstract class AbstractSensorTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
-  protected static final FileLinesContextFactory fileLinesContextFactory = Mockito.mock(FileLinesContextFactory.class);
-  protected static final NoSonarFilter noSonarFilter = Mockito.mock(NoSonarFilter.class);
+  protected static final FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+  protected static final NoSonarFilter noSonarFilter = mock(NoSonarFilter.class);
   private final String telemetryLoCKey = "iac.%s.loc".formatted(repositoryKey());
 
   @TempDir
@@ -61,11 +64,18 @@ public abstract class AbstractSensorTest {
   protected MapSettings settings;
   protected SensorContextTester sonarLintContext;
   protected IacProjectSensor projectSensor;
+  /**
+   * YAML/JSON based sensor tests assign this in their {@code sensor(...)} builder(s), to the same
+   * {@code YamlFileTypeResolver}/{@code EnterpriseYamlFileTypeResolver} instance the sensor under test reads from.
+   * {@link #classifyYamlFileTypes} then warms its shared cache before the sensor executes. Left {@code null} by
+   * tests whose sensor doesn't read from the shared {@code YamlFileTypeCache} (Terraform, Docker, ...).
+   */
+  protected YamlFileTypeResolver yamlFileTypeResolver;
 
   @BeforeEach
   void setup() {
-    FileLinesContext fileLinesContext = Mockito.mock(FileLinesContext.class);
-    Mockito.when(fileLinesContextFactory.createFor(ArgumentMatchers.any(InputFile.class))).thenReturn(fileLinesContext);
+    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
+    when(fileLinesContextFactory.createFor(ArgumentMatchers.any(InputFile.class))).thenReturn(fileLinesContext);
     settings = new MapSettings();
     settings.setProperty(getActivationSettingKey(), true);
     settings.setProperty(CLOUDFORMATION_FILE_IDENTIFIER_KEY, CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE);
@@ -93,9 +103,21 @@ public abstract class AbstractSensorTest {
     for (InputFile inputFile : inputFiles) {
       sensorContext.fileSystem().add(inputFile);
     }
+    classifyYamlFileTypes(sensorContext);
     sensor.execute(sensorContext);
     // Flush telemetry collected by IacSensor instances to the SensorContext
     projectSensor.execute(sensorContext);
+  }
+
+  /**
+   * Runs the real {@code YamlFileTypeClassificationSensor} against {@link #yamlFileTypeResolver}, reproducing what the
+   * PRE-phase sensor does in production before any consumer sensor runs. A no-op when a test's sensor doesn't read
+   * from the shared {@code YamlFileTypeCache} and therefore left {@link #yamlFileTypeResolver} {@code null}.
+   */
+  protected void classifyYamlFileTypes(SensorContextTester sensorContext) {
+    if (yamlFileTypeResolver != null) {
+      new YamlFileTypeClassificationSensor(sensorContext.runtime(), yamlFileTypeResolver).execute(sensorContext);
+    }
   }
 
   protected InputFile inputFile(String relativePath, String content) {

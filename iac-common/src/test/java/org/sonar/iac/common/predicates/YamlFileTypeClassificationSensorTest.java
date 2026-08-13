@@ -18,6 +18,7 @@ package org.sonar.iac.common.predicates;
 
 import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import java.nio.file.Path;
+import java.util.EnumSet;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.Phase;
@@ -29,6 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.iac.common.predicates.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE;
 import static org.sonar.iac.common.predicates.ArmJsonFilePredicate.ARM_JSON_FILE_IDENTIFIER_KEY;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_KEY;
+import static org.sonar.iac.common.testing.IacTestUtils.SQS_HIDDEN_FILES_SUPPORTED_API_VERSION;
+import static org.sonar.iac.common.testing.IacTestUtils.SQS_WITHOUT_HIDDEN_FILES_SUPPORT_API_VERSION;
 
 class YamlFileTypeClassificationSensorTest {
 
@@ -51,16 +54,30 @@ class YamlFileTypeClassificationSensorTest {
   }
 
   @Test
-  void shouldDescribeSensorWithCandidateLanguages() {
+  void shouldDescribeSensorWithoutLanguageRestrictionAndWithHiddenFilesProcessing() {
     var sensorContext = SensorContextTester.create(tempDir).setSettings(settings());
     var resolver = new YamlFileTypeResolver(sensorContext.fileSystem(), sensorContext.config(), new YamlFileTypeCache());
-    var sensor = new YamlFileTypeClassificationSensor(resolver);
+    var sensor = new YamlFileTypeClassificationSensor(SQS_HIDDEN_FILES_SUPPORTED_API_VERSION, resolver);
 
     var descriptor = new DefaultSensorDescriptor();
     sensor.describe(descriptor);
 
     assertThat(descriptor.name()).isEqualTo(YamlFileTypeClassificationSensor.SENSOR_NAME);
-    assertThat(descriptor.languages()).containsExactlyInAnyOrderElementsOf(resolver.candidateLanguages());
+    assertThat(descriptor.languages()).isEmpty();
+    // GitHub Actions files live under the hidden .github/workflows directory, so the classification scan must see them.
+    assertThat(descriptor.isProcessesHiddenFiles()).isTrue();
+  }
+
+  @Test
+  void shouldNotProcessHiddenFilesWhenPluginApiDoesntSupportIt() {
+    var sensorContext = SensorContextTester.create(tempDir).setSettings(settings());
+    var resolver = new YamlFileTypeResolver(sensorContext.fileSystem(), sensorContext.config(), new YamlFileTypeCache());
+    var sensor = new YamlFileTypeClassificationSensor(SQS_WITHOUT_HIDDEN_FILES_SUPPORT_API_VERSION, resolver);
+
+    var descriptor = new DefaultSensorDescriptor();
+    sensor.describe(descriptor);
+
+    assertThat(descriptor.isProcessesHiddenFiles()).isFalse();
   }
 
   @Test
@@ -70,17 +87,16 @@ class YamlFileTypeClassificationSensorTest {
     sensorContext.fileSystem().add(kubernetesFile);
     var cache = new YamlFileTypeCache();
     var resolver = new YamlFileTypeResolver(sensorContext.fileSystem(), sensorContext.config(), cache);
-    var sensor = new YamlFileTypeClassificationSensor(resolver);
+    var sensor = new YamlFileTypeClassificationSensor(SQS_HIDDEN_FILES_SUPPORTED_API_VERSION, resolver);
 
     // Before execution the file has not been classified yet.
-    assertThat(cache.get(kubernetesFile.uri())).isNull();
+    assertThat(cache.hasKnownType(kubernetesFile)).isFalse();
 
     sensor.execute(sensorContext);
 
-    // After the PRE-phase classification sensor ran, the shared cache is warmed for the analysis sensors: the file's
-    // type is cached and the file system's ordered candidate list is memoized.
-    assertThat(cache.get(kubernetesFile.uri())).isEqualTo(FileType.KUBERNETES);
-    assertThat(cache.getClassifiedCandidates(sensorContext.fileSystem())).containsExactly(kubernetesFile);
+    // After the PRE-phase classification sensor ran, the shared cache is warmed for the analysis sensors.
+    assertThat(cache.hasKnownType(kubernetesFile)).isTrue();
+    assertThat(resolver.getInputFiles(FileType.KUBERNETES)).containsExactly(kubernetesFile);
   }
 
   @Test
@@ -88,12 +104,13 @@ class YamlFileTypeClassificationSensorTest {
     var sensorContext = SensorContextTester.create(tempDir).setSettings(settings());
     var cache = new YamlFileTypeCache();
     var resolver = new YamlFileTypeResolver(sensorContext.fileSystem(), sensorContext.config(), cache);
-    var sensor = new YamlFileTypeClassificationSensor(resolver);
+    var sensor = new YamlFileTypeClassificationSensor(SQS_HIDDEN_FILES_SUPPORTED_API_VERSION, resolver);
 
     sensor.execute(sensorContext);
 
     // Classification ran (a cache hit for later sensors) but found no candidate file.
-    assertThat(cache.getClassifiedCandidates(sensorContext.fileSystem())).isNotNull().isEmpty();
+    assertThat(cache.hasCacheDataFor(sensorContext.fileSystem())).isTrue();
+    assertThat(resolver.getInputFiles(EnumSet.allOf(FileType.class))).isEmpty();
   }
 
   private static MapSettings settings() {

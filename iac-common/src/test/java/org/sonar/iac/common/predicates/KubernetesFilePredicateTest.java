@@ -32,6 +32,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.SharedFileHeadReader;
 import org.sonar.iac.common.testing.IacTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +60,7 @@ class KubernetesFilePredicateTest {
   }
 
   private KubernetesFilePredicate newPredicate(boolean enablePredicateDebugLogs) {
-    var predicate = new KubernetesFilePredicate(context.fileSystem(), enablePredicateDebugLogs);
+    var predicate = new KubernetesFilePredicate(context.fileSystem().predicates(), enablePredicateDebugLogs, new SharedFileHeadReader());
     predicate.applyTimers(durationStatistics);
     return predicate;
   }

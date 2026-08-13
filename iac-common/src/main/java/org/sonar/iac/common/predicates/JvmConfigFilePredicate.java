@@ -33,13 +33,15 @@ public class JvmConfigFilePredicate extends AbstractTimedFilePredicate implement
     "**/src/main/resources/**/*app*.yaml,**/src/main/resources/**/*app*.yml";
   public static final Set<String> JVM_CONFIG_EXCLUDED_PROFILES = Set.of("dev", "test");
   private final FilePredicate delegate;
+  private final FilePredicate patternBasedCandidates;
   private final boolean enablePredicateDebugLogs;
 
   public JvmConfigFilePredicate(FilePredicates predicates, Configuration config, boolean enablePredicateDebugLogs) {
     this.enablePredicateDebugLogs = enablePredicateDebugLogs;
     var patterns = getFilePatterns(config);
+    this.patternBasedCandidates = predicates.matchesPathPatterns(patterns);
     this.delegate = predicates.and(
-      predicates.matchesPathPatterns(patterns),
+      this.patternBasedCandidates,
       new ProfileNameFilePredicate());
   }
 
@@ -65,6 +67,13 @@ public class JvmConfigFilePredicate extends AbstractTimedFilePredicate implement
       patterns = JVM_CONFIG_FILE_PATTERNS_DEFAULT_VALUE.split(",");
     }
     return patterns;
+  }
+
+  /**
+   * @return a FilePredicate that matches on the user configurable path patterns
+   */
+  public FilePredicate getPatternBasedCandidates() {
+    return patternBasedCandidates;
   }
 
   private static class ProfileNameFilePredicate implements FilePredicate {

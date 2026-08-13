@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.SharedFileHeadReader;
 import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 
@@ -55,7 +56,7 @@ class ArmJsonFilePredicateTest {
   }
 
   private ArmJsonFilePredicate armJsonFilePredicate(boolean enablePredicateDebugLogs) {
-    var predicate = new ArmJsonFilePredicate(predicates, config.asConfig(), enablePredicateDebugLogs);
+    var predicate = new ArmJsonFilePredicate(predicates, config.asConfig(), enablePredicateDebugLogs, new SharedFileHeadReader());
     predicate.applyTimers(new DurationStatistics(mock(Configuration.class)));
     return predicate;
   }

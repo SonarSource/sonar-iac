@@ -17,60 +17,113 @@
 package org.sonar.iac.common.predicates;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
- * Cache shared by all YAML based sensors of a single analysis, so a file's {@link FileType} is computed only once.
+ * Cache shared by all YAML based sensors of a single module, so a file's {@link FileType} is computed only once.
+ * Holds the classified files of one {@link FileSystem} at a time; a multi-module analysis ({@code sonar.modules})
+ * builds one file system per module, so {@link #clearAndStartClassifyingFor} switches (and clears) the cache when a
+ * different one arrives - callers must therefore be module-scoped.
  * <p>
- * It holds the {@code URI -> FileType} lookup and, per {@link FileSystem}, the ordered candidate files of the
- * classification scan, so a sensor can get its files without re-scanning. It is keyed by {@link FileSystem} because a
- * multi-module analysis ({@code sonar.modules}) builds one file system per module while sharing this analysis-scoped
- * cache, so each module's sensors must get back only their own module's files.
- * <p>
- * Scoped to a single analysis ({@link SonarLintSide.Lifespan#SINGLE_ANALYSIS}): a fresh cache per analysis, so it can
- * safely hold that analysis' {@link InputFile} instances and never serves a stale type.
+ * Written once per module by the PRE-phase {@link YamlFileTypeClassificationSensor}, then read-only; not thread-safe,
+ * as no concurrent writer is expected. Scoped to a single analysis ({@link SonarLintSide.Lifespan#SINGLE_ANALYSIS}): a
+ * fresh cache per analysis, so it can safely hold that analysis' {@link InputFile} instances and never serves a stale
+ * type.
  */
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.SINGLE_ANALYSIS)
 public class YamlFileTypeCache {
 
-  private final Map<URI, FileType> fileTypeCache = new ConcurrentHashMap<>();
-  private final Map<FileSystem, List<InputFile>> classifiedCandidatesByFileSystem = new ConcurrentHashMap<>();
+  private static final Logger LOG = LoggerFactory.getLogger(YamlFileTypeCache.class);
+
+  @Nullable
+  private FileSystem currentFileSystem;
+  private final Set<URI> cachedInputFileURIs = new HashSet<>();
+  private final Map<FileType, List<InputFile>> filesPerType = new EnumMap<>(FileType.class);
 
   public YamlFileTypeCache() {
-    // Public explicit constructor for injection
+    // public explicit constructor for injection
   }
 
-  @Nullable
-  public FileType get(URI fileUri) {
-    return fileTypeCache.get(fileUri);
+  public void clearAndStartClassifyingFor(FileSystem newFileSystem) {
+    if (!hasCacheDataFor(newFileSystem)) {
+      clearCache();
+    }
+    this.currentFileSystem = newFileSystem;
   }
 
-  public void put(InputFile inputFile, FileType fileType) {
-    fileTypeCache.put(inputFile.uri(), fileType);
+  public boolean hasCacheDataFor(FileSystem fileSystem) {
+    return fileSystem == currentFileSystem;
+  }
+
+  private void clearCache() {
+    currentFileSystem = null;
+    filesPerType.clear();
+    cachedInputFileURIs.clear();
+  }
+
+  public List<InputFile> getInputFiles(Set<FileType> fileTypes) {
+    var inputFiles = new ArrayList<InputFile>();
+    filesPerType.forEach((fileType, files) -> {
+      if (fileTypes.contains(fileType)) {
+        inputFiles.addAll(files);
+      }
+    });
+    return inputFiles;
+  }
+
+  public boolean hasKnownType(InputFile inputFile) {
+    return cachedInputFileURIs.contains(inputFile.uri());
   }
 
   /**
-   * Returns the ordered candidate files already classified for the given {@link FileSystem}, or {@code null} if it has
-   * not been classified yet. An empty (non-null) list means the scan ran and found no candidate file: a hit, not a miss.
+   * Records {@code inputFile}'s {@link FileType}, or throws if it was already recorded with a different type - should
+   * be structurally impossible, since {@code YamlFileTypeResolver#classify} assigns each candidate at most once.
    */
-  @Nullable
-  public List<InputFile> getClassifiedCandidates(FileSystem fileSystem) {
-    return classifiedCandidatesByFileSystem.get(fileSystem);
+  public void putIfUncached(InputFile inputFile, FileType fileType) {
+    if (cachedInputFileURIs.add(inputFile.uri())) {
+      filesPerType.computeIfAbsent(fileType, key -> new ArrayList<>()).add(inputFile);
+    } else {
+      var alreadyAssignedFileType = getAssignedFileType(inputFile);
+      var message = String.format("Input file '%s' was already classified as '%s' file and can't be reclassified as '%s'", inputFile.uri(), alreadyAssignedFileType, fileType);
+      throw new IllegalStateException(message);
+    }
   }
 
-  /**
-   * Memoizes the candidate files - in file-system iteration order - classified for the given {@link FileSystem}, so the
-   * classification scan runs only once per file system no matter how many sensors need those files.
-   */
-  public void putClassifiedCandidates(FileSystem fileSystem, List<InputFile> orderedCandidateFiles) {
-    classifiedCandidatesByFileSystem.put(fileSystem, orderedCandidateFiles);
+  @Nullable
+  private FileType getAssignedFileType(InputFile inputFile) {
+    for (Map.Entry<FileType, List<InputFile>> fileTypeListEntry : filesPerType.entrySet()) {
+      if (fileTypeListEntry.getValue().contains(inputFile)) {
+        return fileTypeListEntry.getKey();
+      }
+    }
+    return null;
+  }
+
+  public void logClassifiedCount() {
+    if (LOG.isDebugEnabled()) {
+      String formattedEntries = filesPerType.entrySet().stream()
+        .map(entry -> {
+          int count = entry.getValue().size();
+          String suffix = (count == 1) ? "file" : "files";
+          return entry.getKey() + ": " + count + " " + suffix;
+        })
+        .collect(Collectors.joining(", "));
+
+      LOG.debug("Classified input files for: {}", formattedEntries);
+    }
   }
 }

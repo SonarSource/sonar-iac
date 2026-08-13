@@ -48,7 +48,7 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
 
   @Override
   protected Sensor sensor(CheckFactory checkFactory) {
-    var yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
+    yamlFileTypeResolver = new YamlFileTypeResolver(context.fileSystem(), context.config(), new YamlFileTypeCache());
     return new JvmFrameworkConfigSensor(
       SONAR_QUBE_10_6_CCT_SUPPORT_MINIMAL_VERSION,
       fileLinesContextFactory,
@@ -192,8 +192,7 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
       // should not be matched because considered as a github actions files
       emptyFileInResources(".github/workflows/application.yaml"));
 
-    var fileSystem = context.fileSystem();
-    var inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context, new DurationStatistics(mock(Configuration.class))));
+    var inputFiles = sensor.inputFiles(context, new DurationStatistics(mock(Configuration.class)));
 
     assertThat(inputFiles)
       .map(IndexedFile::filename)
@@ -230,7 +229,9 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
     analyze(sensor(checkFactory("S2260")), validFile());
     assertThat(context.allIssues()).isEmpty();
 
-    assertThat(logTester.logs(Level.DEBUG).stream().filter(s -> !s.contains("Reporting telemetry"))).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG).stream()
+      .filter(s -> !s.contains("Reporting telemetry"))
+      .filter(s -> !s.contains("Classified input files"))).isEmpty();
   }
 
   @Test
@@ -240,7 +241,9 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
     analyze(sensor(checkFactory("S2260")), validFile());
     assertThat(context.allIssues()).isEmpty();
 
-    assertThat(logTester.logs(Level.DEBUG).stream().filter(s -> !s.contains("Reporting telemetry"))).isEmpty();
+    assertThat(logTester.logs(Level.DEBUG).stream()
+      .filter(s -> !s.contains("Reporting telemetry"))
+      .filter(s -> !s.contains("Classified input files"))).isEmpty();
   }
 
   @Test

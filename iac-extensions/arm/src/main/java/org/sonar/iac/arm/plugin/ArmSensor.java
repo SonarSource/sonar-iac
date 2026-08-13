@@ -18,6 +18,7 @@ package org.sonar.iac.arm.plugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -74,20 +75,27 @@ public class ArmSensor extends AbstractYamlLanguageSensor {
   }
 
   @Override
-  protected FilePredicate mainFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
-    FileSystem fileSystem = sensorContext.fileSystem();
-    FilePredicates predicates = fileSystem.predicates();
-
-    // Allow files which are main bicep file, or a main json file which contains the expected file identifier
-    return predicates.and(predicates.hasType(InputFile.Type.MAIN),
-      predicates.or(predicates.hasLanguage(ArmLanguage.KEY),
-        predicates.and(predicates.hasLanguage(JSON_LANGUAGE_KEY),
-          customFilePredicate(sensorContext, statistics))));
+  protected Set<FileType> fileTypesToRetrieveFromCache() {
+    return Set.of(FileType.AZURE_RESOURCE_MANAGER);
   }
 
   @Override
-  protected FilePredicate customFilePredicate(SensorContext sensorContext, DurationStatistics statistics) {
-    return yamlFileTypeResolver.getFilePredicate(statistics, FileType.AZURE_RESOURCE_MANAGER);
+  protected List<InputFile> inputFiles(SensorContext sensorContext, DurationStatistics statistics) {
+    var inputFiles = new ArrayList<InputFile>();
+    // ARM Bicep files
+    inputFiles.addAll(retrieveFromFileSystem(sensorContext, statistics, bicepFilePredicate(sensorContext)));
+    // ARM JSON files, retrieved from the FileCache
+    inputFiles.addAll(super.inputFiles(sensorContext, statistics));
+    return inputFiles;
+  }
+
+  protected FilePredicate bicepFilePredicate(SensorContext sensorContext) {
+    FileSystem fileSystem = sensorContext.fileSystem();
+    FilePredicates predicates = fileSystem.predicates();
+
+    return predicates.and(
+      predicates.hasType(InputFile.Type.MAIN),
+      predicates.hasLanguage(ArmLanguage.KEY));
   }
 
   @Override

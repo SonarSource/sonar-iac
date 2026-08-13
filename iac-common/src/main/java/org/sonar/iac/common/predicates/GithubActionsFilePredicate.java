@@ -22,7 +22,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.iac.common.extension.SharedFileHeadReader;
 import org.sonar.iac.common.extension.YamlIdentifierFilePredicate;
+import org.sonar.iac.common.languages.IacLanguage;
 
 public class GithubActionsFilePredicate extends AbstractTimedFilePredicate implements YamlFileTypePredicate {
 
@@ -35,14 +37,16 @@ public class GithubActionsFilePredicate extends AbstractTimedFilePredicate imple
   private final FilePredicate delegate;
   private final boolean enablePredicateDebugLogs;
 
-  public GithubActionsFilePredicate(FilePredicates predicates, boolean enablePredicateDebugLogs) {
+  public GithubActionsFilePredicate(FilePredicates predicates, boolean enablePredicateDebugLogs, SharedFileHeadReader sharedFileHeadReader) {
     this.enablePredicateDebugLogs = enablePredicateDebugLogs;
     var actionFilePredicate = predicates.and(
       predicates.matchesPathPatterns(METADATA_FILE_PATTERNS),
-      new YamlIdentifierFilePredicate(METADATA_FILE_IDENTIFIERS, REQUIRED_IDENTIFIER_COUNT));
-    this.delegate = predicates.or(
-      predicates.matchesPathPatterns(WORKFLOW_FILE_PATTERNS),
-      actionFilePredicate);
+      new YamlIdentifierFilePredicate(METADATA_FILE_IDENTIFIERS, REQUIRED_IDENTIFIER_COUNT, sharedFileHeadReader));
+    this.delegate = predicates.and(
+      predicates.hasLanguages(IacLanguage.YAML.getKey(), IacLanguage.GITHUB_ACTIONS.getKey()),
+      predicates.or(
+        predicates.matchesPathPatterns(WORKFLOW_FILE_PATTERNS),
+        actionFilePredicate));
   }
 
   @Override
