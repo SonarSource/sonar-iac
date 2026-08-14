@@ -16,16 +16,14 @@
  */
 package org.sonar.iac.kubernetes.checks;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
-import org.sonar.iac.common.checks.network.UrlUtils;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
+import org.sonarsource.analyzer.commons.appsec.CleartextProtocolFilter;
 
 @Rule(key = "S5332")
 public class ClearTextProtocolsCheck implements IacCheck {
@@ -42,14 +40,8 @@ public class ClearTextProtocolsCheck implements IacCheck {
     if (INSECURE_PROTOCOLS.stream().noneMatch(scalar.toLowerCase(Locale.ROOT)::startsWith)) {
       return;
     }
-    try {
-      var url = new URL(scalar);
-      var domain = url.getHost();
-      if (!UrlUtils.COMPLIANT_HTTP_DOMAINS.matcher(domain).find()) {
-        ctx.reportIssue(scalarTree, MESSAGE);
-      }
-    } catch (IOException e) {
-      // not a valid URL, ignore
+    if (!CleartextProtocolFilter.isSafeWithoutTls(scalar)) {
+      ctx.reportIssue(scalarTree, MESSAGE);
     }
   }
 }

@@ -3,14 +3,14 @@ kind: Job
 metadata:
   name: curl
   annotations:
-    description: Redirects to http://example.com # Compliant
-    compliantNoSlash: ftp:example.com # Compliant
-    compliantOneSlash: http:/example.com # Compliant
+    description: Redirects to http://sonarcloud.io # Compliant
+    compliantNoSlash: ftp:sonarcloud.io # Compliant
+    compliantOneSlash: http:/sonarcloud.io # Compliant
     compliantDifferentProtocol: file:///opt/sdks/bin/sdk # Compliant
-    nonCompliantUpperCase: HTTP://example.com # Noncompliant
-                         # ^^^^^^^^^^^^^^^^^^
-    nonCompliantMixedCase: HttP://example.com # Noncompliant
-                         # ^^^^^^^^^^^^^^^^^^
+    nonCompliantUpperCase: HTTP://sonarcloud.io # Noncompliant
+                         # ^^^^^^^^^^^^^^^^^^^^
+    nonCompliantMixedCase: HttP://sonarcloud.io # Noncompliant
+                         # ^^^^^^^^^^^^^^^^^^^^
 spec:
   template:
     spec:
@@ -18,35 +18,35 @@ spec:
         - name: curl
           image: curlimages/curl
           command: ["curl"]
-          args: ["http://example.com/"] # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
-#                ^^^^^^^^^^^^^^^^^^^^^
+          args: ["http://sonarcloud.io/"] # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
+#                ^^^^^^^^^^^^^^^^^^^^^^^
         - name: curlFtp
           image: curlimages/curl
           command: ["curl"]
-          args: ["ftp://example.com/"] # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
-#                ^^^^^^^^^^^^^^^^^^^^
+          args: ["ftp://sonarcloud.io/"] # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
+#                ^^^^^^^^^^^^^^^^^^^^^^
         - name: curl
           image: curlimages/curl
           command: ["curl"]
-          args: ["-fsL", "http://example.com/"] # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
-#                        ^^^^^^^^^^^^^^^^^^^^^
+          args: ["-fsL", "http://sonarcloud.io/"] # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
+#                        ^^^^^^^^^^^^^^^^^^^^^^^
         - name: curlLocalhost
           image: curlimages/curl
           command: ["curl"]
           args: ["http://127.0.0.1/"] # Compliant
           env:
             - name: ETCD_DISCOVERY_URL
-              value: "http://etcd-discovery:2379" # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
+              value: "http://etcd-discovery:2379" # Compliant, single-label hostname (cluster-internal service)
             - name: ETCDCTL_PEERS
-              value: "http://etcd:2379" # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
+              value: "http://etcd:2379" # Compliant, single-label hostname (cluster-internal service)
         - name: curlIpV6
           image: curlimages/curl
           command: ["curl"]
-          args: ["http://0:0:0:0:0:0:0:1"] # Compliant
+          args: ["http://0:0:0:0:0:0:0:1"] # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
         - name: curlIpV6-2
           image: curlimages/curl
           command: ["curl"]
-          args: ["http://::1"] # Compliant
+          args: ["http://::1"] # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
         - name: curlCloudMetadataIpv4
           image: curlimages/curl
           command: ["curl"]
@@ -55,24 +55,28 @@ spec:
           image: curlimages/curl
           command: ["curl"]
           args: ["http://[fd00:ec2::254]/"] # Compliant
+        - name: curlSvcClusterLocal
+          image: curlimages/curl
+          command: ["curl"]
+          args: ["http://my-svc.default.svc.cluster.local:8080/"] # Compliant
         - name: curl-secure-https
           image: curlimages/curl
           command: ["curl"]
-          args: ["https://example.com/"] # Compliant
+          args: ["https://sonarcloud.io/"] # Compliant
         - name: curl-secure-ftps
           image: curlimages/curl
           command: ["curl"]
-          args: ["ftps://example.com/"] # Compliant
+          args: ["ftps://sonarcloud.io/"] # Compliant
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: example
   annotations:
-    description: Redirects to http://example.com
+    description: Redirects to http://sonarcloud.io
     group: "http:cluster:" # Compliant
 spec:
   externalIPs:
-    - http://example.com/ # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
-#     ^^^^^^^^^^^^^^^^^^^
+    - http://sonarcloud.io/ # Noncompliant {{Make sure that using clear-text protocols is safe here.}}
+#     ^^^^^^^^^^^^^^^^^^^^^
 ---

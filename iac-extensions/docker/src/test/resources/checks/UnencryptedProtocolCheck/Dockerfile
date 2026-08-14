@@ -18,9 +18,11 @@ RUN ["curl", "http://localhost/my_folder/"]
 RUN ["curl", "http://127.0.0.1"]
 RUN ["curl", "http://127.0.0.1/my_folder/"]
 RUN ["curl", "http://LOCALHOST"]
+# Noncompliant@+1
 RUN ["curl", "http://0:0:0:0:0:0:0:1"]
 # Noncompliant@+1
 RUN ["curl", "http://0:0:0:0:0:0:0:42"]
+# Noncompliant@+1
 RUN ["curl", "http://::1"]
 # Noncompliant@+1
 RUN ["curl", "http://1:1:1:1:1:1:1:1"]
@@ -31,6 +33,8 @@ RUN ["curl", "http://169.254.169.254"]
 RUN ["curl", "http://169.254.169.254/metadata/"]
 RUN ["curl", "http://[fd00:ec2::254]/"]
 RUN ["curl", "http://[fd00:ec2::254]"]
+RUN ["curl", "http://cluster-internal-service/path"]
+RUN ["curl", "http://host.docker.internal:9000/"]
 
 # Noncompliant@+1
 ENTRYPOINT ["command", "http://www.httpvshttps.com/"]
