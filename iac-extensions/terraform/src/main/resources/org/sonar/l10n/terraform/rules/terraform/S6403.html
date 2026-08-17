@@ -2,7 +2,8 @@
 <h2>Why is this an issue?</h2>
 <p>By default, GCP SQL instances accept both encrypted and unencrypted connections. On unsecured networks, such as public networks, unencrypted
 traffic can be intercepted by an attacker who can then read confidential data. This rule detects <code>google_sql_database_instance</code> resources
-that do not enforce <code>require_ssl = true</code> in their <code>ip_configuration</code> block.</p>
+that do not enforce encrypted connections through <code>ssl_mode</code> in their <code>ip_configuration</code> block. The older
+<code>require_ssl</code> attribute is deprecated in favor of <code>ssl_mode</code>, which takes precedence when both are set.</p>
 <h3>What is the potential impact?</h3>
 <p>Unencrypted connections between clients and the SQL instance expose sensitive data to interception. An attacker on the same network can capture
 database traffic and read or modify confidential information in transit.</p>
@@ -30,22 +31,24 @@ resource "google_sql_database_instance" "example" {
   settings {
     tier = "db-f1-micro"
     ip_configuration {
-      require_ssl = true
+      ssl_mode = "ENCRYPTED_ONLY"
       ipv4_enabled = true
     }
   }
 }
 </pre>
 <h3>Pitfalls</h3>
-<p>Some connection methods automatically encrypt traffic without requiring <code>require_ssl = true</code>: the <a
+<p>Some connection methods automatically encrypt traffic without requiring <code>ssl_mode</code> to be set: the <a
 href="https://cloud.google.com/sql/docs/mysql/connect-admin-proxy">Cloud SQL Auth proxy</a>, the <a
 href="https://cloud.google.com/sql/docs/mysql/connect-overview#languages">Java Socket Library</a>, and built-in mechanisms in <a
-href="https://cloud.google.com/appengine/docs">App Engine</a> environments. Even when using these methods, enforcing <code>require_ssl = true</code>
-adds an extra layer of defense in depth by rejecting any unencrypted connection attempts that bypass these mechanisms.</p>
+href="https://cloud.google.com/appengine/docs">App Engine</a> environments. Even when using these methods, enforcing <code>ssl_mode</code> adds an
+extra layer of defense in depth by rejecting any unencrypted connection attempts that bypass these mechanisms.</p>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
   <li><a href="https://cloud.google.com/sql/docs/mysql/authorize-ssl">GCP Documentation</a> - Cloud SQL: Authorizing with SSL/TLS certificates</li>
+  <li><a href="https://docs.cloud.google.com/sql/docs/postgres/admin-api/rest/v1/instances#ipconfiguration">GCP Documentation</a> - Cloud SQL Admin
+  API: ipConfiguration reference</li>
 </ul>
 <h3>Standards</h3>
 <ul>
