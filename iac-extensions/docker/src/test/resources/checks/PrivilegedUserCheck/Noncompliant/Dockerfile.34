@@ -1,0 +1,4 @@
+# Safety still depends on the tag, not just the registry port; an explicit port must not bypass the tag check.
+# Noncompliant@+1 {{This image might run with "root" as the default user. Make sure it is safe here.}}
+FROM gcr.io:443/distroless/static-debian12:latest
+ENTRYPOINT ["/app"]

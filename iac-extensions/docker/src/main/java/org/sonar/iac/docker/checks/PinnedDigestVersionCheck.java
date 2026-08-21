@@ -20,10 +20,9 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.checks.DockerImageReference;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.FromInstruction;
-
-import static org.sonar.iac.docker.checks.utils.CheckUtils.isScratchImage;
 
 @Rule(key = "S7023")
 public class PinnedDigestVersionCheck implements IacCheck {
@@ -37,27 +36,16 @@ public class PinnedDigestVersionCheck implements IacCheck {
 
   private static void checkFromInstruction(CheckContext ctx, FromInstruction fromInstruction) {
     var resolvedImage = ArgumentResolution.of(fromInstruction.image());
-    if (resolvedImage.isResolved()) {
-      String fullImageName = resolvedImage.value();
-
-      if (!isScratchImage(fullImageName) && !isMalformedOrLatestVersion(fullImageName) && !hasPinnedDigest(fullImageName)) {
-        ctx.reportIssue(fromInstruction.image().textRange(), MESSAGE);
-      }
+    if (!resolvedImage.isResolved()) {
+      return;
     }
+    DockerImageReference.parse(resolvedImage.value())
+      .filter(image -> !image.isScratch() && needsPinnedDigest(image))
+      .ifPresent(image -> ctx.reportIssue(fromInstruction.image().textRange(), MESSAGE));
   }
 
-  // We don't want to raise on malformed image names
-  // We don't want to raise on latest version because SpecificVersionTagCheck would already raise an issue here
-  private static boolean isMalformedOrLatestVersion(String fullImageName) {
-    String[] splitImageName = fullImageName.split(":");
-    if (splitImageName.length <= 1) {
-      return true;
-    } else {
-      return splitImageName[0].isBlank() || "latest".equals(splitImageName[1]);
-    }
-  }
-
-  private static boolean hasPinnedDigest(String fullImageName) {
-    return fullImageName.contains("@");
+  // We don't want to raise on a blank/absent tag, or "latest" (SpecificVersionTagCheck already raises for those).
+  private static boolean needsPinnedDigest(DockerImageReference image) {
+    return image.hasSpecificVersion() && image.digest() == null;
   }
 }

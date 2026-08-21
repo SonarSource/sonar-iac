@@ -1,0 +1,4 @@
+# Only the "nonroot"/"*-nonroot" tags are safe; any other tag still runs as root.
+# Noncompliant@+1 {{This image might run with "root" as the default user. Make sure it is safe here.}}
+FROM gcr.io/distroless/static-debian12:latest
+ENTRYPOINT ["/app"]

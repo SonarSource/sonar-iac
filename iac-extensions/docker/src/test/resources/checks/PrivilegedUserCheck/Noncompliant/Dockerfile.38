@@ -1,0 +1,4 @@
+# a host that merely starts with "dhi.io" must not match the "dhi.io" safe-registry entry
+# Noncompliant@+1 {{This image might run with "root" as the default user. Make sure it is safe here.}}
+FROM dhi.io.evil.com/node:1.2.3
+ENTRYPOINT ["/app"]

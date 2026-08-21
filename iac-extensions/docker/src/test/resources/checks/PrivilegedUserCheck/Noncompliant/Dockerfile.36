@@ -1,0 +1,4 @@
+# a tag and digest suffix must not hide the unsafe "golang" image name
+# Noncompliant@+1 {{The "golang" image runs with "root" as the default user. Make sure it is safe here.}}
+FROM golang:1.21@sha256:06b5d30fabc1
+ENTRYPOINT ["/app"]

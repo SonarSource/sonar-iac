@@ -20,11 +20,9 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.checks.DockerImageReference;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.FromInstruction;
-
-import static org.sonar.iac.docker.checks.utils.CheckUtils.getImageDigest;
-import static org.sonar.iac.docker.checks.utils.CheckUtils.getImageTag;
 
 @Rule(key = "S8431")
 public class CombinedTagAndDigestCheck implements IacCheck {
@@ -45,6 +43,8 @@ public class CombinedTagAndDigestCheck implements IacCheck {
   }
 
   private static boolean isTagAndDigestCombined(String fullImageName) {
-    return getImageTag(fullImageName).isPresent() && getImageDigest(fullImageName).isPresent();
+    return DockerImageReference.parse(fullImageName)
+      .map(image -> image.tag() != null && image.digest() != null)
+      .orElse(false);
   }
 }

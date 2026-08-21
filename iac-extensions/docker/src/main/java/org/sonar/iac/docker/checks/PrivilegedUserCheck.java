@@ -32,6 +32,7 @@ import org.sonar.check.RuleProperty;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.checks.DockerImageReference;
 import org.sonar.iac.docker.checks.utils.MultiStageBuildInspector;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.TreeUtils;
@@ -50,8 +51,6 @@ import org.sonar.iac.docker.tree.api.ShellCode;
 import org.sonar.iac.docker.tree.api.SyntaxToken;
 import org.sonar.iac.docker.tree.api.UserInstruction;
 
-import static org.sonar.iac.docker.checks.utils.CheckUtils.isScratchImage;
-
 @Rule(key = "S6471")
 public class PrivilegedUserCheck implements IacCheck {
 
@@ -69,8 +68,12 @@ public class PrivilegedUserCheck implements IacCheck {
   private static final Set<String> SAFE_IMAGES = Set.of("adminer", "api-firewall", "elasticsearch", "emqx", "flink", "fluentd", "geonetwork", "groovy", "haproxy",
     "ibm-semeru-runtimes", "irssi", "jetty", "jobber", "kibana", "kong", "lightstreamer", "logstash", "memcached", "neo4j", "odoo", "open-liberty", "percona",
     "rocket.chat", "solr", "swift", "varnish", "vault", "websphere-liberty", "znc", "nginxinc/nginx-unprivileged");
-  // Registry/organization namespaces whose images run as a non-root user by default.
-  private static final Set<String> SAFE_NAMESPACES = Set.of("bitnami/", "dhi.io/");
+  // Registries whose images run as a non-root user by default.
+  private static final Set<String> SAFE_REGISTRIES = Set.of("dhi.io");
+  // Docker Hub namespaces/organizations (not registry hosts) whose images run as a non-root user by default.
+  private static final Set<String> SAFE_HUB_NAMESPACES = Set.of("bitnami");
+  private static final String GOOGLE_CONTAINER_REGISTRY = "gcr.io";
+  private static final String DISTROLESS_NAMESPACE = "distroless";
 
   // Commands whose invocation in a RUN signals the dockerfile drops privileges later (or sets up a separate user).
   private static final Set<String> PRIVILEGE_DROP_COMMANDS = Set.of("gosu", "su-exec", "useradd", "adduser", "setpriv");
@@ -200,18 +203,24 @@ public class PrivilegedUserCheck implements IacCheck {
   // The message is classified from the real base image, but reported on the final stage's FROM (the two coincide for a
   // single-stage build): that FROM is where a USER instruction must be added to fix the effective user.
   private void checkLastImageName(CheckContext ctx, FromInstruction reportLocation, FromInstruction baseImage) {
-    String imageName = getImageName(baseImage);
-    if (imageName == null) {
+    ArgumentResolution resolvedImage = ArgumentResolution.of(baseImage.image());
+    if (resolvedImage.isUnresolved()) {
       return;
     }
+    Optional<DockerImageReference> parsedImage = DockerImageReference.parse(resolvedImage.value());
+    if (parsedImage.isEmpty()) {
+      return;
+    }
+    DockerImageReference image = parsedImage.get();
+    String imageName = image.withoutTagOrDigest();
 
-    if (isScratchImage(imageName)) {
+    if (image.isScratch()) {
       ctx.reportIssue(reportLocation, MESSAGE_SCRATCH);
     } else if (isUnsafeImage(imageName) && !isUserSafeImage(imageName)) {
       ctx.reportIssue(reportLocation, String.format(MESSAGE_UNSAFE_DEFAULT_ROOT, imageName));
-    } else if (isMicrosoftUnsafeImage(imageName)) {
+    } else if (isMicrosoftUnsafeImage(image)) {
       ctx.reportIssue(reportLocation, MESSAGE_MICROSOFT_DEFAULT_ROOT);
-    } else if (!isSafeImage(imageName)) {
+    } else if (!isSafeImage(image)) {
       ctx.reportIssue(reportLocation, MESSAGE_OTHER_IMAGE);
     }
   }
@@ -374,28 +383,6 @@ public class PrivilegedUserCheck implements IacCheck {
     return path.substring(path.lastIndexOf('/') + 1);
   }
 
-  @Nullable
-  private static String getImageName(FromInstruction from) {
-    ArgumentResolution resolvedImage = ArgumentResolution.of(from.image());
-    String fullImageName = resolvedImage.value();
-    if (resolvedImage.isUnresolved()) {
-      return null;
-    } else if (fullImageName.contains(":")) {
-      var lastColonIndex = fullImageName.lastIndexOf(":");
-      var afterColonPart = fullImageName.substring(lastColonIndex);
-      if (afterColonPart.contains("/")) {
-        // Here it means that the last colon is just a port of the docker repo,
-        // example: customHost:8080/custom/dotnet
-        return fullImageName;
-      }
-      return fullImageName.substring(0, lastColonIndex);
-    } else if (fullImageName.contains("@")) {
-      return fullImageName.split("@")[0];
-    } else {
-      return fullImageName;
-    }
-  }
-
   private static Optional<UserInstruction> getLastUser(DockerImage dockerImage) {
     return TreeUtils.lastDescendant(dockerImage, UserInstruction.class::isInstance)
       .map(UserInstruction.class::cast);
@@ -406,19 +393,32 @@ public class PrivilegedUserCheck implements IacCheck {
     return UNSAFE_IMAGES.contains(imageName);
   }
 
-  private boolean isSafeImage(String imageName) {
-    return SAFE_IMAGES.contains(imageName) || isSafeNamespace(imageName) || isUserSafeImage(imageName);
+  private boolean isSafeImage(DockerImageReference image) {
+    String imageName = image.withoutTagOrDigest();
+    return SAFE_IMAGES.contains(imageName) || isSafeNamespace(image) || isUserSafeImage(imageName) || isDistrolessNonRootImage(image);
   }
 
-  private static boolean isSafeNamespace(String imageName) {
-    return SAFE_NAMESPACES.stream().anyMatch(imageName::startsWith);
+  private static boolean isSafeNamespace(DockerImageReference image) {
+    String registryHost = image.registryHost();
+    if (registryHost != null) {
+      return SAFE_REGISTRIES.contains(registryHost);
+    }
+    String namespace = image.namespace();
+    return namespace != null && SAFE_HUB_NAMESPACES.contains(namespace);
+  }
+
+  // Distroless images (https://github.com/googlecontainertools/distroless) are safe only when nonroot-tagged.
+  private static boolean isDistrolessNonRootImage(DockerImageReference image) {
+    String tag = image.tag();
+    return GOOGLE_CONTAINER_REGISTRY.equals(image.registryHost()) && DISTROLESS_NAMESPACE.equals(image.namespace())
+      && tag != null && (tag.startsWith("nonroot") || tag.startsWith("debug-nonroot"));
   }
 
   private boolean isUserSafeImage(String imageName) {
     return userSafeImages().contains(imageName);
   }
 
-  private static boolean isMicrosoftUnsafeImage(String imageName) {
-    return imageName.startsWith("mcr.microsoft.com/");
+  private static boolean isMicrosoftUnsafeImage(DockerImageReference image) {
+    return "mcr.microsoft.com".equals(image.registryHost());
   }
 }

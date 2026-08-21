@@ -1,0 +1,3 @@
+# nonroot tags with a digest suffix are safe
+FROM gcr.io/distroless/static-debian12:nonroot-0093a0209f695c939427fd207c933bdbadcf7301
+ENTRYPOINT ["/app"]

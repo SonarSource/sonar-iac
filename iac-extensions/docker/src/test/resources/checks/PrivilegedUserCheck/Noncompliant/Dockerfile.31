@@ -1,0 +1,4 @@
+# The default/untagged distroless image still runs as root.
+# Noncompliant@+1 {{This image might run with "root" as the default user. Make sure it is safe here.}}
+FROM gcr.io/distroless/static-debian12
+ENTRYPOINT ["/app"]

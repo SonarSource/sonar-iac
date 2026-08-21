@@ -1,0 +1,3 @@
+# architecture-suffixed debug-nonroot tags are safe
+FROM gcr.io/distroless/static-debian12:debug-nonroot-amd64
+ENTRYPOINT ["/app"]

@@ -1,0 +1,4 @@
+# a namespace that merely starts with "bitnami" must not match the "bitnami" safe-namespace prefix
+# Noncompliant@+1 {{This image might run with "root" as the default user. Make sure it is safe here.}}
+FROM bitnamiasdf/node
+ENTRYPOINT ["/app"]

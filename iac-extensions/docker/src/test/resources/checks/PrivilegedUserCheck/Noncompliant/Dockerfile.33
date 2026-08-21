@@ -1,0 +1,4 @@
+# Safety depends on the tag, not just the repository: a mirrored/external namespace must still raise.
+# Noncompliant@+1 {{This image might run with "root" as the default user. Make sure it is safe here.}}
+FROM myregistry.io/distroless/static-debian12:nonroot
+ENTRYPOINT ["/app"]

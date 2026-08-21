@@ -54,6 +54,10 @@ foobar
 FROM \
 foobar:latest
 
+# Noncompliant@+1
+FROM customHost:8080/custom/dotnet
+# The colon before 8080 is a registry port, not a tag separator, so this image is untagged
+
 # Compliant
 FROM my-image:1.2.3 as baseWithTag
 FROM my-image:1.2.3-alpine
@@ -83,6 +87,7 @@ FROM foo:
 # Compliant: scratch is a special image that cannot have tag/digest
 FROM scratch
 FROM scratch:1.2.3
+FROM scratch:latest
 
 # Compliant, unresolved myBase reference should not raise an issue, could lead to a FP
 FROM ${UNRESOLVED} as myBase

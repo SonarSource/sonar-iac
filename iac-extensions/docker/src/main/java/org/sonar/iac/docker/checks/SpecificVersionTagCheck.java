@@ -22,14 +22,11 @@ import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.checks.DockerImageReference;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Body;
 import org.sonar.iac.docker.tree.api.DockerImage;
 import org.sonar.iac.docker.tree.api.FromInstruction;
-
-import static org.sonar.iac.docker.checks.utils.CheckUtils.getImageDigest;
-import static org.sonar.iac.docker.checks.utils.CheckUtils.getImageTag;
-import static org.sonar.iac.docker.checks.utils.CheckUtils.isScratchImage;
 
 @Rule(key = "S6596")
 public class SpecificVersionTagCheck implements IacCheck {
@@ -52,23 +49,14 @@ public class SpecificVersionTagCheck implements IacCheck {
     var resolvedImage = ArgumentResolution.of(fromInstruction.image());
     if (resolvedImage.isResolved()) {
       String fullImageName = resolvedImage.value();
-
-      if (!isScratchImage(fullImageName) && hasSensitiveVersionTag(fullImageName) && !encounteredAlias.contains(fullImageName)) {
-        ctx.reportIssue(fromInstruction.image().textRange(), MESSAGE);
-      }
+      DockerImageReference.parse(fullImageName)
+        .filter(image -> !image.isScratch() && image.isLatest() && !encounteredAlias.contains(fullImageName))
+        .ifPresent(image -> ctx.reportIssue(fromInstruction.image().textRange(), MESSAGE));
     }
 
     var alias = fromInstruction.alias();
     if (alias != null) {
       encounteredAlias.add(alias.alias().value());
     }
-  }
-
-  private static boolean hasSensitiveVersionTag(String fullImageName) {
-    if (getImageDigest(fullImageName).isPresent()) {
-      return false;
-    }
-    // return true, if image tag is absent or equals to latest
-    return getImageTag(fullImageName).map("latest"::equals).orElse(true);
   }
 }

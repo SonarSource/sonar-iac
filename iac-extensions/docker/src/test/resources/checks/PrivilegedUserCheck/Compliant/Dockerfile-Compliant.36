@@ -1,0 +1,2 @@
+FROM gcr.io:443/distroless/java17-debian12:debug-nonroot
+ENTRYPOINT ["/app"]
