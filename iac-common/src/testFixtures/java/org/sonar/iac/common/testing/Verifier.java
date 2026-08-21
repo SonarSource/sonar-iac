@@ -62,11 +62,11 @@ public final class Verifier {
   }
 
   public static void verify(TreeParser<? extends Tree> parser, Path path, IacCheck check) {
-    verify(parser, path, check, TestContext::new);
+    verify(parser, path, check, verifier -> new TestContext(verifier, path));
   }
 
   public static void verify(Tree root, Path path, IacCheck check) {
-    verify(root, path, check, TestContext::new);
+    verify(root, path, check, verifier -> new TestContext(verifier, path));
   }
 
   public static void verify(TreeParser<? extends Tree> parser, Path path, IacCheck check, Function<MultiFileVerifier, TestContext> contextSupplier) {
@@ -84,7 +84,7 @@ public final class Verifier {
   }
 
   public static void verify(Tree root, Path path, IacCheck check, Issue... expectedIssues) {
-    List<Issue> actualIssues = runAnalysis(new TestContext(createVerifier(path, root)), check, root);
+    List<Issue> actualIssues = runAnalysis(new TestContext(createVerifier(path, root), path), check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
@@ -114,7 +114,7 @@ public final class Verifier {
   public static void verify(TreeParser<? extends Tree> parser, String content, IacCheck check, Issue... expectedIssues) {
     Tree root = parser.parse(content, null);
     var tempFile = contentToTmp(content);
-    var actualIssues = runAnalysis(new TestContext(createVerifier(tempFile.toPath(), root)), check, root);
+    var actualIssues = runAnalysis(new TestContext(createVerifier(tempFile.toPath(), root), tempFile.toPath()), check, root);
     compare(actualIssues, Arrays.asList(expectedIssues));
   }
 
@@ -167,11 +167,11 @@ public final class Verifier {
   }
 
   public static void verifyNoIssue(TreeParser<? extends Tree> parser, Path path, IacCheck check) {
-    verifyNoIssue(parser, path, check, TestContext::new);
+    verifyNoIssue(parser, path, check, verifier -> new TestContext(verifier, path));
   }
 
   public static void verifyNoIssue(Tree root, Path path, IacCheck check) {
-    verifyNoIssue(root, path, check, TestContext::new);
+    verifyNoIssue(root, path, check, verifier -> new TestContext(verifier, path));
   }
 
   public static void verifyNoIssue(TreeParser<? extends Tree> parser, Path path, IacCheck check,
@@ -191,7 +191,7 @@ public final class Verifier {
    * verification (such as the rule description context key) can be asserted directly.
    */
   public static List<Issue> scanAndCollectIssues(Tree root, Path path, IacCheck check) {
-    return runAnalysis(new TestContext(createVerifier(path, root)), check, root);
+    return runAnalysis(new TestContext(createVerifier(path, root), path), check, root);
   }
 
   private static List<Issue> runAnalysis(TestContext ctx, IacCheck check, Tree root) {
@@ -278,9 +278,16 @@ public final class Verifier {
     private final TreeVisitor<TestContext> visitor;
     private final MultiFileVerifier verifier;
     private final List<Issue> raisedIssues = new ArrayList<>();
+    @Nullable
+    protected final Path analyzedFile;
 
     public TestContext(MultiFileVerifier verifier) {
+      this(verifier, null);
+    }
+
+    public TestContext(MultiFileVerifier verifier, @Nullable Path analyzedFile) {
       this.verifier = verifier;
+      this.analyzedFile = analyzedFile;
       visitor = new TreeVisitor<>();
     }
 

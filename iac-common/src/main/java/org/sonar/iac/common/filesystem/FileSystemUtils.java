@@ -17,15 +17,112 @@
 package org.sonar.iac.common.filesystem;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.iac.common.extension.SonarRuntimeUtils;
 
 public class FileSystemUtils {
   private FileSystemUtils() {
+  }
+
+  /**
+   * Reads a file referenced relative to {@code workingDirectory}.
+   * Returns empty when the reference is absent, escapes that directory, the directory is unknown, or the file is not part of the analysis-scoped {@code fileSystem} index.
+   * Resolution is exact — a namesake elsewhere in the project is never substituted.
+   * <p>
+   * Skipped entirely in a SonarLint context, since a single-file analysis there does not reliably index the whole project.
+   * Revisit once we expose referenced files there ourselves, e.g. via a {@code @SonarLintSide(MODULE)} component backed by SonarLint's {@code ModuleFileSystem}.
+   */
+  public static Optional<String> readReferencedFile(SensorContext sensorContext, @Nullable Path workingDirectory, String referencedPath) {
+    if (workingDirectory == null || SonarRuntimeUtils.isSonarLintContext(sensorContext.runtime()) || !isLocalReference(referencedPath)) {
+      return Optional.empty();
+    }
+    var candidate = workingDirectory.resolve(referencedPath).normalize();
+    // Canonical forms on both sides, so that a symlink cannot be used to step out of the working directory
+    var canonicalCandidate = canonical(candidate);
+    if (!canonicalCandidate.startsWith(canonical(workingDirectory))) {
+      return Optional.empty();
+    }
+    return readIndexedFile(sensorContext.fileSystem(), candidate, canonicalCandidate);
+  }
+
+  /**
+   * Directory holding {@code file}, null when {@link InputFile#uri()} is not a path on the default file system.
+   */
+  @Nullable
+  public static Path directoryOf(InputFile file) {
+    var path = pathOrNull(file.uri());
+    return path != null ? path.getParent() : null;
+  }
+
+  static boolean isLocalReference(String referencedPath) {
+    if (referencedPath.isBlank() || referencedPath.contains("://") || referencedPath.contains("$") || referencedPath.startsWith("~")) {
+      return false;
+    }
+    try {
+      return !Path.of(referencedPath).isAbsolute();
+    } catch (InvalidPathException e) {
+      return false;
+    }
+  }
+
+  private static Optional<String> readIndexedFile(FileSystem fileSystem, Path candidate, Path canonicalCandidate) {
+    var inputFile = indexedFile(fileSystem, candidate);
+    if (inputFile == null && !canonicalCandidate.equals(candidate)) {
+      inputFile = indexedFile(fileSystem, canonicalCandidate);
+    }
+    if (inputFile == null) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(inputFile.contents());
+    } catch (IOException e) {
+      return Optional.empty();
+    }
+  }
+
+  @Nullable
+  private static InputFile indexedFile(FileSystem fileSystem, Path path) {
+    try {
+      // hasAbsolutePath() is scanner-only; SonarLint throws UnsupportedOperationException for it, so we use hasURI() instead.
+      return fileSystem.inputFile(fileSystem.predicates().hasURI(path.toUri()));
+    } catch (UnsupportedOperationException e) {
+      return null;
+    }
+  }
+
+  // InputFile.uri() is not guaranteed to use the file scheme; Path.of would throw for any other scheme.
+  @Nullable
+  private static Path pathOrNull(URI uri) {
+    try {
+      return Path.of(uri);
+    } catch (IllegalArgumentException | FileSystemNotFoundException e) {
+      return null;
+    }
+  }
+
+  /**
+   * Canonicalizes {@code path}, resolving symlinks along the way.
+   * On Windows, {@code File.getCanonicalFile()} does not reliably dereference symlinks/junctions.
+   * We accept that gap there, same as {@link #retrieveHelmProjectFolder}, since creating a symlink on Windows needs Developer Mode or an elevated process.
+   */
+  static Path canonical(Path path) {
+    try {
+      return path.toFile().getCanonicalFile().toPath();
+    } catch (IOException | UnsupportedOperationException e) {
+      // toFile() rejects paths outside the default file system
+      return path.toAbsolutePath().normalize();
+    }
   }
 
   /**
@@ -47,7 +144,7 @@ public class FileSystemUtils {
     try {
       inputFilePath = inputFilePath.toFile().getCanonicalFile().toPath();
       baseDirPath = baseDirPath.toFile().getCanonicalFile().toPath();
-    } catch (IOException e) {
+    } catch (IOException | UnsupportedOperationException e) {
       // In case of error, we keep the original baseDirPath
     }
 
