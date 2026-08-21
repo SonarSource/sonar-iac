@@ -19,6 +19,7 @@ package org.sonar.iac.common.testing;
 import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -73,7 +74,9 @@ public abstract class AbstractSensorTest {
   protected YamlFileTypeResolver yamlFileTypeResolver;
 
   @BeforeEach
-  void setup() {
+  void setup() throws IOException {
+    // toRealPath resolves the Windows 8.3 short form, which InputFile.uri() does not use
+    baseDir = baseDir.toPath().toRealPath().toFile();
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(ArgumentMatchers.any(InputFile.class))).thenReturn(fileLinesContext);
     settings = new MapSettings();

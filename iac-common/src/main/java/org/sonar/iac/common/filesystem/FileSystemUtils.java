@@ -22,6 +22,8 @@ import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -112,17 +114,35 @@ public class FileSystemUtils {
   }
 
   /**
-   * Canonicalizes {@code path}, resolving symlinks along the way.
-   * On Windows, {@code File.getCanonicalFile()} does not reliably dereference symlinks/junctions.
-   * We accept that gap there, same as {@link #retrieveHelmProjectFolder}, since creating a symlink on Windows needs Developer Mode or an elevated process.
+   * Canonicalizes {@code path}, resolving symlinks where the platform allows it — not reliably on Windows, see {@link #retrieveHelmProjectFolder}.
+   * The path may not fully exist on disk, so we canonicalize the deepest existing ancestor and re-append the rest literally to keep paths consistent.
    */
   static Path canonical(Path path) {
-    try {
-      return path.toFile().getCanonicalFile().toPath();
-    } catch (IOException | UnsupportedOperationException e) {
-      // toFile() rejects paths outside the default file system
-      return path.toAbsolutePath().normalize();
+    var normalized = path.toAbsolutePath().normalize();
+    Deque<Path> missingSegments = new ArrayDeque<>();
+    var existingAncestor = deepestExistingAncestor(normalized, missingSegments);
+    if (existingAncestor == null) {
+      return normalized;
     }
+    try {
+      var resolved = existingAncestor.toFile().getCanonicalFile().toPath();
+      for (var segment : missingSegments) {
+        resolved = resolved.resolve(segment);
+      }
+      return resolved;
+    } catch (IOException | UnsupportedOperationException e) {
+      return normalized;
+    }
+  }
+
+  @Nullable
+  private static Path deepestExistingAncestor(Path path, Deque<Path> missingSegments) {
+    var ancestor = path;
+    while (ancestor != null && !Files.exists(ancestor)) {
+      missingSegments.addFirst(ancestor.getFileName());
+      ancestor = ancestor.getParent();
+    }
+    return ancestor;
   }
 
   /**

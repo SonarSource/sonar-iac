@@ -39,8 +39,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assumptions.abort;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.iac.common.filesystem.FileSystemUtils.canonical;
 import static org.sonar.iac.common.filesystem.FileSystemUtils.directoryOf;
 import static org.sonar.iac.common.filesystem.FileSystemUtils.readReferencedFile;
 import static org.sonar.iac.common.filesystem.FileSystemUtils.retrieveHelmProjectFolder;
@@ -154,6 +157,41 @@ class FileSystemUtilsTest {
     var result = retrieveHelmProjectFolder(inputFilePath, context.fileSystem(), Files::exists);
 
     assertThat(result).isEqualTo(baseDir);
+  }
+
+  @Test
+  void canonicalShouldKeepDescendantConsistentWithAncestorWhenNeitherExistsOnDisk() {
+    var missingDir = baseDir.resolve("missing");
+    var missingDescendant = missingDir.resolve("deeper/file.txt");
+
+    assertThat(canonical(missingDescendant)).isEqualTo(canonical(missingDir).resolve("deeper").resolve("file.txt"));
+  }
+
+  /**
+   * Pins the mechanism the previous test relies on: only the deepest existing ancestor is ever canonicalized.
+   * Canonicalizing the full descendant path directly is what made two related paths resolve inconsistently on Windows.
+   */
+  @Test
+  void canonicalShouldNotCanonicalizeSegmentsThatDoNotExistOnDisk() {
+    var missingChild = mock(Path.class);
+    var missingLeaf = mock(Path.class);
+    when(missingLeaf.toAbsolutePath()).thenReturn(missingLeaf);
+    when(missingLeaf.normalize()).thenReturn(missingLeaf);
+    when(missingLeaf.getFileName()).thenReturn(Path.of("file.txt"));
+    when(missingLeaf.getParent()).thenReturn(missingChild);
+    when(missingChild.getFileName()).thenReturn(Path.of("missing"));
+    when(missingChild.getParent()).thenReturn(baseDir);
+
+    try (var filesMock = Mockito.mockStatic(Files.class, Mockito.CALLS_REAL_METHODS)) {
+      filesMock.when(() -> Files.exists(missingLeaf)).thenReturn(false);
+      filesMock.when(() -> Files.exists(missingChild)).thenReturn(false);
+
+      var result = canonical(missingLeaf);
+
+      assertThat(result).isEqualTo(canonical(baseDir).resolve("missing").resolve("file.txt"));
+      verify(missingLeaf, never()).toFile();
+      verify(missingChild, never()).toFile();
+    }
   }
 
   @Test
