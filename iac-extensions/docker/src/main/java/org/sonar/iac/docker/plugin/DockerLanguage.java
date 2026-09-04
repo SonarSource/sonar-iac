@@ -17,6 +17,7 @@
 package org.sonar.iac.docker.plugin;
 
 import java.util.Arrays;
+import java.util.Set;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.iac.common.languages.IacLanguage;
@@ -48,12 +49,22 @@ public class DockerLanguage extends AbstractLanguage {
     return patterns;
   }
 
+  /**
+   * Returns whether the configured file patterns stay within {@link DockerSettings#DEFAULT_FILE_PATTERNS}.
+   * <p>
+   * A subset check, not an exact match, is used on purpose.
+   * It keeps recognizing older persisted defaults as "default" as the shipped list grows.
+   * For example, the pre-Containerfile set of patterns still counts as default.
+   * It also treats a narrowed selection like {@code Dockerfile} alone as "default".
+   * This is a behavior change: previously, only an exact match counted as default.
+   * <p>
+   * {@code DockerSensor} uses this result to decide whether to exclude {@code .md}, {@code .j2}, and {@code *enkinsfile} files from analysis.
+   * Configuring one pattern outside the defaults opts out of that exclusion.
+   */
   public boolean isUsingDefaultFilePattern() {
-    var patternSettings = settings.getStringArray(DockerSettings.FILE_PATTERNS_KEY);
-    var defaultPatternSettings = DockerSettings.DEFAULT_FILE_PATTERNS.split(",");
-    Arrays.sort(patternSettings);
-    Arrays.sort(defaultPatternSettings);
-    return patternSettings.length == 0 || Arrays.equals(patternSettings, defaultPatternSettings);
+    var patternSettings = filterEmptyPatterns(settings.getStringArray(DockerSettings.FILE_PATTERNS_KEY));
+    var defaults = Set.of(DockerSettings.DEFAULT_FILE_PATTERNS.split(","));
+    return patternSettings.length == 0 || defaults.containsAll(Arrays.asList(patternSettings));
   }
 
   private static String[] filterEmptyPatterns(String[] patterns) {

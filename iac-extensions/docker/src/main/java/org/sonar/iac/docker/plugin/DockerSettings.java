@@ -26,7 +26,7 @@ public class DockerSettings {
   static final String FILE_PATTERNS_KEY = "sonar.docker.file.patterns";
   // filename extension matching is case-insensitive, so '*.Dockerfile' is also matched
   // general file paths are matched case-sensitive
-  static final String DEFAULT_FILE_PATTERNS = "*.dockerfile,Dockerfile,dockerfile";
+  static final String DEFAULT_FILE_PATTERNS = "*.dockerfile,Dockerfile,dockerfile,*.containerfile,Containerfile,containerfile";
   public static final String HADOLINT_REPORTS_KEY = "sonar.docker.hadolint.reportPaths";
   public static final String ACTIVATION_KEY = "sonar.docker.activate";
   static final String ACTIVATION_DEFAULT_VALUE = "true";
@@ -55,6 +55,7 @@ public class DockerSettings {
         .defaultValue(DEFAULT_FILE_PATTERNS)
         .name("File Patterns")
         .description("List of file patterns of Docker files to be indexed. " +
+          "Default patterns also exclude .md, .j2, and Jenkinsfile files unless a non-default pattern is added. " +
           "Details on the expected format can be found on the 'Docker' documentation page.")
         .onConfigScopes(ConfigScope.PROJECT)
         .category(DOCKER_CATEGORY)

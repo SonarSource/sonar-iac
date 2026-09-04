@@ -17,6 +17,7 @@
 package org.sonar.iac.docker.plugin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -64,6 +65,11 @@ public class DockerSensor extends IacSensor {
     ".renovaterc.jsonc",
     ".renovaterc.json5");
 
+  // Entries without a wildcard, so the two stay in sync automatically.
+  private static final List<String> DOCKERFILE_NAMES = Arrays.stream(DockerSettings.DEFAULT_FILE_PATTERNS.split(","))
+    .filter(pattern -> !pattern.contains("*"))
+    .toList();
+
   protected final Checks<IacCheck> checks;
 
   public DockerSensor(
@@ -105,22 +111,19 @@ public class DockerSensor extends IacSensor {
     // Because we can't add "**/Dockerfile.*" as a filenamePattern to the DockerLanguage, we need to match the files here via a path pattern
     // It's not possible to add it as a pattern because it would match files like "Dockerfile.java" which would result in a collision for the
     // Docker and Java language.
-    pathPatterns.add("**/Dockerfile.*");
-    pathPatterns.add("**/Dockerfile-*");
-    pathPatterns.add("**/Dockerfile_*");
-
-    // same patterns in lowercase
-    pathPatterns.add("**/dockerfile.*");
-    pathPatterns.add("**/dockerfile-*");
-    pathPatterns.add("**/dockerfile_*");
+    for (var name : DOCKERFILE_NAMES) {
+      pathPatterns.add("**/" + name + ".*");
+      pathPatterns.add("**/" + name + "-*");
+      pathPatterns.add("**/" + name + "_*");
+    }
 
     // In SQ-IDE Language#filenamePatterns() is not implemented, so all Dockerfiles are detected by path patterns not via the Docker language
     // Support will be implemented with SLCORE-526
     if (SonarRuntimeUtils.isSonarLintContext(sensorContext.runtime())) {
-      pathPatterns.add("**/Dockerfile");
-      pathPatterns.add("**/dockerfile");
-      pathPatterns.add("**/**.Dockerfile");
-      pathPatterns.add("**/**.dockerfile");
+      for (var name : DOCKERFILE_NAMES) {
+        pathPatterns.add("**/" + name);
+        pathPatterns.add("**/**." + name);
+      }
     }
 
     FilePredicate dockerLanguageOrPathPattern = p.or(

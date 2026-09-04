@@ -18,12 +18,15 @@ package org.sonar.iac.docker.plugin;
 
 import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
@@ -54,6 +57,19 @@ import static org.sonar.iac.common.testing.IacTestUtils.SQS_WITHOUT_HIDDEN_FILES
 
 class DockerSensorTest extends ExtensionSensorTest {
 
+  private static final List<String> FILENAMES_MATCHED_BY_PATH_PATTERN = List.of(
+    // dockerfile
+    "dockerfile.foo", "dockerfile.foo.bar", "dockerfile-foo", "dockerfile-foo.bar", "dockerfile_foo", "dockerfile_foo.bar",
+    // Dockerfile
+    "Dockerfile.foo", "Dockerfile.foo.bar", "Dockerfile-foo", "Dockerfile-foo.bar", "Dockerfile_foo", "Dockerfile_foo.bar",
+    // containerfile
+    "containerfile.foo", "containerfile.foo.bar", "containerfile-foo", "containerfile-foo.bar", "containerfile_foo", "containerfile_foo.bar",
+    // Containerfile
+    "Containerfile.foo", "Containerfile.foo.bar", "Containerfile-foo", "Containerfile-foo.bar", "Containerfile_foo", "Containerfile_foo.bar");
+  private static final List<String> FILENAMES_MATCHED_BY_ASSOCIATED_LANGUAGE = List.of(
+    "Dockerfile", "dockerfile", "Foo.Dockerfile", "Foo.dockerfile", "Containerfile", "containerfile", "Foo.Containerfile", "Foo.containerfile");
+  private static final List<String> FILENAMES_MATCHED_DESPITE_J2_NOT_BEING_EXTENSION = List.of("Dockerfile.j2.bar", "Containerfile.j2.bar");
+
   @Test
   void shouldReturnDockerDescriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
@@ -76,73 +92,41 @@ class DockerSensorTest extends ExtensionSensorTest {
   @Test
   void shouldAnalyzeDockerfilesInSonarQube() {
     DockerSensor sensor = sensor();
-    analyze(sensor,
-      // should be included based on pattern matching
-      inputFileWithoutAssociatedLanguage("dockerfile.foo", ""),
-      inputFileWithoutAssociatedLanguage("dockerfile.foo.bar", ""),
-      inputFileWithoutAssociatedLanguage("dockerfile-foo", ""),
-      inputFileWithoutAssociatedLanguage("dockerfile-foo.bar", ""),
-      inputFileWithoutAssociatedLanguage("dockerfile_foo", ""),
-      inputFileWithoutAssociatedLanguage("dockerfile_foo.bar", ""),
 
-      inputFileWithoutAssociatedLanguage("Dockerfile.foo", ""),
-      inputFileWithoutAssociatedLanguage("Dockerfile.foo.bar", ""),
-      inputFileWithoutAssociatedLanguage("Dockerfile-foo", ""),
-      inputFileWithoutAssociatedLanguage("Dockerfile-foo.bar", ""),
-      inputFileWithoutAssociatedLanguage("Dockerfile_foo", ""),
-      inputFileWithoutAssociatedLanguage("Dockerfile_foo.bar", ""),
+    List<InputFile> inputFilesToAnalyze = new ArrayList<>();
+    // should be included based on pattern matching
+    FILENAMES_MATCHED_BY_PATH_PATTERN.forEach(name -> inputFilesToAnalyze.add(inputFileWithoutAssociatedLanguage(name, "")));
+    // should be included based on associated language
+    FILENAMES_MATCHED_BY_ASSOCIATED_LANGUAGE.forEach(name -> inputFilesToAnalyze.add(inputFile(name, "")));
+    // should not be included after applying file predicates
+    Stream.of("DockerfileFoo", "FooDockerfile", "ContainerfileFoo", "FooContainerfile")
+      .forEach(name -> inputFilesToAnalyze.add(inputFileWithoutAssociatedLanguage(name, "")));
+    // should be excluded because of .j2 extension and default file pattern used
+    Stream.of(
+      "Dockerfile.j2", "Dockerfile.md", "Dockerfile.Jenkinsfile", "Dockerfile.jenkinsfile", "Dockerfile-Jenkinsfile", "Dockerfile-jenkinsfile",
+      "Dockerfile_Jenkinsfile", "Dockerfile_jenkinsfile",
+      "Containerfile.j2", "Containerfile.md", "Containerfile.Jenkinsfile", "Containerfile.jenkinsfile", "Containerfile-Jenkinsfile", "Containerfile-jenkinsfile",
+      "Containerfile_Jenkinsfile", "Containerfile_jenkinsfile")
+      .forEach(name -> inputFilesToAnalyze.add(inputFile(name, "")));
+    // should be included because .j2 is not the extension
+    FILENAMES_MATCHED_DESPITE_J2_NOT_BEING_EXTENSION.forEach(name -> inputFilesToAnalyze.add(inputFile(name, "")));
+    Stream.of("Dockerfile-Jenkinsfile.bar", "Containerfile-Jenkinsfile.bar")
+      .forEach(name -> inputFilesToAnalyze.add(inputFile(name, "")));
 
-      // should be included based on associated language
-      inputFile("Dockerfile", ""),
-      inputFile("dockerfile", ""),
-      inputFile("Foo.Dockerfile", ""),
-      inputFile("Foo.dockerfile", ""),
-      // should not be included after applying file predicates
-      inputFileWithoutAssociatedLanguage("DockerfileFoo", ""),
-      inputFileWithoutAssociatedLanguage("FooDockerfile", ""),
-      // should be excluded because of .j2 extension and default file pattern used
-      inputFile("Dockerfile.j2", ""),
-      inputFile("Dockerfile.md", ""),
-      inputFile("Dockerfile.Jenkinsfile", ""),
-      inputFile("Dockerfile.jenkinsfile", ""),
-      inputFile("Dockerfile-Jenkinsfile", ""),
-      inputFile("Dockerfile-jenkinsfile", ""),
-      inputFile("Dockerfile_Jenkinsfile", ""),
-      inputFile("Dockerfile_jenkinsfile", ""),
-      // should be included because .j2 is not the extension
-      inputFile("Dockerfile.j2.bar", ""),
-      inputFile("Dockerfile-Jenkinsfile.bar", ""));
+    analyze(sensor, inputFilesToAnalyze.toArray(InputFile[]::new));
 
     FileSystem fileSystem = context.fileSystem();
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(sensor.mainFilePredicate(context, new DurationStatistics(mock(Configuration.class))));
 
+    List<String> expectedFilenames = new ArrayList<>();
+    expectedFilenames.addAll(FILENAMES_MATCHED_BY_PATH_PATTERN);
+    expectedFilenames.addAll(FILENAMES_MATCHED_BY_ASSOCIATED_LANGUAGE);
+    expectedFilenames.addAll(FILENAMES_MATCHED_DESPITE_J2_NOT_BEING_EXTENSION);
+    expectedFilenames.addAll(List.of("Dockerfile-Jenkinsfile.bar", "Containerfile-Jenkinsfile.bar"));
+
     assertThat(inputFiles)
       .map(IndexedFile::filename)
-      .containsExactlyInAnyOrder(
-        // path pattern
-        "dockerfile.foo",
-        "dockerfile.foo.bar",
-        "dockerfile-foo",
-        "dockerfile-foo.bar",
-        "dockerfile_foo",
-        "dockerfile_foo.bar",
-
-        "Dockerfile.foo",
-        "Dockerfile.foo.bar",
-        "Dockerfile-foo",
-        "Dockerfile-foo.bar",
-        "Dockerfile_foo",
-        "Dockerfile_foo.bar",
-
-        // associated language
-        "Dockerfile",
-        "dockerfile",
-        "Foo.Dockerfile",
-        "Foo.dockerfile",
-
-        // .j2 is not the extension
-        "Dockerfile-Jenkinsfile.bar",
-        "Dockerfile.j2.bar");
+      .containsExactlyInAnyOrderElementsOf(expectedFilenames);
 
     verifyLinesOfCodeTelemetry(0);
   }
@@ -150,7 +134,7 @@ class DockerSensorTest extends ExtensionSensorTest {
   @Test
   void shouldIncludeJinjaFilesWhenFilePatternIsModified() {
     var settings = new MapSettings();
-    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, "Dockerfile");
+    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, "Dockerfile,*.foo");
     DockerSensor sensor = sensor(settings);
     analyze(sensor, inputFile("Dockerfile.j2", ""));
 
@@ -163,69 +147,40 @@ class DockerSensorTest extends ExtensionSensorTest {
     verifyLinesOfCodeTelemetry(0);
   }
 
-  @Test
-  void shouldAnalyzeDockerfilesInSonarLint() {
+  @ParameterizedTest
+  @MethodSource("filenamesMatchedInSonarLint")
+  void shouldIncludeFileInSonarLint(String fileName) {
+    assertThat(matchedFilesInSonarLint(fileName)).containsExactly(fileName);
+  }
+
+  static Stream<String> filenamesMatchedInSonarLint() {
+    return Stream.of(FILENAMES_MATCHED_BY_PATH_PATTERN, FILENAMES_MATCHED_BY_ASSOCIATED_LANGUAGE, FILENAMES_MATCHED_DESPITE_J2_NOT_BEING_EXTENSION)
+      .flatMap(List::stream);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "DockerfileFoo", "FooDockerfile", "ContainerfileFoo", "FooContainerfile",
+    // excluded because of .j2/.md extension and default file pattern used
+    "Dockerfile.j2", "Dockerfile.md", "Containerfile.j2", "Containerfile.md",
+    // excluded because of the *enkinsfile pattern and default file pattern used
+    "Dockerfile.Jenkinsfile", "Dockerfile-jenkinsfile", "Containerfile.Jenkinsfile", "Containerfile-jenkinsfile"
+  })
+  void shouldExcludeFileInSonarLint(String fileName) {
+    assertThat(matchedFilesInSonarLint(fileName)).isEmpty();
+  }
+
+  private List<String> matchedFilesInSonarLint(String fileName) {
     DockerSensor sonarLintSensor = sonarLintSensor();
-
-    analyze(sonarLintContext, sonarLintSensor,
-      // should be included based on pattern matching
-      inputFileWithoutAssociatedLanguage("dockerfile.foo", ""),
-      inputFileWithoutAssociatedLanguage("dockerfile.foo.bar", ""),
-      inputFileWithoutAssociatedLanguage("dockerfile-foo", ""),
-      inputFileWithoutAssociatedLanguage("dockerfile-foo.bar", ""),
-      inputFileWithoutAssociatedLanguage("dockerfile_foo", ""),
-      inputFileWithoutAssociatedLanguage("dockerfile_foo.bar", ""),
-
-      inputFileWithoutAssociatedLanguage("Dockerfile.foo", ""),
-      inputFileWithoutAssociatedLanguage("Dockerfile.foo.bar", ""),
-      inputFileWithoutAssociatedLanguage("Dockerfile-foo", ""),
-      inputFileWithoutAssociatedLanguage("Dockerfile-foo.bar", ""),
-      inputFileWithoutAssociatedLanguage("Dockerfile_foo", ""),
-      inputFileWithoutAssociatedLanguage("Dockerfile_foo.bar", ""),
-
-      inputFileWithoutAssociatedLanguage("Dockerfile", ""),
-      inputFileWithoutAssociatedLanguage("dockerfile", ""),
-      inputFileWithoutAssociatedLanguage("Foo.Dockerfile", ""),
-      inputFileWithoutAssociatedLanguage("Foo.dockerfile", ""),
-
-      // should not be included after applying file predicates
-      inputFileWithoutAssociatedLanguage("DockerfileFoo", ""),
-      inputFileWithoutAssociatedLanguage("FooDockerfile", ""),
-      // should be excluded because of .j2 extension and default file pattern used
-      inputFileWithoutAssociatedLanguage("Dockerfile.j2", ""),
-      inputFileWithoutAssociatedLanguage("Dockerfile.md", ""),
-      // should be included because .j2 is not the extension
-      inputFileWithoutAssociatedLanguage("Dockerfile.j2.bar", ""));
+    analyze(sonarLintContext, sonarLintSensor, inputFileWithoutAssociatedLanguage(fileName, ""));
 
     FileSystem fileSystem = sonarLintContext.fileSystem();
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(sonarLintSensor.mainFilePredicate(sonarLintContext, new DurationStatistics(mock(Configuration.class))));
 
-    assertThat(inputFiles)
-      .map(IndexedFile::filename)
-      .containsExactlyInAnyOrder(
-        // path pattern
-        "dockerfile.foo",
-        "dockerfile.foo.bar",
-        "dockerfile-foo",
-        "dockerfile-foo.bar",
-        "dockerfile_foo",
-        "dockerfile_foo.bar",
-
-        "Dockerfile.foo",
-        "Dockerfile.foo.bar",
-        "Dockerfile-foo",
-        "Dockerfile-foo.bar",
-        "Dockerfile_foo",
-        "Dockerfile_foo.bar",
-
-        "Dockerfile",
-        "dockerfile",
-        "Foo.Dockerfile",
-        "Foo.dockerfile",
-
-        // .j2 is not the extension
-        "Dockerfile.j2.bar");
     verifyLinesOfCodeTelemetry(0);
+    return StreamSupport.stream(inputFiles.spliterator(), false)
+      .map(IndexedFile::filename)
+      .toList();
   }
 
   @Test

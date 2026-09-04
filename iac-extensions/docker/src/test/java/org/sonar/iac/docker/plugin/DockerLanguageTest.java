@@ -18,8 +18,11 @@ package org.sonar.iac.docker.plugin;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 import org.sonar.scanner.plugin.api.impl.fs.PathPattern;
@@ -46,7 +49,6 @@ class DockerLanguageTest {
   @Test
   void shouldHaveDefaultFilenamePatternsWithNoProvidedProperty() {
     DockerLanguage language = new DockerLanguage(new MapSettings().asConfig());
-    assertThat(language.filenamePatterns()).hasSize(3);
     assertThat(language.filenamePatterns()).containsExactly(DockerSettings.DEFAULT_FILE_PATTERNS.split(","));
   }
 
@@ -57,40 +59,32 @@ class DockerLanguageTest {
 
     DockerLanguage language = new DockerLanguage(settings.asConfig());
 
-    assertThat(language.filenamePatterns()).hasSize(3);
     assertThat(language.filenamePatterns()).containsExactly(DockerSettings.DEFAULT_FILE_PATTERNS.split(","));
   }
 
-  @Test
-  void shouldReturnTrueWhenDefaultFilePatternIsUsed() {
+  @ParameterizedTest(name = "[{index}] pattern=\"{0}\" -> isDefault={1}")
+  @MethodSource("defaultFilePatternCases")
+  void shouldDetermineIfDefaultFilePatternIsUsed(String pattern, boolean expected) {
     MapSettings settings = new MapSettings();
-    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, DockerSettings.DEFAULT_FILE_PATTERNS);
+    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, pattern);
     DockerLanguage language = new DockerLanguage(settings.asConfig());
-    assertThat(language.isUsingDefaultFilePattern()).isTrue();
+    assertThat(language.isUsingDefaultFilePattern()).isEqualTo(expected);
   }
 
-  @Test
-  void shouldReturnTrueWhenDefaultFilePatternIsUsedEvenInDifferentOrder() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, "dockerfile,*.dockerfile,Dockerfile");
-    DockerLanguage language = new DockerLanguage(settings.asConfig());
-    assertThat(language.isUsingDefaultFilePattern()).isTrue();
-  }
-
-  @Test
-  void shouldReturnFalseWhenADifferentFilePatternIsSet() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, "Dockerfile");
-    DockerLanguage language = new DockerLanguage(settings.asConfig());
-    assertThat(language.isUsingDefaultFilePattern()).isFalse();
-  }
-
-  @Test
-  void shouldReturnTrueWhenEmptyFilePatternIsSet() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(DockerSettings.FILE_PATTERNS_KEY, "");
-    DockerLanguage language = new DockerLanguage(settings.asConfig());
-    assertThat(language.isUsingDefaultFilePattern()).isTrue();
+  private static Stream<Arguments> defaultFilePatternCases() {
+    return Stream.of(
+      // the current defaults, verbatim
+      Arguments.of(DockerSettings.DEFAULT_FILE_PATTERNS, true),
+      // the current defaults, reordered
+      Arguments.of("containerfile,dockerfile,*.dockerfile,Dockerfile,*.containerfile,Containerfile", true),
+      // a narrowed subset of the defaults also counts as default
+      Arguments.of("Dockerfile", true),
+      // the pre-Containerfile default, which some projects may have persisted in their settings
+      Arguments.of("*.dockerfile,Dockerfile,dockerfile", true),
+      // one pattern outside the defaults means the user opted in
+      Arguments.of("Dockerfile,*.foo", false),
+      // an empty value falls back to the defaults
+      Arguments.of("", true));
   }
 
   @ParameterizedTest
@@ -99,7 +93,12 @@ class DockerLanguageTest {
     "Dockerfile",
     "filename.dockerfile",
     "filename.Dockerfile",
-    "filename.dOckerFilE"
+    "filename.dOckerFilE",
+    "containerfile",
+    "Containerfile",
+    "filename.containerfile",
+    "filename.Containerfile",
+    "filename.cOntainerFilE"
   })
   void fileNameShouldBeAssignedToLanguage(String fileName) {
     assertThat(associatedToLanguage(fileName)).isTrue();
@@ -112,7 +111,11 @@ class DockerLanguageTest {
     "DockerfileFoo",
     "Dockerfile.java",
     "Helloworld.java",
-    "Dockerfile.foo"
+    "Dockerfile.foo",
+    "FooContainerfile",
+    "ContainerfileFoo",
+    "Containerfile.java",
+    "Containerfile.foo"
   })
   void fileNameShouldNotBeAssignedToLanguage(String fileName) {
     assertThat(associatedToLanguage(fileName)).isFalse();
