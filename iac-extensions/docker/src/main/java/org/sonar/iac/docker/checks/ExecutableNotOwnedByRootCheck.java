@@ -27,6 +27,7 @@ import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.HasTextRange;
+import org.sonar.iac.docker.checks.utils.TransferChmod;
 import org.sonar.iac.docker.symbols.ArgumentResolution;
 import org.sonar.iac.docker.tree.api.Argument;
 import org.sonar.iac.docker.tree.api.Flag;
@@ -43,6 +44,7 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
 
   private static final Pattern SENSITIVE_PATH_PATTERN = Pattern.compile("^\\/(bin|boot|dev|etc|lib|lib32|lib64|proc|root|usr|sbin)(\\/(.+)?)?$");
   private static final Pattern RISKY_EXTENSION_PATTERN = Pattern.compile("\\.(sh|bash|zsh|fish|py|rb|pl|php|bin|elf|so|service|timer|socket)$");
+  private static final Pattern OCTAL_CHMOD_PATTERN = Pattern.compile("[0-7]{1,4}");
 
   @Override
   public void initialize(InitContext init) {
@@ -90,19 +92,36 @@ public class ExecutableNotOwnedByRootCheck implements IacCheck {
   private static Flag getSensitiveChownFlag(TransferInstruction transferInstruction) {
     return transferInstruction.options().stream()
       .filter(f -> f.name().equals("chown"))
-      .filter(ExecutableNotOwnedByRootCheck::isSensitiveUser)
+      .filter(f -> isSensitiveChown(f, transferInstruction))
       .findFirst()
       .orElse(null);
   }
 
-  private static boolean isSensitiveUser(Flag chownFlag) {
-    var resolvedArgArgument = ArgumentResolution.of(chownFlag.value());
-    return resolvedArgArgument.isResolved() && isNonRootChown(resolvedArgArgument.value());
+  // true if a chown option lets a non-root user modify the transferred resource
+  private static boolean isSensitiveChown(Flag chownFlag, TransferInstruction transferInstruction) {
+    var resolvedChown = ArgumentResolution.of(chownFlag.value());
+    if (!resolvedChown.isResolved()) {
+      return false;
+    }
+
+    var chownValue = resolvedChown.value();
+    return isNonRootAtId(chownValue, 0)
+      || (isNonRootAtId(chownValue, 1) && !hasNonWritableOctalChmod(transferInstruction));
   }
 
-  // true if any of the user or group value is different from ['root', '0', ''], for example 'root:foo'
-  private static boolean isNonRootChown(String chownValue) {
-    return isNonRootAtId(chownValue, 0) || isNonRootAtId(chownValue, 1);
+  // true if every chmod option is a resolved octal mode without group or other write access
+  private static boolean hasNonWritableOctalChmod(TransferInstruction transferInstruction) {
+    var chmods = TransferChmod.extractChmods(transferInstruction);
+    return !chmods.isEmpty() && chmods.stream().allMatch(ExecutableNotOwnedByRootCheck::isNonWritableOctalChmod);
+  }
+
+  // true if a chmod option resolves to an octal mode without group or other write permission
+  private static boolean isNonWritableOctalChmod(TransferChmod chmod) {
+    if (!chmod.resolution().isResolved() || !OCTAL_CHMOD_PATTERN.matcher(chmod.resolution().value()).matches()) {
+      return false;
+    }
+
+    return !chmod.hasPermission("g+w") && !chmod.hasPermission("o+w");
   }
 
   // true if the value at the specified id (0 for user, 1 for group) is not from ['root', '0', '']

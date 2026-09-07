@@ -4,6 +4,7 @@ ARG SENSITIVE_USER=other
 ARG COMPLIANT_USER=root
 ARG SENSITIVE_FILE=start.sh
 ARG COMPLIANT_FILE=file.txt
+ARG READ_ONLY_MODE=444
 
 ## Issue: non-root user with risky shell script extension
 
@@ -87,6 +88,29 @@ ADD --chown=:group file.sh target/
 # Noncompliant@+1
 ADD --chown=:group file.txt /etc/config
 
+## Issue: root-owned resources with a non-root group that can write
+
+# Noncompliant@+1
+COPY --chown=root:group --chmod=664 config.txt /usr/app/.env
+# Noncompliant@+1
+ADD --chown=0:group --chmod=646 entrypoint.sh /app/
+
+## Issue: non-root user retains control even with a read-only mode
+
+# Noncompliant@+1
+COPY --chown=other:group --chmod=444 config.txt /usr/app/.env
+# Noncompliant@+1
+ADD --chown=other:group --chmod=555 entrypoint.sh /app/
+
+## Issue: a missing, unresolved, or unsupported chmod is handled conservatively
+
+# Noncompliant@+1
+COPY --chown=root:group config.txt /usr/app/.env
+# Noncompliant@+1
+ADD --chown=root:group --chmod=$UNKNOWN_MODE entrypoint.sh /app/
+# Noncompliant@+1
+COPY --chown=root:group --chmod=u=r config.txt /usr/app/.env
+
 ## Error message and secondary locations
 # Noncompliant@+1 {{Make sure the copied resource cannot be modified by a non-root user.}}
   ADD --chown=other file1.sh file2.sh  target/
@@ -139,6 +163,16 @@ COPY --chown=0    config.txt /bin/tool
 COPY --chown=root:bar --chmod=604 foo.jar /app/
 COPY --chown=root:bar --chmod=664 foo.jar /app/
 COPY --chown=0:bar              foo.jar /app/
+
+## Compliant: root-owned resources with a non-root group that cannot write
+
+COPY --chown=root:group --chmod=444 config.txt /usr/app/.env
+ADD --chown=0:group --chmod=555 entrypoint.sh /app/
+COPY --chown=root:group --chmod=$READ_ONLY_MODE config.txt /usr/app/.env
+COPY --chown=root:group --chmod=0 config.txt /usr/app/.env
+COPY --chown=root:group --chmod=44 config.txt /usr/app/.env
+COPY --chown=root:group --chmod=0444 config.txt /usr/app/.env
+COPY --chown=:group --chmod=444 config.txt /usr/app/.env
 
 ## Compliant: path looks similar to sensitive path but is not
 COPY --chown=other file.txt /develop/app
