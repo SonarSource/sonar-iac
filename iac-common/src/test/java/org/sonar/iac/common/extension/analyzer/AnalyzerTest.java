@@ -16,14 +16,24 @@
  */
 package org.sonar.iac.common.extension.analyzer;
 
-import java.util.Collection;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 
-public interface Analyzer {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
-  /** Analyzes nothing; {@code true} means "not cancelled". */
-  Analyzer NO_OP = (sensorContext, inputFiles, languageName) -> true;
+class AnalyzerTest {
 
-  boolean analyseFiles(SensorContext sensorContext, Collection<InputFile> inputFiles, String languageName);
+  @Test
+  void noOpShouldNotAnalyzeAnything() {
+    var sensorContext = mock(SensorContext.class);
+
+    var completed = Analyzer.NO_OP.analyseFiles(sensorContext, List.of(mock(InputFile.class)), "Shell");
+
+    assertThat(completed).isTrue();
+    verifyNoInteractions(sensorContext);
+  }
 }
