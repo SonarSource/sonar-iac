@@ -1,34 +1,34 @@
 [versions]
-sonar-scanner-engine = "13.8.0.4534"
-sonarqube = "26.2.0.119303"
+sonar-scanner-engine = "13.10.0.4657"
+sonarqube = "26.9.0.129388"
 # Before updating the plugin-api version, make sure to check the compatibility matrix and stick to the lowest denominator
 # https://github.com/SonarSource/sonar-plugin-api?tab=readme-ov-file#compatibility
 sonar-plugin-api = "12.0.0.2960"
-sonar-commons = "2.30.0.5193"
+sonar-commons = "2.31.0.5284"
 sonar-license-api = "3.4"
-sonar-orchestrator = "6.1.0.3962"
+sonar-orchestrator = "6.4.3.4676"
 sonar-scanner-integration-tester = "1.2.0.1354"
-junit = "6.0.3"
+junit = "6.1.3"
 junit-pioneer = "2.3.0"
 assertj = "3.27.7"
-mockito = "5.22.0"
-sonar-lint = "10.45.0.84373"
-jspecify = "1.0.0"
-sslr = "1.25.1.3886"
-archunit = "1.4.1"
+mockito = "5.23.0"
+sonar-lint = "10.47.0.84936"
+jspecify = "1.0.1"
+sslr = "1.26.0.4194"
+archunit = "1.5.0"
 snakeyaml = "3.1.1"
 minimaljson = "0.9.5"
 tree-sitter = "0.26.6"
 tree-sitter-bash = "0.25.1"
-sonar-scanner-gradle = "7.3.1.8318"
-google-protobuf = "4.34.0"
-google-protobuf-gradle = "0.9.6"
+sonar-scanner-gradle = "7.5.0.8588"
+google-protobuf = "4.36.1"
+google-protobuf-gradle = "0.10.0"
 google-protobuf-go = "1.36.11"
 antlr4 = "4.13.2"
 yguard = "4.1.1"
 awaitility = "4.3.0"
-slf4j = "2.0.17"
-logback = "1.5.32"
+slf4j = "2.0.18"
+logback = "1.5.38"
 commons-io = "2.22.0"
 
 [libraries]
@@ -55,7 +55,7 @@ sonar-lint-plugin-api = { module = "org.sonarsource.sonarlint.core:sonarlint-plu
 sonar-lint-rpc-java-client = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-java-client", version.ref = "sonar-lint" }
 sonar-lint-rpc-impl = { module = "org.sonarsource.sonarlint.core:sonarlint-rpc-impl", version.ref = "sonar-lint" }
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
-sonar-plugin-java = { module = "org.sonarsource.java:sonar-java-plugin", version = "8.24.0.42567" }
+sonar-plugin-java = { module = "org.sonarsource.java:sonar-java-plugin", version = "8.41.0.47177" }
 sslr = { module = "org.sonarsource.sslr:sslr-core", version.ref = "sslr" }
 sslr-test = { module = "org.sonarsource.sslr:sslr-testing-harness", version.ref = "sslr" }
 archunit = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
