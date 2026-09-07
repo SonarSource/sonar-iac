@@ -9,7 +9,7 @@
   "tags": [],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6867",
-  "sqKey": "S6864",
+  "sqKey": "S6867",
   "scope": "All",
   "securityStandards": {
     "CWE": [
