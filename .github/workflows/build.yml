@@ -39,8 +39,15 @@ jobs:
           echo "/opt/go/bin:/opt/protoc/bin:/opt/musl/bin:/home/runner/go/bin" >> $GITHUB_PATH
 
       - name: Checkout build logic
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git submodule update --init --depth 1 -- build-logic/common
+          # Authenticate the clone so it is not subject to GitHub's anonymous rate limits.
+          git \
+            -c credential.helper= \
+            -c 'credential.https://github.com.helper=!f() { if test "$1" = get; then echo username=x-access-token; echo "password=$GH_TOKEN"; fi; }; f' \
+            -c http.https://github.com/.proactiveAuth=auto \
+            submodule update --init --depth 1 -- build-logic/common
 
       - name: Create Gradle User Home
         shell: bash
@@ -61,7 +68,7 @@ jobs:
           echo "GOCACHE_KEY=${GOCACHE_KEY}" >> $GITHUB_ENV
 
       - name: Build and analyze
-        uses: SonarSource/ci-github-actions/build-gradle@v1
+        uses: SonarSource/ci-github-actions/build-gradle@v2
         env:
           GO_CROSS_COMPILE: "1"
         with:
