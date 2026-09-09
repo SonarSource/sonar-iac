@@ -54,7 +54,7 @@ public abstract class AbstractRulesDefinitionTest {
       .hasSameSizeAs(checks());
   }
 
-  private RulesDefinition.Repository createRuleRepository() {
+  protected RulesDefinition.Repository createRuleRepository() {
     var sonarRuntime = SonarRuntimeImpl.forSonarQube(sonarVersion(), SonarQubeSide.SERVER, SonarEdition.DEVELOPER);
     var rulesDefinition = getRulesDefinition(sonarRuntime);
     var context = new RulesDefinition.Context();

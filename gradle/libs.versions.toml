@@ -30,6 +30,8 @@ awaitility = "4.3.0"
 slf4j = "2.0.18"
 logback = "1.5.38"
 commons-io = "2.22.0"
+# Transitive dependency of sonar-scanner-gradle (org.sonarsource.scanner.lib:sonar-scanner-java-library); pinned to avoid dependency risks
+bouncycastle = "1.85.2"
 
 [libraries]
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
@@ -71,6 +73,7 @@ yguard = { module = "com.yworks:yguard", version.ref = "yguard"}
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility"}
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+bouncycastle-bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 
 [plugins]
 google-protobuf = { id = "com.google.protobuf", version.ref = "google-protobuf-gradle" }

@@ -17,6 +17,16 @@
 import org.sonar.iac.collectIacExtensionNames
 import org.sonar.iac.toCamelCase
 
+buildscript {
+    configurations.classpath {
+        resolutionStrategy {
+            // org.bouncycastle:bcprov-jdk18on is a transitive dependency of the org.sonarqube plugin
+            // (via org.sonarsource.scanner.lib:sonar-scanner-java-library); pinned to avoid dependency risks
+            force(libs.bouncycastle.bcprov.jdk18on)
+        }
+    }
+}
+
 plugins {
     id("org.sonarsource.cloud-native.code-style-conventions")
     id("org.sonarsource.cloud-native.artifactory-configuration")
