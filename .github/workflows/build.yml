@@ -19,7 +19,7 @@ env:
 
 jobs:
   build:
-    runs-on: sonar-s-public
+    runs-on: sonar-s
     name: Build and Analysis
     permissions:
       id-token: write  # Required for Vault OIDC authentication
