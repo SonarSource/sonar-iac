@@ -41,6 +41,7 @@ import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
+import org.sonar.iac.common.testing.IacTestUtils;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 
@@ -395,6 +396,117 @@ class DockerSensorTest extends ExtensionSensorTest {
     assertThat(context.getTelemetryProperties())
       .containsEntry("iac.docker.files.count", "2")
       .containsEntry("iac.docker.files.parsed", "1");
+  }
+
+  @Test
+  void shouldReportLanguageTelemetryForDockerLanguageFiles() {
+    analyze(sensor(), inputFile("file1.dockerfile", "FROM ubuntu:20.04"), inputFile("file2.dockerfile", "FROM ubuntu:20.04"));
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.docker.files.language.docker", "2")
+      .containsEntry("iac.docker.files.language.none", "0")
+      .containsEntry("iac.docker.files.language.other", "0")
+      .doesNotContainKey("iac.docker.files.language.otherLanguages")
+      .containsEntry("iac.docker.loc", "2")
+      .containsEntry("iac.docker.dockerLanguage.loc", "2")
+      .doesNotContainKey("iac.docker.noLanguage.loc")
+      .doesNotContainKey("iac.docker.otherLanguage.loc");
+  }
+
+  @Test
+  void shouldReportLanguageTelemetryForFilesWithoutLanguage() {
+    analyze(sensor(), inputFileWithoutAssociatedLanguage("Dockerfile.foo", "FROM ubuntu:20.04"));
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.docker.files.language.docker", "0")
+      .containsEntry("iac.docker.files.language.none", "1")
+      .containsEntry("iac.docker.files.language.other", "0")
+      .containsEntry("iac.docker.loc", "1")
+      .containsEntry("iac.docker.noLanguage.loc", "1")
+      .doesNotContainKey("iac.docker.files.language.otherLanguages")
+      .doesNotContainKey("iac.docker.dockerLanguage.loc")
+      .doesNotContainKey("iac.docker.otherLanguage.loc");
+  }
+
+  @Test
+  void shouldReportLanguageTelemetryForFilesWithOtherLanguage() {
+    analyze(sensor(), IacTestUtils.inputFile("Dockerfile.java", baseDir.toPath(), "FROM ubuntu:20.04", "java"));
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.docker.files.language.docker", "0")
+      .containsEntry("iac.docker.files.language.none", "0")
+      .containsEntry("iac.docker.files.language.other", "1")
+      .containsEntry("iac.docker.files.language.otherLanguages", "[\"java\"]")
+      .containsEntry("iac.docker.loc", "1")
+      .containsEntry("iac.docker.otherLanguage.loc", "1")
+      .doesNotContainKey("iac.docker.dockerLanguage.loc")
+      .doesNotContainKey("iac.docker.noLanguage.loc");
+  }
+
+  @Test
+  void shouldReportLanguageTelemetryForMixedLanguages() {
+    analyze(sensor(),
+      inputFile("file1.dockerfile", "FROM ubuntu:20.04"),
+      inputFileWithoutAssociatedLanguage("Dockerfile.foo", "FROM ubuntu:20.04"),
+      IacTestUtils.inputFile("Dockerfile-a.java", baseDir.toPath(), "FROM ubuntu:20.04", "java"),
+      IacTestUtils.inputFile("Dockerfile-b.java", baseDir.toPath(), "FROM ubuntu:20.04", "java"),
+      IacTestUtils.inputFile("Dockerfile-c.go", baseDir.toPath(), "FROM ubuntu:20.04", "go"),
+      IacTestUtils.inputFile("Dockerfile-d.py", baseDir.toPath(), "FROM ubuntu:20.04", "py"),
+      IacTestUtils.inputFile("Dockerfile-e.py", baseDir.toPath(), "FROM ubuntu:20.04", "py"),
+      IacTestUtils.inputFile("Dockerfile-f.py", baseDir.toPath(), "FROM ubuntu:20.04", "py"));
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.docker.files.language.docker", "1")
+      .containsEntry("iac.docker.files.language.none", "1")
+      .containsEntry("iac.docker.files.language.other", "6")
+      .containsEntry("iac.docker.files.language.otherLanguages", "[\"py\", \"java\", \"go\"]")
+      .containsEntry("iac.docker.loc", "8")
+      .containsEntry("iac.docker.dockerLanguage.loc", "1")
+      .containsEntry("iac.docker.noLanguage.loc", "1")
+      .containsEntry("iac.docker.otherLanguage.loc", "6");
+  }
+
+  @Test
+  void shouldCapLanguageTelemetryOtherNamesAtTenMostFrequentEntries() {
+    var inputFiles = new InputFile[12];
+    for (int i = 0; i < 12; i++) {
+      inputFiles[i] = IacTestUtils.inputFile("Dockerfile.foo" + i, baseDir.toPath(), "FROM ubuntu:20.04", "lang" + i);
+    }
+
+    analyze(sensor(), inputFiles);
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.docker.files.language.other", "12")
+      .containsEntry("iac.docker.files.language.otherLanguages",
+        "[\"lang0\", \"lang1\", \"lang10\", \"lang11\", \"lang2\", \"lang3\", \"lang4\", \"lang5\", \"lang6\", \"lang7\"]");
+  }
+
+  @Test
+  void shouldKeepMostFrequentLanguagesOverAlphabeticallyFirstOnes() {
+    var inputFiles = new ArrayList<InputFile>();
+    for (int i = 0; i < 10; i++) {
+      inputFiles.add(IacTestUtils.inputFile("Dockerfile.foo" + i, baseDir.toPath(), "FROM ubuntu:20.04", "lang" + i));
+    }
+    inputFiles.add(IacTestUtils.inputFile("Dockerfile.zlang1", baseDir.toPath(), "FROM ubuntu:20.04", "zlang"));
+    inputFiles.add(IacTestUtils.inputFile("Dockerfile.zlang2", baseDir.toPath(), "FROM ubuntu:20.04", "zlang"));
+
+    analyze(sensor(), inputFiles.toArray(InputFile[]::new));
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.docker.files.language.other", "12")
+      .containsEntry("iac.docker.files.language.otherLanguages",
+        "[\"zlang\", \"lang0\", \"lang1\", \"lang2\", \"lang3\", \"lang4\", \"lang5\", \"lang6\", \"lang7\", \"lang8\"]");
+  }
+
+  @Test
+  void shouldReportZeroedLanguageTelemetryWhenNoFilesMatch() {
+    analyze(sensor());
+
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.docker.files.language.docker", "0")
+      .containsEntry("iac.docker.files.language.none", "0")
+      .containsEntry("iac.docker.files.language.other", "0")
+      .doesNotContainKey("iac.docker.files.language.otherLanguages");
   }
 
   private InputFile dockerfileWithTagAndDigest() {

@@ -145,6 +145,36 @@ public class DockerSensor extends IacSensor {
   }
 
   @Override
+  protected List<InputFile> inputFiles(SensorContext sensorContext, DurationStatistics statistics) {
+    var inputFiles = super.inputFiles(sensorContext, statistics);
+    recordLanguageTelemetry(inputFiles);
+    return inputFiles;
+  }
+
+  private void recordLanguageTelemetry(List<InputFile> inputFiles) {
+    var languageTelemetryPrefix = "docker.files.language.";
+
+    var dockerLanguageCount = 0L;
+    var noLanguageCount = 0L;
+    var otherLanguageCount = 0L;
+    for (var inputFile : inputFiles) {
+      var fileLanguage = inputFile.language();
+      if (fileLanguage == null || fileLanguage.isBlank()) {
+        noLanguageCount++;
+      } else if (DockerLanguage.KEY.equals(fileLanguage)) {
+        dockerLanguageCount++;
+      } else {
+        otherLanguageCount++;
+        sensorTelemetry.addStringListMeasure(languageTelemetryPrefix + "otherLanguages", fileLanguage);
+      }
+    }
+
+    sensorTelemetry.addNumericalMeasure(languageTelemetryPrefix + "docker", dockerLanguageCount);
+    sensorTelemetry.addNumericalMeasure(languageTelemetryPrefix + "none", noLanguageCount);
+    sensorTelemetry.addNumericalMeasure(languageTelemetryPrefix + "other", otherLanguageCount);
+  }
+
+  @Override
   protected SingleFileAnalyzer createAnalyzer(SensorContext sensorContext, DurationStatistics statistics) {
     return new SingleFileAnalyzer(repositoryKey(), DockerParser.create(), visitors(sensorContext, statistics), statistics, sensorTelemetry);
   }

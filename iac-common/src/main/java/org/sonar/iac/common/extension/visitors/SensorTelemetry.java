@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Holds telemetry data collected during analysis. A single instance is shared across all IaC sensors via
@@ -39,6 +40,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>{@link #setBooleanMeasure(String, boolean)} – ORs values across calls; produces {@code "1"} when any caller
  *       supplied {@code true}, {@code "0"} when at least one call supplied a value but all were {@code false}.</li>
  *   <li>{@link #setStringMeasure(String, String)} – overwrites the previous value (use only for project-level singletons).</li>
+ *   <li>{@link #addStringListMeasure(String, String)} – accumulates value occurrences across calls, published as the
+ *       most frequent values (multi-module aggregation).</li>
  * </ul>
  * Callers are expected to construct keys without the {@code "iac."} prefix, which is added automatically. Free-form
  * values that become part of a key must first be passed through {@link #sanitizeKeySegment(String)}.
@@ -52,6 +55,8 @@ public class SensorTelemetry {
 
   // `.` should be used for telemetry groups and every IaC key should start with `iac.`
   private static final String KEY_PREFIX = "iac.";
+
+  private static final int STRING_LIST_MEASURE_LIMIT = 10;
 
   // Numerical measures (sum or set semantics) populated by domain-specific sensors and checks
   private final Map<String, Long> numericalMeasures = new ConcurrentHashMap<>();
@@ -67,6 +72,9 @@ public class SensorTelemetry {
 
   // Per-language file sizes accumulated across calls
   private final Map<String, List<Long>> fileSizesPerLanguage = new ConcurrentHashMap<>();
+
+  // Per-key value occurrence counts; published as a JSON-style list of the most frequent values
+  private final Map<String, Map<String, Long>> stringListMeasures = new ConcurrentHashMap<>();
 
   /**
    * Accumulates lines of code for a given language. Stored at key {@code iac.<language>.loc}.
@@ -124,6 +132,17 @@ public class SensorTelemetry {
   }
 
   /**
+   * Records one occurrence of the value under {@code iac.<key>}. Published as a JSON-style list of the
+   * {@value #STRING_LIST_MEASURE_LIMIT} most frequent values, most frequent first, ties broken alphabetically.
+   * Counts aggregate across modules, so the cap applies project-wide.
+   */
+  public void addStringListMeasure(String key, String measure) {
+    stringListMeasures
+      .computeIfAbsent(KEY_PREFIX + key, k -> new ConcurrentHashMap<>())
+      .merge(measure, 1L, Long::sum);
+  }
+
+  /**
    * Sanitizes a free-form value so it can be safely embedded as a single segment of a telemetry key: every run of
    * characters other than an ASCII letter or digit is collapsed to a single {@code _}, and leading/trailing {@code _}
    * are trimmed. Callers must apply this to any user-controlled value before appending it to a key, so keys never
@@ -162,6 +181,7 @@ public class SensorTelemetry {
       telemetry.put(KEY_PREFIX + language + ".files.medianSize", String.valueOf(calculateMedian(sizesSnapshot)));
       telemetry.put(KEY_PREFIX + language + ".files.largestFiles", String.valueOf(getLargestNumbers(sizesSnapshot, 20)));
     });
+    stringListMeasures.forEach((key, valueCounts) -> telemetry.put(key, renderHighestOccurringKeys(valueCounts)));
     return telemetry;
   }
 
@@ -187,5 +207,14 @@ public class SensorTelemetry {
       .sorted(Comparator.reverseOrder())
       .limit(limit)
       .toList();
+  }
+
+  private static String renderHighestOccurringKeys(Map<String, Long> valueCounts) {
+    return valueCounts.entrySet().stream()
+      .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
+        .thenComparing(Map.Entry.comparingByKey()))
+      .limit(STRING_LIST_MEASURE_LIMIT)
+      .map(entry -> "\"" + entry.getKey() + "\"")
+      .collect(Collectors.joining(", ", "[", "]"));
   }
 }

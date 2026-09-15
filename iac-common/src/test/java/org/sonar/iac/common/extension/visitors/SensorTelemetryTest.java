@@ -230,6 +230,48 @@ class SensorTelemetryTest {
   }
 
   @Test
+  void shouldStoreSingleStringListMeasureAsOneElementList() {
+    sensorTelemetry.addStringListMeasure("foo.bar", "a");
+
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.foo.bar", "[\"a\"]");
+  }
+
+  @Test
+  void shouldAccumulateDistinctStringListMeasureValuesAcrossCalls() {
+    // Simulates the multi-module case: each call represents a different sensor instance recording its own value.
+    sensorTelemetry.addStringListMeasure("foo.bar", "a");
+    sensorTelemetry.addStringListMeasure("foo.bar", "b");
+
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.foo.bar", "[\"a\", \"b\"]");
+  }
+
+  @Test
+  void shouldOrderStringListMeasureByFrequencyThenAlphabetically() {
+    sensorTelemetry.addStringListMeasure("foo.bar", "a");
+    sensorTelemetry.addStringListMeasure("foo.bar", "b");
+    sensorTelemetry.addStringListMeasure("foo.bar", "b");
+    sensorTelemetry.addStringListMeasure("foo.bar", "c");
+    sensorTelemetry.addStringListMeasure("foo.bar", "c");
+
+    assertThat(sensorTelemetry.getTelemetry()).containsEntry("iac.foo.bar", "[\"b\", \"c\", \"a\"]");
+  }
+
+  @Test
+  void shouldCapStringListMeasureAtTenMostFrequentValues() {
+    for (int i = 0; i < 12; i++) {
+      sensorTelemetry.addStringListMeasure("foo.bar", "lang" + i);
+    }
+
+    assertThat(sensorTelemetry.getTelemetry())
+      .containsEntry("iac.foo.bar", "[\"lang0\", \"lang1\", \"lang10\", \"lang11\", \"lang2\", \"lang3\", \"lang4\", \"lang5\", \"lang6\", \"lang7\"]");
+  }
+
+  @Test
+  void shouldNotEmitStringListMeasureWhenNeverCalled() {
+    assertThat(sensorTelemetry.getTelemetry()).doesNotContainKey("iac.foo.bar");
+  }
+
+  @Test
   void shouldSanitizeKeySegment() {
     assertThat(SensorTelemetry.sanitizeKeySegment("Reader")).isEqualTo("Reader");
     assertThat(SensorTelemetry.sanitizeKeySegment("Storage Blob Data Contributor")).isEqualTo("Storage_Blob_Data_Contributor");
