@@ -14,8 +14,9 @@
     "constantCost": "30min"
   },
   "tags": [
-    "dockerfile",
+    "cryptography",
     "cwe",
+    "dockerfile",
     "former-hotspot"
   ],
   "defaultSeverity": "Minor",

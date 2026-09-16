@@ -13,8 +13,9 @@
     "constantCost": "30min"
   },
   "tags": [
-    "gcp",
-    "former-hotspot"
+    "cryptography",
+    "former-hotspot",
+    "gcp"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6403",

@@ -16,9 +16,10 @@
   "tags": [
     "aws",
     "azure",
-    "gcp",
+    "cryptography",
     "cwe",
-    "former-hotspot"
+    "former-hotspot",
+    "gcp"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5332",

@@ -14,8 +14,9 @@
     "constantCost": "10min"
   },
   "tags": [
-    "cwe",
     "azure",
+    "cryptography",
+    "cwe",
     "former-hotspot"
   ],
   "defaultSeverity": "Major",

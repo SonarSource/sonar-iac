@@ -14,8 +14,9 @@
   },
   "quickfix": "unknown",
   "tags": [
-    "cwe",
     "azure",
+    "cryptography",
+    "cwe",
     "former-hotspot"
   ],
   "defaultSeverity": "Major",
