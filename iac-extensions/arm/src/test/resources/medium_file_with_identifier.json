@@ -1,12 +1,5 @@
 {
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "0.16.2.56959",
-      "templateHash": "1490579835944567133"
-    }
-  },
   "resources": [
     {
       "type": "Microsoft.Compute/virtualMachineScaleSets",

@@ -134,6 +134,34 @@ class ArmSensorTest extends ExtensionSensorTest {
     assertThat(inputFiles).containsExactlyInAnyOrder(bicepFile, armJsonFile);
   }
 
+  @Test
+  void shouldExcludeBicepGeneratedArmJsonBeforeArmAnalysis() {
+    settings.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
+    var bicepFile = IacTestUtils.inputFile("authored.bicep", baseDir.toPath(), "param environmentName string", "azureresourcemanager");
+    var generatedArmJson = inputFile("generated.json", bicepGeneratedArmJson());
+
+    analyze(sensor(), bicepFile, generatedArmJson);
+
+    assertThat(context.measures(generatedArmJson.key())).isEmpty();
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.azureresourcemanager.files.count", "1")
+      .containsEntry("iac.azureresourcemanager.files.parsed", "1")
+      .containsEntry("iac.azureresourcemanager.files.bicep.count", "1")
+      .containsEntry("iac.azureresourcemanager.files.json.count", "0")
+      .containsEntry("iac.azureresourcemanager.files.json.parsed", "0");
+  }
+
+  @Test
+  void shouldAnalyzeExplicitlyIncludedBicepGeneratedArmJson() {
+    settings.setProperty(ARM_JSON_FILE_IDENTIFIER_KEY, ARM_JSON_FILE_IDENTIFIER_DEFAULT_VALUE);
+    settings.setProperty("sonar.inclusions", "included/**");
+    var generatedArmJson = inputFile("included/generated.json", bicepGeneratedArmJsonWithRepeatedLiteral());
+
+    analyze(sensor("S1192"), generatedArmJson);
+
+    assertThat(context.allIssues()).hasSize(1);
+  }
+
   @Override
   protected String getActivationSettingKey() {
     return ArmSettings.ACTIVATION_KEY;
@@ -306,5 +334,38 @@ class ArmSensorTest extends ExtensionSensorTest {
 
     assertThat(logTester.logs(Level.DEBUG)).satisfiesExactly(log -> assertThat(log).startsWith("Classified input files for:"));
     verifyLinesOfCodeTelemetry(0);
+  }
+
+  private static String bicepGeneratedArmJson() {
+    return """
+      {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "metadata": {
+          "_generator": {
+            "name": "bicep"
+          }
+        }
+      }
+      """;
+  }
+
+  private static String bicepGeneratedArmJsonWithRepeatedLiteral() {
+    return """
+      {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "metadata": {
+          "_generator": {
+            "name": "bicep"
+          }
+        },
+        "variables": {
+          "one": "generated literal",
+          "two": "generated literal",
+          "three": "generated literal",
+          "four": "generated literal",
+          "five": "generated literal"
+        }
+      }
+      """;
   }
 }

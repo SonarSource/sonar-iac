@@ -35,6 +35,7 @@ public class SharedFileHeadReader {
 
   @Nullable
   private InputFile lastFile;
+  private String lastText = "";
   private String[] lastLines = new String[0];
 
   /**
@@ -47,11 +48,22 @@ public class SharedFileHeadReader {
     try (var bufferedInputStream = new BufferedInputStream(inputFile.inputStream())) {
       // Only first 8k bytes is read to avoid slow execution for big one-line files
       byte[] bytes = bufferedInputStream.readNBytes(DEFAULT_BUFFER_SIZE);
-      var text = new String(bytes, inputFile.charset());
-      var lines = LINE_TERMINATOR.split(text);
+      lastText = new String(bytes, inputFile.charset());
+      var lines = LINE_TERMINATOR.split(lastText);
       lastFile = inputFile;
       lastLines = lines;
       return lines;
     }
+  }
+
+  /**
+   * Reads the bounded file head as text, reusing the same cached content as {@link #readLines(InputFile)}.
+   *
+   * @param inputFile the file whose head should be read
+   * @return the first bounded portion of the file as text
+   */
+  public String readText(InputFile inputFile) throws IOException {
+    readLines(inputFile);
+    return lastText;
   }
 }

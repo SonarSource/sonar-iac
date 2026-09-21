@@ -32,11 +32,28 @@ public class ArmJsonFilePredicate extends AbstractTimedFilePredicate implements 
   private final FilePredicate delegate;
 
   public ArmJsonFilePredicate(FilePredicates predicates, Configuration config, boolean enablePredicateDebugLogs, SharedFileHeadReader sharedFileHeadReader) {
+    var armJsonFilePredicate = createRecognitionPredicate(predicates, config, enablePredicateDebugLogs, sharedFileHeadReader);
+    this.delegate = predicates.and(
+      armJsonFilePredicate,
+      predicates.not(BicepGeneratedArmJsonFilePredicate.create(predicates, config, enablePredicateDebugLogs, sharedFileHeadReader)));
+  }
+
+  /**
+   * Creates the predicate that recognizes ARM JSON independently from generated-file policy.
+   *
+   * @param predicates the scanner file-predicate factory
+   * @param config the effective analysis configuration
+   * @param enablePredicateDebugLogs whether failed identifier checks should be logged
+   * @param sharedFileHeadReader the bounded reader shared by content predicates
+   * @return a predicate that recognizes ARM JSON files
+   */
+  public static FilePredicate createRecognitionPredicate(FilePredicates predicates, Configuration config,
+    boolean enablePredicateDebugLogs, SharedFileHeadReader sharedFileHeadReader) {
     var identifiers = Arrays.stream(config.getStringArray(ARM_JSON_FILE_IDENTIFIER_KEY))
       .filter(s -> !s.isBlank()).toList();
     // Azure Resource Manager templates are JSON only (Bicep is matched by its own language by the sensor), so the
     // language is checked here to keep this predicate inert for the other (YAML) file types handled by the resolver.
-    this.delegate = predicates.and(
+    return predicates.and(
       predicates.hasLanguage(JSON_LANGUAGE_KEY),
       new FileIdentificationPredicate(identifiers, enablePredicateDebugLogs, sharedFileHeadReader));
   }
