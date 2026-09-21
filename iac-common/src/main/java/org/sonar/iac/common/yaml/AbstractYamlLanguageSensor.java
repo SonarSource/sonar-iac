@@ -74,12 +74,7 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
 
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
-    List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
-    if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
-      visitors.add(new YamlHighlightingVisitor());
-      visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry, repositoryKey()));
-    }
-    visitors.addAll(preChecksVisitors());
+    List<TreeVisitor<InputFileContext>> visitors = preChecksVisitors(sensorContext);
     visitors.add(createChecksVisitor(ChecksVisitor.activeChecks(checks), statistics));
     return visitors;
   }
@@ -88,8 +83,18 @@ public abstract class AbstractYamlLanguageSensor extends IacSensor {
     return new ChecksVisitor(activeChecks, statistics);
   }
 
-  protected List<TreeVisitor<InputFileContext>> preChecksVisitors() {
-    return List.of();
+  /**
+   * The visitors applied to every file before the checks visitor. Cross-file sensors also use them as the first pass of
+   * their {@link org.sonar.iac.common.extension.analyzer.CrossFileAnalyzer}, hence they are built separately from
+   * {@link #visitors}. Subclasses add their language-specific visitors to the returned mutable list.
+   */
+  protected List<TreeVisitor<InputFileContext>> preChecksVisitors(SensorContext sensorContext) {
+    List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
+    if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
+      visitors.add(new YamlHighlightingVisitor());
+      visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry, repositoryKey()));
+    }
+    return visitors;
   }
 
   /**

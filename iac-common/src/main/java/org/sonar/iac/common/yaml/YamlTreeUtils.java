@@ -16,8 +16,10 @@
  */
 package org.sonar.iac.common.yaml;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.Tree;
@@ -39,6 +41,42 @@ public final class YamlTreeUtils {
     } else {
       return Collections.emptyList();
     }
+  }
+
+  /**
+   * The values of a property written either as a single scalar or as a sequence of scalars. Unlike
+   * {@link #getListValueElements(Tree)} it is all or nothing: the result is empty as soon as one entry is not a
+   * readable scalar, so that a caller cannot mistake a partially unreadable property for the shorter list its readable
+   * entries spell out.
+   */
+  public static List<String> getListValueElementsOrNone(@Nullable Tree tree) {
+    if (tree instanceof SequenceTree sequenceTree) {
+      return getListValueElementsOrNone(sequenceTree.elements());
+    }
+    return readableScalarValue(tree).map(List::of).orElseGet(List::of);
+  }
+
+  /**
+   * The values of the given trees, empty as soon as one of them is not a readable scalar. Same contract as
+   * {@link #getListValueElementsOrNone(Tree)}, for entries a caller collected itself, such as the keys of a mapping.
+   */
+  public static List<String> getListValueElementsOrNone(List<? extends Tree> trees) {
+    List<String> values = new ArrayList<>(trees.size());
+    for (Tree tree : trees) {
+      var value = readableScalarValue(tree);
+      if (value.isEmpty()) {
+        return List.of();
+      }
+      values.add(value.get());
+    }
+    return List.copyOf(values);
+  }
+
+  private static Optional<String> readableScalarValue(@Nullable Tree tree) {
+    if (tree instanceof ScalarTree scalarTree && !scalarTree.value().isBlank()) {
+      return Optional.of(scalarTree.value());
+    }
+    return Optional.empty();
   }
 
   /**

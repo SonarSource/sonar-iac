@@ -24,10 +24,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.common.yaml.tree.FileTreeImpl;
 import org.sonar.iac.common.yaml.tree.ScalarTree;
 import org.sonar.iac.common.yaml.tree.ScalarTreeImpl;
+import org.sonar.iac.common.yaml.tree.SequenceTreeImpl;
 import org.sonar.iac.common.yaml.tree.YamlTreeMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +37,7 @@ import static org.junit.jupiter.params.provider.Arguments.of;
 import static org.sonar.iac.common.yaml.YamlTreeTestUtils.scalar;
 import static org.sonar.iac.common.yaml.YamlTreeTestUtils.sequence;
 import static org.sonar.iac.common.yaml.YamlTreeUtils.getListValueElements;
+import static org.sonar.iac.common.yaml.YamlTreeUtils.getListValueElementsOrNone;
 import static org.sonar.iac.common.yaml.YamlTreeUtils.getRawValue;
 import static org.sonarsource.analyzer.commons.collections.ListUtils.getLast;
 
@@ -47,6 +50,22 @@ class YamlTreeUtilsTest {
     assertThat(getListValueElements(sequence("false", "true", "test"))).containsExactly("false", "true", "test");
     assertThat(getListValueElements(notTextTree())).isEmpty();
     assertThat(getListValueElements(null)).isEmpty();
+  }
+
+  @Test
+  void getListValueElementOrNone() {
+    assertThat(getListValueElementsOrNone(scalar("false"))).containsExactly("false");
+    assertThat(getListValueElementsOrNone(sequence("false", "true", "test"))).containsExactly("false", "true", "test");
+    assertThat(getListValueElementsOrNone(List.of(scalar("false"), scalar("true")))).containsExactly("false", "true");
+    // All or nothing: one unreadable entry discards the readable ones
+    assertThat(getListValueElementsOrNone(new SequenceTreeImpl(List.of(scalar("false"), notTextTree()), null))).isEmpty();
+    assertThat(getListValueElementsOrNone(List.of(scalar("false"), notTextTree()))).isEmpty();
+    // A blank scalar carries no value
+    assertThat(getListValueElementsOrNone(scalar(""))).isEmpty();
+    assertThat(getListValueElementsOrNone(sequence("false", " "))).isEmpty();
+    assertThat(getListValueElementsOrNone(notTextTree())).isEmpty();
+    assertThat(getListValueElementsOrNone((Tree) null)).isEmpty();
+    assertThat(getListValueElementsOrNone(List.of())).isEmpty();
   }
 
   @ParameterizedTest
