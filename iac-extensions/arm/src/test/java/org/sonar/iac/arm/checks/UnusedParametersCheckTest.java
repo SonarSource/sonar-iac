@@ -44,6 +44,11 @@ class UnusedParametersCheckTest {
   }
 
   @Test
+  void shouldRecognizeParameterUsedInVariableCopyDirectiveCount() {
+    ArmVerifier.verifyNoIssue("UnusedParametersCheckTest/variableCopyDirectiveCount.json", CHECK);
+  }
+
+  @Test
   void shouldNotRaiseOnParameterFileJson() {
     ArmVerifier.verifyNoIssue("UnusedParametersCheckTest/parameterFile.parameters.json", CHECK);
   }

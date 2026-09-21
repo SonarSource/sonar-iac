@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "usedInCopyDirectiveCount": {
+      "type": "int"
+    }
+  },
+  "variables": {
+    "copy": [
+      {
+        "name": "generatedVariable",
+        "count": "[add(variables('usedInCopyCount'), parameters('usedInCopyDirectiveCount'))]",
+        "input": "[variables('usedInCopyDirectiveInput')]"
+      }
+    ],
+    "usedInCopyDirectiveInput": "used",
+    "usedInCopyCount": 1,
+    "unusedVariable": "unused"
+  },
+  "outputs": {
+    "generatedVariable": {
+      "type": "object",
+      "value": "[variables('generatedVariable')]"
+    }
+  }
+}

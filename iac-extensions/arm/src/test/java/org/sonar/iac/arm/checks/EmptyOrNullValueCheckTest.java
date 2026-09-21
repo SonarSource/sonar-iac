@@ -67,6 +67,26 @@ class EmptyOrNullValueCheckTest {
   }
 
   @Test
+  void shouldCheckEmptyValuesInVariableCopyDirectiveInput() {
+    ArmVerifier.verifyContent("""
+      {
+        "variables": {
+          "copy": [
+            {
+              "name": "generatedVariable",
+              "count": 1,
+              "input": {
+                "unfinished": ""
+              }
+            }
+          ]
+        }
+      }
+      """, CHECK,
+      issue(8, 10, 8, 26, "Remove this empty string or complete with real code."));
+  }
+
+  @Test
   void testEmptyOrNullValueBicep() {
     BicepVerifier.verify("EmptyOrNullValueCheckTest/emptyOrNullValue.bicep", CHECK);
   }

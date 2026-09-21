@@ -38,6 +38,15 @@ class UnusedVariablesCheckTest {
       issue(14, 4, 14, 20, "Remove the unused variable \"unusedVariable\"."));
   }
 
+  /** An array-valued "copy" entry is ignored as a directive, while its expressions still count as usages. */
+  @Test
+  void shouldAnalyzeCopyDirectiveInputWithoutDeclaringCopy() {
+    ArmVerifier.verify("UnusedVariablesCheckTest/variableCopyDirective.json", CHECK,
+      issue(19, 4, 19, 20, "Remove the unused variable \"unusedVariable\"."));
+    ArmVerifier.verify("UnusedVariablesCheckTest/unusedVariableNamedCopy.json", CHECK,
+      issue(5, 4, 5, 10, "Remove the unused variable \"copy\"."));
+  }
+
   @Test
   void shouldRaiseOnUnusedVariablesInResourceWithSymbolicNameJson() {
     ArmVerifier.verifyNoIssue("UnusedVariablesCheckTest/usedVariableInSymbolicResource.json", CHECK);

@@ -54,6 +54,34 @@ class StringLiteralDuplicatedCheckTest {
   }
 
   @Test
+  void shouldDetectDuplicatedLiteralsInVariableCopyDirectiveInput() {
+    ArmVerifier.verifyContent("""
+      {
+        "variables": {
+          "copy": [
+            {
+              "name": "generatedVariable",
+              "count": 1,
+              "input": {
+                "first": "app Super Storage",
+                "second": "app Super Storage",
+                "third": "app Super Storage",
+                "fourth": "app Super Storage",
+                "fifth": "app Super Storage"
+              }
+            }
+          ]
+        }
+      }
+      """, check,
+      issue(8, 19, 8, 38, "Define a variable instead of duplicating this literal \"app Super Storage\" 5 times.",
+        secondary(9, 20, 9, 39, "Duplication."),
+        secondary(10, 19, 10, 38, "Duplication."),
+        secondary(11, 20, 11, 39, "Duplication."),
+        secondary(12, 19, 12, 38, "Duplication.")));
+  }
+
+  @Test
   void testBicepOOB() {
     BicepVerifier.verify("StringLiteralDuplicatedCheck/StringLiteralDuplicatedCheck.bicep", check);
   }

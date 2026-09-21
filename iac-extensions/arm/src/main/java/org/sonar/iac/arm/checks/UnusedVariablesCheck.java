@@ -22,6 +22,7 @@ import org.sonar.iac.arm.tree.api.ArmTree;
 import org.sonar.iac.arm.tree.api.bicep.Declaration;
 import org.sonar.iac.arm.tree.api.bicep.Decorator;
 import org.sonar.iac.arm.tree.api.bicep.HasDecorators;
+import org.sonar.iac.arm.tree.impl.json.VariableDeclarationImpl;
 
 @Rule(key = "S1481")
 public class UnusedVariablesCheck extends AbstractUnusedSymbolCheck {
@@ -33,6 +34,11 @@ public class UnusedVariablesCheck extends AbstractUnusedSymbolCheck {
 
   @Override
   protected boolean shouldIgnoreUnused(Declaration declaration) {
+    if (declaration instanceof VariableDeclarationImpl variable
+      && "copy".equalsIgnoreCase(variable.declaratedName().value())
+      && variable.value().is(ArmTree.Kind.ARRAY_EXPRESSION)) {
+      return true;
+    }
     if (declaration instanceof HasDecorators hasDecorators) {
       return hasDecorators.decorators().stream()
         .map(Decorator::expression)

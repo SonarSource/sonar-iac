@@ -65,7 +65,6 @@ public class FileConverter extends ArmJsonBaseConverter {
       .map(variableConverter::convertVariableDeclaration)
       .toList();
     statements.addAll(variables);
-
     return new FileImpl(targetScope, statements, document);
   }
 }
