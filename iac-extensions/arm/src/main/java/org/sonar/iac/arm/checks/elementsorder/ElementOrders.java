@@ -23,11 +23,12 @@ import java.util.Map;
 public final class ElementOrders {
 
   public static final int DEFAULT_ORDER_FOR_UNKNOWN_PROPERTY = 200;
+  private static final int SCOPE_ORDER = 20;
 
   private static final Map<String, Integer> DEFAULT_ELEMENTS_ORDER = Map.ofEntries(
     Map.entry("comments", 0),
     Map.entry("condition", 10),
-    Map.entry("scope", 20),
+    Map.entry("scope", SCOPE_ORDER),
     Map.entry("type", 30),
     Map.entry("apiversion", 40),
     Map.entry("name", 50),
@@ -68,9 +69,19 @@ public final class ElementOrders {
   private static final Map<String, Integer> BICEP_VS_CODE_ELEMENTS_ORDER = createOrderWithOverrides(VS_CODE_ELEMENTS_ORDER,
     Map.entry("parent", 0));
 
+  private static final Map<String, Integer> BICEP_BASE_ELEMENTS_ORDER_WITH_NAME_AND_SCOPE_SAME_ORDER = createOrderWithOverrides(
+    BICEP_BASE_ELEMENTS_ORDER,
+    Map.entry("name", SCOPE_ORDER));
+
+  private static final Map<String, Integer> BICEP_VS_CODE_ELEMENTS_ORDER_WITH_NAME_AND_SCOPE_SAME_ORDER = createOrderWithOverrides(
+    BICEP_VS_CODE_ELEMENTS_ORDER,
+    Map.entry("name", SCOPE_ORDER));
+
   public static final List<Map<String, Integer>> BICEP_ELEMENTS_ORDER_SETS = List.of(
     BICEP_BASE_ELEMENTS_ORDER,
-    BICEP_VS_CODE_ELEMENTS_ORDER);
+    BICEP_VS_CODE_ELEMENTS_ORDER,
+    BICEP_BASE_ELEMENTS_ORDER_WITH_NAME_AND_SCOPE_SAME_ORDER,
+    BICEP_VS_CODE_ELEMENTS_ORDER_WITH_NAME_AND_SCOPE_SAME_ORDER);
 
   private ElementOrders() {
     // utility class

@@ -50,8 +50,8 @@ class ElementsOrderResourceCheckTest {
       // filename, primaryTextRange
       arguments("resourceCommentsAtEnd.json", range(23, 6, 23, 16)),
       arguments("resourceKindScale.json", range(13, 6, 13, 12)),
-      arguments("resourceNameAndApiVersionAndType.json", range(9, 6, 9, 18)),
-      arguments("resourceNameAndApiVersionAndTypeCaseInsensitive.json", range(9, 6, 9, 18)),
+      arguments("resourceNameAndApiVersionAndType.json", range(10, 6, 10, 12)),
+      arguments("resourceNameAndApiVersionAndTypeCaseInsensitive.json", range(10, 6, 10, 12)),
       arguments("resourceOnlySecondUnexpected.json", range(16, 6, 16, 16)),
       arguments("resourceOtherPropertiesBetween.json", range(9, 6, 9, 12)),
       arguments("resourcePropertiesAtBeginning.json", range(6, 6, 6, 16)));
@@ -72,16 +72,31 @@ class ElementsOrderResourceCheckTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"resourceExpected.bicep",
+  @ValueSource(strings = {
     "resourceExpectedMoreResources.bicep",
-    "resourceExpectedSmall.bicep"})
+    "resourceExpectedSmall.bicep"
+  })
   void shouldVerifyExpectedResourceBicep(String filename) {
     BicepVerifier.verifyNoIssue(DIR + filename, CHECK);
+  }
+
+  /** Verifies that scope can precede name in a Bicep resource. */
+  @Test
+  void shouldAllowScopeBeforeNameInBicepResource() {
+    BicepVerifier.verifyNoIssue(DIR + "resourceExpected.bicep", CHECK);
+  }
+
+  /** Verifies that name can precede scope in a Bicep resource. */
+  @Test
+  void shouldAllowNameBeforeScopeInBicepResource() {
+    BicepVerifier.verifyNoIssue(DIR + "resourceNameBeforeScope.bicep", CHECK);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"resourceMoreIssues.bicep",
     "resourceOnlySecondUnexpected.bicep",
+    "resourceNameLocationScope.bicep",
+    "resourceNameScopeDependsOn.bicep",
     "resourceParentAtEnd.bicep",
     "resourcePlanAndTags.bicep",
     "resourcePropertiesFirst.bicep",

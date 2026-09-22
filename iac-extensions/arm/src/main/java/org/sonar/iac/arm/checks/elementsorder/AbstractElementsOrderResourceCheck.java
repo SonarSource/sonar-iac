@@ -42,7 +42,8 @@ public abstract class AbstractElementsOrderResourceCheck implements IacCheck {
         // Matches this order set, no issue
         return;
       }
-      if (firstViolatingProperty == null) {
+      if (firstViolatingProperty == null
+        || properties.indexOf(violation) > properties.indexOf(firstViolatingProperty)) {
         firstViolatingProperty = violation;
       }
     }
