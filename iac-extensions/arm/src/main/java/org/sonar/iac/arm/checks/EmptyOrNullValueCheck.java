@@ -46,6 +46,8 @@ import org.sonar.iac.common.checks.TextUtils;
 @Rule(key = "S6954")
 public class EmptyOrNullValueCheck implements IacCheck {
   private static final String MESSAGE = "Remove this %s or complete with real code.";
+  private static final String DEPLOYMENT_RESOURCE_TYPE = "Microsoft.Resources/deployments";
+  private static final String PROPERTIES = "properties";
   private static final Map<ArmTree.Kind, String> TYPE_TO_STRING = Map.of(
     ArmTree.Kind.NULL_LITERAL, "null %s",
     ArmTree.Kind.STRING_LITERAL, "empty string",
@@ -123,11 +125,14 @@ public class EmptyOrNullValueCheck implements IacCheck {
    * </ul>
    */
   private static boolean isPropertyException(Property property, @Nullable ResourceDeclaration resource) {
-    return isTopLevelPropertiesProperty(property) || isUserAssignedIdentitiesIdProperty(property) || isIgnoredEmptyPropertyForResourceType(property, resource);
+    return isTopLevelPropertiesProperty(property)
+      || isUserAssignedIdentitiesIdProperty(property)
+      || isMatchingNestedTemplateParameterDefault(property, resource)
+      || isIgnoredEmptyPropertyForResourceType(property, resource);
   }
 
   private static boolean isTopLevelPropertiesProperty(Property property) {
-    return TextUtils.isValue(property.key(), "properties").isTrue() && isEmpty(property.value());
+    return TextUtils.isValue(property.key(), PROPERTIES).isTrue() && isEmpty(property.value());
   }
 
   private static boolean isUserAssignedIdentitiesIdProperty(Property property) {
@@ -135,6 +140,95 @@ public class EmptyOrNullValueCheck implements IacCheck {
       .map(ArmTree::parent)
       .map(parent -> parent instanceof Property parentProperty && TextUtils.isValue(parentProperty.key(), "userAssignedIdentities").isTrue())
       .orElse(false);
+  }
+
+  /**
+   * Checks whether an empty default matches its nested template parameter type.
+   *
+   * @param property the default value property
+   * @param resource the enclosing resource
+   * @return {@code true} when the empty default is valid for the parameter type
+   */
+  private static boolean isMatchingNestedTemplateParameterDefault(Property property, @Nullable ResourceDeclaration resource) {
+    @Nullable
+    Expression defaultValue = property.value();
+    if (resource == null
+      || defaultValue == null
+      || !resource.type().value().equalsIgnoreCase(DEPLOYMENT_RESOURCE_TYPE)
+      || !TextUtils.isValue(property.key(), "defaultValue").isTrue()
+      || (!isEmptyObject(defaultValue) && !isEmptyArray(defaultValue))) {
+      return false;
+    }
+
+    ArmTree parameterObject = property.parent();
+    if (!(parameterObject instanceof ObjectExpression parameter)
+      || !(parameter.parent() instanceof Property parameterProperty)) {
+      return false;
+    }
+
+    ArmTree parametersObject = parameterProperty.parent();
+    if (!(parametersObject instanceof ObjectExpression parameters)
+      || !(parameters.parent() instanceof Property parametersProperty)
+      || !TextUtils.isValue(parametersProperty.key(), "parameters").isTrue()) {
+      return false;
+    }
+
+    ArmTree templateObject = parametersProperty.parent();
+    return templateObject instanceof ObjectExpression template
+      && template.parent() instanceof Property templateProperty
+      && TextUtils.isValue(templateProperty.key(), "template").isTrue()
+      && isDeploymentTemplate(templateProperty, resource)
+      && hasMatchingParameterType(parameter, defaultValue);
+  }
+
+  /**
+   * Checks whether a template belongs to the deployment resource or to a deployment nested in that template.
+   */
+  private static boolean isDeploymentTemplate(Property templateProperty, ResourceDeclaration resource) {
+    if (!TextUtils.isValue(templateProperty.key(), "template").isTrue()
+      || !(templateProperty.parent() instanceof ObjectExpression properties)) {
+      return false;
+    }
+    if (resource.getResourceProperty(PROPERTIES).filter(property -> property.value() == properties).isPresent()) {
+      return true;
+    }
+    if (!(properties.parent() instanceof Property propertiesProperty)
+      || !TextUtils.isValue(propertiesProperty.key(), PROPERTIES).isTrue()
+      || !(propertiesProperty.parent() instanceof ObjectExpression nestedResource)
+      || nestedResource.properties().stream().noneMatch(property -> TextUtils.isValue(property.key(), "type").isTrue()
+        && TextUtils.isValue(property.value(), DEPLOYMENT_RESOURCE_TYPE).isTrue())) {
+      return false;
+    }
+
+    ArmTree container = nestedResource.parent();
+    if (container instanceof Property symbolicResource && symbolicResource.parent() instanceof ObjectExpression resources) {
+      container = resources;
+    }
+    return (container instanceof ArrayExpression || container instanceof ObjectExpression)
+      && container.parent() instanceof Property resourcesProperty
+      && TextUtils.isValue(resourcesProperty.key(), "resources").isTrue()
+      && resourcesProperty.parent() instanceof ObjectExpression parentTemplate
+      && parentTemplate.parent() instanceof Property parentTemplateProperty
+      && isDeploymentTemplate(parentTemplateProperty, resource);
+  }
+
+  /**
+   * Checks whether a parameter declaration type matches an empty default value.
+   *
+   * @param parameter the parameter declaration object
+   * @param defaultValue the default value to validate
+   * @return {@code true} when the declared type matches the empty value
+   */
+  private static boolean hasMatchingParameterType(ObjectExpression parameter, Expression defaultValue) {
+    return parameter.properties().stream()
+      .map(Property.class::cast)
+      .filter(property -> TextUtils.isValue(property.key(), "type").isTrue())
+      .map(Property::value)
+      .filter(StringLiteral.class::isInstance)
+      .map(StringLiteral.class::cast)
+      .map(StringLiteral::value)
+      .anyMatch(type -> (isEmptyObject(defaultValue) && "object".equalsIgnoreCase(type))
+        || (isEmptyArray(defaultValue) && "array".equalsIgnoreCase(type)));
   }
 
   /**
@@ -206,8 +300,8 @@ public class EmptyOrNullValueCheck implements IacCheck {
     }
   }
 
-  private static boolean isEmpty(Expression expression) {
-    return expression.is(ArmTree.Kind.NULL_LITERAL) || isEmptyString(expression) || isEmptyObject(expression) || isEmptyArray(expression);
+  private static boolean isEmpty(@Nullable Expression expression) {
+    return expression != null && (expression.is(ArmTree.Kind.NULL_LITERAL) || isEmptyString(expression) || isEmptyObject(expression) || isEmptyArray(expression));
   }
 
   private static boolean isEmptyString(Expression expression) {

@@ -66,6 +66,248 @@ class EmptyOrNullValueCheckTest {
     ArmVerifier.verifyNoIssue("EmptyOrNullValueCheckTest/emptyOrNullValue-exceptions.json", CHECK);
   }
 
+  /**
+   * Verifies that matching empty defaults are allowed in nested deployment templates.
+   */
+  @Test
+  void shouldAllowMatchingNestedTemplateParameterDefaults() {
+    ArmVerifier.verifyContent("""
+      {
+        "resources": [
+          {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "nestedTemplate",
+            "properties": {
+              "template": {
+                "parameters": {
+                  "tags": {
+                    "type": "object",
+                    "defaultValue": {}
+                  },
+                  "ipRules": {
+                    "type": "array",
+                    "defaultValue": []
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+      """, CHECK);
+
+    BicepVerifier.verifyContentNoIssue("""
+      resource nestedTemplate 'Microsoft.Resources/deployments@2022-09-01' = {
+        name: 'nestedTemplate'
+        properties: {
+          template: {
+            parameters: {
+              tags: {
+                type: 'object'
+                defaultValue: {}
+              }
+              ipRules: {
+                type: 'array'
+                defaultValue: []
+              }
+            }
+          }
+        }
+      }
+      """, CHECK);
+  }
+
+  @Test
+  void shouldAllowMatchingDefaultsInNestedTemplatesInsideNestedTemplates() {
+    ArmVerifier.verifyContent("""
+      {
+        "resources": [
+          {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "outerTemplate",
+            "properties": {
+              "template": {
+                "resources": [
+                  {
+                    "type": "Microsoft.Resources/deployments",
+                    "apiVersion": "2022-09-01",
+                    "name": "innerTemplate",
+                    "properties": {
+                      "template": {
+                        "parameters": {
+                          "tags": {
+                            "type": "object",
+                            "defaultValue": {}
+                          },
+                          "ipRules": {
+                            "type": "array",
+                            "defaultValue": []
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+      """, CHECK);
+  }
+
+  @Test
+  void shouldReportDefaultsInsideParameterValues() {
+    ArmVerifier.verifyContent("""
+      {"resources":[{"type":"Microsoft.Resources/deployments","apiVersion":"2022-09-01","name":"deployment","properties":{
+        "parameters":{"configuration":{"value":{"template":{"parameters":{"tags":{
+          "type":"object",
+          "defaultValue":{}
+        }}}}}}
+      }}]}
+      """, CHECK, issue(4, 4, 4, 21, "Remove this empty object or complete with real code."));
+
+    BicepVerifier.verifyContent("""
+      resource deployment 'Microsoft.Resources/deployments@2022-09-01' = {
+        name: 'deployment'
+        properties: {
+          parameters: {
+            configuration: {
+              value: {
+                template: {
+                  parameters: {
+                    tags: {
+                      type: 'object'
+                      defaultValue: {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      """, CHECK, issue(11, 16, 11, 32, "Remove this empty object or complete with real code."));
+  }
+
+  /**
+   * Verifies that only matching nested template parameter defaults are allowed.
+   */
+  @Test
+  void shouldReportOtherNestedTemplateEmptyValues() {
+    ArmVerifier.verifyContent("""
+      {
+        "resources": [
+          {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "nestedTemplate",
+            "properties": {
+              "template": {
+                "parameters": {
+                  "objectWithArray": {
+                    "type": "object",
+                    "defaultValue": []
+                  },
+                  "arrayWithObject": {
+                    "type": "array",
+                    "defaultValue": {}
+                  },
+                  "missingType": {
+                    "defaultValue": {}
+                  },
+                  "dynamicType": {
+                    "type": "[variables('parameterType')]",
+                    "defaultValue": []
+                  },
+                  "unknownType": {
+                    "type": "custom",
+                    "defaultValue": {}
+                  },
+                  "nullDefault": {
+                    "type": "object",
+                    "defaultValue": null
+                  },
+                  "stringDefault": {
+                    "type": "string",
+                    "defaultValue": ""
+                  }
+                },
+                "metadata": {
+                  "defaultValue": {}
+                },
+                "unexpected": []
+              }
+            }
+          }
+        ]
+      }
+      """, CHECK,
+      issue(12, 14, 12, 32, "Remove this empty array or complete with real code."),
+      issue(16, 14, 16, 32, "Remove this empty object or complete with real code."),
+      issue(19, 14, 19, 32, "Remove this empty object or complete with real code."),
+      issue(23, 14, 23, 32, "Remove this empty array or complete with real code."),
+      issue(27, 14, 27, 32, "Remove this empty object or complete with real code."),
+      issue(31, 14, 31, 34, "Remove this null property or complete with real code."),
+      issue(35, 14, 35, 32, "Remove this empty string or complete with real code."),
+      issue(39, 12, 39, 30, "Remove this empty object or complete with real code."),
+      issue(41, 10, 41, 26, "Remove this empty array or complete with real code."));
+
+    BicepVerifier.verifyContent("""
+      resource nestedTemplate 'Microsoft.Resources/deployments@2022-09-01' = {
+        name: 'nestedTemplate'
+        properties: {
+          template: {
+            parameters: {
+              objectWithArray: {
+                type: 'object'
+                defaultValue: []
+              }
+              arrayWithObject: {
+                type: 'array'
+                defaultValue: {}
+              }
+              missingType: {
+                defaultValue: {}
+              }
+              dynamicType: {
+                type: parameterType
+                defaultValue: []
+              }
+              unknownType: {
+                type: 'custom'
+                defaultValue: {}
+              }
+              nullDefault: {
+                type: 'object'
+                defaultValue: null
+              }
+              stringDefault: {
+                type: 'string'
+                defaultValue: ''
+              }
+            }
+            metadata: {
+              defaultValue: {}
+            }
+            unexpected: []
+          }
+        }
+      }
+      """, CHECK,
+      issue(8, 10, 8, 26, "Remove this empty array or complete with real code."),
+      issue(12, 10, 12, 26, "Remove this empty object or complete with real code."),
+      issue(15, 10, 15, 26, "Remove this empty object or complete with real code."),
+      issue(19, 10, 19, 26, "Remove this empty array or complete with real code."),
+      issue(23, 10, 23, 26, "Remove this empty object or complete with real code."),
+      issue(27, 10, 27, 28, "Remove this null property or complete with real code."),
+      issue(31, 10, 31, 26, "Remove this empty string or complete with real code."),
+      issue(35, 8, 35, 24, "Remove this empty object or complete with real code."),
+      issue(37, 6, 37, 20, "Remove this empty array or complete with real code."));
+  }
+
   @Test
   void shouldCheckEmptyValuesInVariableCopyDirectiveInput() {
     ArmVerifier.verifyContent("""
