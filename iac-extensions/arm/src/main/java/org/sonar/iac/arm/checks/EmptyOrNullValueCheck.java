@@ -237,8 +237,11 @@ public class EmptyOrNullValueCheck implements IacCheck {
   }
 
   private static boolean isLogicAppRunAfterProperty(Property property, @Nullable ResourceDeclaration resource) {
+    @Nullable
+    Expression propertyValue = property.value();
     if (!TextUtils.isValue(property.key(), "runAfter").isTrue()
-      || !isEmptyObject(property.value())
+      || propertyValue == null
+      || !isEmptyObject(propertyValue)
       || resource == null
       || !resource.type().value().equalsIgnoreCase(LOGIC_APP_WORKFLOW_RESOURCE_TYPE)) {
       return false;
