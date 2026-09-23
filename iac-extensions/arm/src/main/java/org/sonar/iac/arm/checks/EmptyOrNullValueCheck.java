@@ -41,13 +41,17 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.PropertyTree;
 import org.sonar.iac.common.api.tree.Tree;
+import org.sonar.iac.common.checks.PropertyUtils;
 import org.sonar.iac.common.checks.TextUtils;
+
+import static org.sonar.iac.arm.checks.utils.LogicAppUtils.isControlAction;
 
 @Rule(key = "S6954")
 public class EmptyOrNullValueCheck implements IacCheck {
   private static final String MESSAGE = "Remove this %s or complete with real code.";
   private static final String DEPLOYMENT_RESOURCE_TYPE = "Microsoft.Resources/deployments";
   private static final String PROPERTIES = "properties";
+  private static final String LOGIC_APP_WORKFLOW_RESOURCE_TYPE = "Microsoft.Logic/workflows";
   private static final Map<ArmTree.Kind, String> TYPE_TO_STRING = Map.of(
     ArmTree.Kind.NULL_LITERAL, "null %s",
     ArmTree.Kind.STRING_LITERAL, "empty string",
@@ -128,6 +132,7 @@ public class EmptyOrNullValueCheck implements IacCheck {
     return isTopLevelPropertiesProperty(property)
       || isUserAssignedIdentitiesIdProperty(property)
       || isMatchingNestedTemplateParameterDefault(property, resource)
+      || isLogicAppRunAfterProperty(property, resource)
       || isIgnoredEmptyPropertyForResourceType(property, resource);
   }
 
@@ -229,6 +234,85 @@ public class EmptyOrNullValueCheck implements IacCheck {
       .map(StringLiteral::value)
       .anyMatch(type -> (isEmptyObject(defaultValue) && "object".equalsIgnoreCase(type))
         || (isEmptyArray(defaultValue) && "array".equalsIgnoreCase(type)));
+  }
+
+  private static boolean isLogicAppRunAfterProperty(Property property, @Nullable ResourceDeclaration resource) {
+    if (!TextUtils.isValue(property.key(), "runAfter").isTrue()
+      || !isEmptyObject(property.value())
+      || resource == null
+      || !resource.type().value().equalsIgnoreCase(LOGIC_APP_WORKFLOW_RESOURCE_TYPE)) {
+      return false;
+    }
+
+    return Optional.ofNullable(property.parent())
+      .map(ArmTree::parent)
+      .filter(Property.class::isInstance)
+      .map(Property.class::cast)
+      .map(action -> isActionInLogicAppDefinition(action, resource))
+      .orElse(false);
+  }
+
+  private static boolean isActionInLogicAppDefinition(Property action, ResourceDeclaration resource) {
+    return action.parent() instanceof ObjectExpression actions
+      && actions.parent() instanceof Property actionsProperty
+      && isLogicAppActionsProperty(actionsProperty, resource);
+  }
+
+  private static boolean isActionInLogicAppDefinition(ObjectExpression action, ResourceDeclaration resource) {
+    return action.parent() instanceof Property actionProperty
+      && isActionInLogicAppDefinition(actionProperty, resource);
+  }
+
+  private static boolean isLogicAppActionsProperty(Property actionsProperty, ResourceDeclaration resource) {
+    if (!TextUtils.isValue(actionsProperty.key(), "actions").isTrue()
+      || !(actionsProperty.parent() instanceof ObjectExpression actionContainer)) {
+      return false;
+    }
+
+    return isLogicAppDefinition(actionContainer, resource)
+      || isNestedControlAction(actionContainer, resource)
+      || isElseBranch(actionContainer, resource)
+      || isSwitchBranch(actionContainer, resource);
+  }
+
+  private static boolean isLogicAppDefinition(ObjectExpression actionContainer, ResourceDeclaration resource) {
+    return actionContainer.parent() instanceof Property definitionProperty
+      && TextUtils.isValue(definitionProperty.key(), "definition").isTrue()
+      && resource.properties().stream().anyMatch(property -> property.textRange().equals(definitionProperty.textRange()));
+  }
+
+  private static boolean isNestedControlAction(ObjectExpression actionContainer, ResourceDeclaration resource) {
+    return isControlAction(actionContainer) && isActionInLogicAppDefinition(actionContainer, resource);
+  }
+
+  private static boolean isElseBranch(ObjectExpression actionContainer, ResourceDeclaration resource) {
+    return actionContainer.parent() instanceof Property elseProperty
+      && TextUtils.isValue(elseProperty.key(), "else").isTrue()
+      && elseProperty.parent() instanceof ObjectExpression controlAction
+      && isActionOfType(controlAction, "If")
+      && isActionInLogicAppDefinition(controlAction, resource);
+  }
+
+  private static boolean isSwitchBranch(ObjectExpression actionContainer, ResourceDeclaration resource) {
+    if (!(actionContainer.parent() instanceof Property branchProperty)) {
+      return false;
+    }
+    if (TextUtils.isValue(branchProperty.key(), "default").isTrue()
+      && branchProperty.parent() instanceof ObjectExpression switchAction
+      && isActionOfType(switchAction, "Switch")
+      && isActionInLogicAppDefinition(switchAction, resource)) {
+      return true;
+    }
+    return branchProperty.parent() instanceof ObjectExpression cases
+      && cases.parent() instanceof Property casesProperty
+      && TextUtils.isValue(casesProperty.key(), "cases").isTrue()
+      && casesProperty.parent() instanceof ObjectExpression switchAction
+      && isActionOfType(switchAction, "Switch")
+      && isActionInLogicAppDefinition(switchAction, resource);
+  }
+
+  private static boolean isActionOfType(ObjectExpression action, String type) {
+    return PropertyUtils.hasValueEqual(action, "type", type);
   }
 
   /**

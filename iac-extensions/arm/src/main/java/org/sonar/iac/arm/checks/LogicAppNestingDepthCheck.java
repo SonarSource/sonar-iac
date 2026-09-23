@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.iac.arm.checkdsl.ContextualObject;
@@ -31,14 +30,14 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.checks.PropertyUtils;
-import org.sonar.iac.common.checks.TextUtils;
+
+import static org.sonar.iac.arm.checks.utils.LogicAppUtils.isControlAction;
 
 @Rule(key = "S8684")
 public class LogicAppNestingDepthCheck extends AbstractArmResourceCheck {
 
   private static final String MESSAGE = "Refactor this Logic App workflow to reduce control action nesting depth from %d to at most %d.";
   private static final String SECONDARY_MESSAGE = "Enclosing control action.";
-  private static final Set<String> CONTROL_ACTION_TYPES = Set.of("If", "Switch", "Foreach", "Until", "Scope");
   private static final int DEFAULT_MAX = 3;
 
   @RuleProperty(
@@ -112,12 +111,5 @@ public class LogicAppNestingDepthCheck extends AbstractArmResourceCheck {
 
   private static Optional<ObjectExpression> getObjectExpression(Tree from, String key) {
     return PropertyUtils.value(from, key, ObjectExpression.class);
-  }
-
-  private static boolean isControlAction(ObjectExpression actionObj) {
-    return PropertyUtils.value(actionObj, "type")
-      .flatMap(TextUtils::getValue)
-      .map(CONTROL_ACTION_TYPES::contains)
-      .orElse(false);
   }
 }

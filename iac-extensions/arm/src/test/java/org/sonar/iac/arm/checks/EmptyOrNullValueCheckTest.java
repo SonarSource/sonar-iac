@@ -66,6 +66,183 @@ class EmptyOrNullValueCheckTest {
     ArmVerifier.verifyNoIssue("EmptyOrNullValueCheckTest/emptyOrNullValue-exceptions.json", CHECK);
   }
 
+  @Test
+  void shouldAllowEmptyLogicAppRunAfterJson() {
+    ArmVerifier.verifyContent("""
+      {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "resources": [
+          {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2019-05-01",
+            "name": "firstWorkflow",
+            "location": "westeurope",
+            "properties": {
+              "definition": {
+                "actions": {
+                  "firstAction": {
+                    "runAfter": {}
+                  },
+                  "scope": {
+                    "type": "scope",
+                    "actions": {
+                      "nestedAction": {
+                        "runAfter": {}
+                      },
+                      "nestedScope": {
+                        "type": "Scope",
+                        "actions": {
+                          "deeplyNestedAction": {
+                            "runAfter": {}
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "condition": {
+                    "type": "If",
+                    "actions": {
+                      "trueAction": {
+                        "runAfter": {}
+                      }
+                    },
+                    "else": {
+                      "actions": {
+                        "falseAction": {
+                          "runAfter": {}
+                        }
+                      }
+                    }
+                  },
+                  "forEach": {
+                    "type": "foreach",
+                    "actions": {
+                      "loopAction": {
+                        "runAfter": {}
+                      }
+                    }
+                  },
+                  "until": {
+                    "type": "until",
+                    "actions": {
+                      "untilAction": {
+                        "runAfter": {}
+                      }
+                    }
+                  },
+                  "switch": {
+                    "type": "switch",
+                    "cases": {
+                      "case": {
+                        "actions": {
+                          "caseAction": {
+                            "runAfter": {}
+                          }
+                        }
+                      },
+                      "default": {
+                        "actions": {
+                          "caseNamedDefaultAction": {
+                            "runAfter": {}
+                          }
+                        }
+                      }
+                    },
+                    "default": {
+                      "actions": {
+                        "defaultAction": {
+                          "runAfter": {}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "microsoft.logic/WORKFLOWS",
+            "apiVersion": "2024-10-01",
+            "name": "secondWorkflow",
+            "location": "westeurope",
+            "properties": {
+              "definition": {
+                "actions": {
+                  "anotherAction": {
+                    "runAfter": {}
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+      """, CHECK);
+  }
+
+  @Test
+  void shouldReportOtherEmptyLogicAppValuesJson() {
+    ArmVerifier.verifyContent("""
+      {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "resources": [
+          {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2019-05-01",
+            "name": "workflow",
+            "location": "westeurope",
+            "properties": {
+              "definition": {
+                "actions": {
+                  "action": {
+                    "inputs": {},
+                    "metadata": {
+                      "runAfter": {}
+                    },
+                    "runAfter": []
+                  },
+                  "actionWithInputData": {
+                    "inputs": {
+                      "actions": {
+                        "payload": {
+                          "runAfter": {}
+                        }
+                      }
+                    }
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "name": "storage",
+            "location": "westeurope",
+            "properties": {
+              "definition": {
+                "actions": {
+                  "action": {
+                    "runAfter": {}
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+      """, CHECK,
+      issue(14, 14, 14, 26, "Remove this empty object or complete with real code."),
+      issue(16, 16, 16, 30, "Remove this empty object or complete with real code."),
+      issue(18, 14, 18, 28, "Remove this empty array or complete with real code."),
+      issue(24, 20, 24, 34, "Remove this empty object or complete with real code."),
+      issue(30, 10, 30, 24, "Remove this empty object or complete with real code."),
+      issue(43, 14, 43, 28, "Remove this empty object or complete with real code."));
+  }
+
   /**
    * Verifies that matching empty defaults are allowed in nested deployment templates.
    */
@@ -331,6 +508,163 @@ class EmptyOrNullValueCheckTest {
   @Test
   void testEmptyOrNullValueBicep() {
     BicepVerifier.verify("EmptyOrNullValueCheckTest/emptyOrNullValue.bicep", CHECK);
+  }
+
+  @Test
+  void shouldAllowEmptyLogicAppRunAfterBicep() {
+    BicepVerifier.verifyContentNoIssue("""
+      resource firstWorkflow 'Microsoft.Logic/workflows' = {
+        name: 'firstWorkflow'
+        location: 'westeurope'
+        properties: {
+          definition: {
+            actions: {
+              firstAction: {
+                runAfter: {}
+              }
+              scope: {
+                type: 'scope'
+                actions: {
+                  nestedAction: {
+                    runAfter: {}
+                  }
+                  nestedScope: {
+                    type: 'Scope'
+                    actions: {
+                      deeplyNestedAction: {
+                        runAfter: {}
+                      }
+                    }
+                  }
+                }
+              }
+              condition: {
+                type: 'If'
+                actions: {
+                  trueAction: {
+                    runAfter: {}
+                  }
+                }
+                else: {
+                  actions: {
+                    falseAction: {
+                      runAfter: {}
+                    }
+                  }
+                }
+              }
+              forEach: {
+                type: 'foreach'
+                actions: {
+                  loopAction: {
+                    runAfter: {}
+                  }
+                }
+              }
+              until: {
+                type: 'until'
+                actions: {
+                  untilAction: {
+                    runAfter: {}
+                  }
+                }
+              }
+              switch: {
+                type: 'switch'
+                cases: {
+                  case: {
+                    actions: {
+                      caseAction: {
+                        runAfter: {}
+                      }
+                    }
+                  }
+                  default: {
+                    actions: {
+                      caseNamedDefaultAction: {
+                        runAfter: {}
+                      }
+                    }
+                  }
+                }
+                default: {
+                  actions: {
+                    defaultAction: {
+                      runAfter: {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      resource secondWorkflow 'microsoft.logic/WORKFLOWS@2024-10-01' = {
+        name: 'secondWorkflow'
+        location: 'westeurope'
+        properties: {
+          definition: {
+            actions: {
+              anotherAction: {
+                runAfter: {}
+              }
+            }
+          }
+        }
+      }
+      """, CHECK);
+  }
+
+  @Test
+  void shouldReportOtherEmptyLogicAppValuesBicep() {
+    BicepVerifier.verifyContent("""
+      resource workflow 'Microsoft.Logic/workflows@2019-05-01' = {
+        name: 'workflow'
+        location: 'westeurope'
+        properties: {
+          definition: {
+            actions: {
+              action: {
+                inputs: {}
+                metadata: {
+                  runAfter: {}
+                }
+                runAfter: []
+              }
+              actionWithInputData: {
+                inputs: {
+                  actions: {
+                    payload: {
+                      runAfter: {}
+                    }
+                  }
+                }
+              }
+            }
+            runAfter: {}
+          }
+        }
+      }
+      resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+        name: 'storage'
+        location: 'westeurope'
+        properties: {
+          definition: {
+            actions: {
+              action: {
+                runAfter: {}
+              }
+            }
+          }
+        }
+      }
+      """, CHECK,
+      issue(8, 10, 8, 20, "Remove this empty object or complete with real code."),
+      issue(10, 12, 10, 24, "Remove this empty object or complete with real code."),
+      issue(12, 10, 12, 22, "Remove this empty array or complete with real code."),
+      issue(18, 16, 18, 28, "Remove this empty object or complete with real code."),
+      issue(24, 6, 24, 18, "Remove this empty object or complete with real code."),
+      issue(35, 10, 35, 22, "Remove this empty object or complete with real code."));
   }
 
   @Test
