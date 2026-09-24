@@ -21,10 +21,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -43,14 +47,24 @@ public class HelmEvaluator implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(HelmEvaluator.class);
   public static final String HELM_FOR_IAC_EXECUTABLE = "sonar-helm-for-iac";
   private static final int PROCESS_TIMEOUT_SECONDS = 5;
+  private static final int POOL_SHUTDOWN_TIMEOUT_SECONDS = 5;
   private static final int N_THREADS = 2;
+  private static final ThreadFactory THREAD_FACTORY = Thread.ofPlatform()
+    .name("helm-evaluator-", 1)
+    // Platform threads inherit daemon status and priority from the thread that creates them, and pool workers are
+    // created lazily by whichever thread calls submit(), so both are set explicitly
+    .daemon(false)
+    .priority(Thread.NORM_PRIORITY)
+    .factory();
 
   private final File workingDir;
+  private final Set<Process> liveProcesses = ConcurrentHashMap.newKeySet();
   // Bound by the component lifecycle: the thread pool in start(), the process builder in initialize()
   @Nullable
   private ExecutorService processMonitor;
   @Nullable
   private ProcessBuilder processBuilder;
+  private volatile boolean stopped;
 
   public HelmEvaluator(TempFolder tempFolder) {
     workingDir = tempFolder.newDir();
@@ -62,40 +76,87 @@ public class HelmEvaluator implements Startable {
 
   @Override
   public void start() {
-    this.processMonitor = Executors.newFixedThreadPool(N_THREADS);
+    stopped = false;
+    liveProcesses.clear();
+    this.processMonitor = Executors.newFixedThreadPool(N_THREADS, THREAD_FACTORY);
   }
 
   @Override
   public void stop() {
-    if (this.processMonitor != null) {
-      this.processMonitor.shutdownNow();
+    stopped = true;
+    var monitor = this.processMonitor;
+    if (monitor != null) {
+      monitor.shutdownNow();
+      liveProcesses.forEach(Process::destroy);
+      awaitProcessMonitorTermination(monitor);
+    }
+  }
+
+  private static void awaitProcessMonitorTermination(ExecutorService monitor) {
+    try {
+      if (!monitor.awaitTermination(POOL_SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        LOG.warn("HelmEvaluator process monitor did not terminate within {}s", POOL_SHUTDOWN_TIMEOUT_SECONDS);
+      }
+    } catch (InterruptedException e) {
+      LOG.warn("Interrupted while waiting for the HelmEvaluator process monitor to terminate", e);
+      Thread.currentThread().interrupt();
     }
   }
 
   public TemplateEvaluationResult evaluateTemplate(String path, String content, Map<String, String> templateDependencies) throws IOException {
     var monitor = Objects.requireNonNull(processMonitor, "HelmEvaluator must be started before evaluating a template");
+    if (stopped) {
+      // Without this guard, startProcess() would spawn a child that nothing destroys and the submit() calls below
+      // would fail with a RejectedExecutionException, which none of the callers of this method handle
+      throw abortedEvaluation();
+    }
     var process = startProcess();
-    monitor.submit(() -> ExecutableHelper.readProcessErrorOutput(process));
-    writeTemplateAndDependencies(process, path, content, templateDependencies);
-    monitor.submit(() -> monitorProcess(process));
-
-    byte[] rawEvaluationResult = ExecutableHelper.readProcessOutput(process);
-    if (rawEvaluationResult.length == 0) {
-      if (!process.isAlive() && process.exitValue() != 0) {
-        throw new IllegalStateException(HELM_FOR_IAC_EXECUTABLE + " exited with non-zero exit code: " + process.exitValue() + ", possible serialization failure");
-      }
-      throw new IllegalStateException("Empty evaluation result returned from " + HELM_FOR_IAC_EXECUTABLE);
-    }
-
+    // Tracked until the process exits rather than until this method returns, so that stop() can still destroy it
+    liveProcesses.add(process);
+    process.onExit().thenRun(() -> liveProcesses.remove(process));
+    destroyAfterTimeout(process, PROCESS_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+    var isInputWritten = false;
     try {
-      var evaluationResult = TemplateEvaluationResult.parseFrom(rawEvaluationResult);
-      if (!evaluationResult.getError().isEmpty()) {
-        throw new IllegalStateException("Evaluation error in Go library: " + evaluationResult.getError());
+      if (stopped) {
+        throw abortedEvaluation();
       }
-      return evaluationResult;
-    } catch (InvalidProtocolBufferException e) {
-      throw new IllegalStateException("Deserialization error", e);
+      monitor.submit(() -> ExecutableHelper.readProcessErrorOutput(process));
+      writeTemplateAndDependencies(process, path, content, templateDependencies);
+      isInputWritten = true;
+
+      byte[] rawEvaluationResult = ExecutableHelper.readProcessOutput(process);
+      if (stopped) {
+        throw abortedEvaluation();
+      }
+      if (rawEvaluationResult.length == 0) {
+        if (!process.isAlive() && process.exitValue() != 0) {
+          throw new IllegalStateException(HELM_FOR_IAC_EXECUTABLE + " exited with non-zero exit code: " + process.exitValue() + ", possible serialization failure");
+        }
+        throw new IllegalStateException("Empty evaluation result returned from " + HELM_FOR_IAC_EXECUTABLE);
+      }
+
+      try {
+        var evaluationResult = TemplateEvaluationResult.parseFrom(rawEvaluationResult);
+        if (!evaluationResult.getError().isEmpty()) {
+          throw new IllegalStateException("Evaluation error in Go library: " + evaluationResult.getError());
+        }
+        return evaluationResult;
+      } catch (InvalidProtocolBufferException e) {
+        if (stopped) {
+          throw abortedEvaluation();
+        }
+        throw new IllegalStateException("Deserialization error", e);
+      }
+    } finally {
+      if (!isInputWritten) {
+        // Without its complete input the process can never produce a result, so do not leave it running until the timeout
+        process.destroy();
+      }
     }
+  }
+
+  private static HelmEvaluationAbortedException abortedEvaluation() {
+    return new HelmEvaluationAbortedException(HELM_FOR_IAC_EXECUTABLE + " evaluation was aborted: the analyzer is shutting down");
   }
 
   ProcessBuilder prepareProcessBuilder() throws IOException {
@@ -139,15 +200,18 @@ public class HelmEvaluator implements Startable {
     return array;
   }
 
-  private static void monitorProcess(Process process) {
-    try {
-      if (!process.waitFor(PROCESS_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-        LOG.debug(HELM_FOR_IAC_EXECUTABLE + " is taking longer than 5 seconds to finish");
+  /**
+   * Destroying the process closes its pipes, which is the only way to unblock a thread reading them. The JDK already
+   * waits for every child process on its own reaper thread, so the timeout is scheduled on its exit future instead of
+   * dedicating a pool thread to {@link Process#waitFor}.
+   */
+  static void destroyAfterTimeout(Process process, long timeout, TimeUnit unit) {
+    process.onExit()
+      .orTimeout(timeout, unit)
+      .exceptionally(timeoutException -> {
+        LOG.debug("{} is taking longer than {} {} to finish", HELM_FOR_IAC_EXECUTABLE, timeout, unit.name().toLowerCase(Locale.ROOT));
         process.destroy();
-      }
-    } catch (InterruptedException e) {
-      LOG.warn("Interrupted while waiting for process to finish", e);
-      Thread.currentThread().interrupt();
-    }
+        return process;
+      });
   }
 }

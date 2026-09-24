@@ -19,6 +19,7 @@ package org.sonar.iac.helm;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.sonar.iac.common.testing.ThreadUtils.activeCreatedThreadsName;
 
 @Isolated
@@ -47,7 +49,7 @@ class HelmEvaluatorThreadTest {
   }
 
   @Test
-  void shouldNotLeakThread() throws IOException, InterruptedException {
+  void shouldNotLeakThread() throws IOException {
     var threadsBefore = activeCreatedThreadsName();
     var helmEvaluator = new HelmEvaluator(new DefaultTempFolder(tempDir, false));
     helmEvaluator.start();
@@ -56,10 +58,10 @@ class HelmEvaluatorThreadTest {
     var templateDependencies = Map.of("values.yaml", "container:\n  port: 8080", "Chart.yaml", "name: foo");
     helmEvaluator.evaluateTemplate("templates/my_file.yaml", "containerPort: {{ .Values.container.port }}", templateDependencies);
     helmEvaluator.stop();
-    // Threads need some time to be released
-    Thread.sleep(10);
-    var threadsAfterStop = activeCreatedThreadsName();
-    assertThat(threadsAfterStop).isEqualTo(threadsBefore);
+    // pollInSameThread(): the default Awaitility poll executor runs the condition on its own
+    // background thread, which would itself show up in activeCreatedThreadsName() and break this check.
+    await().pollInSameThread().atMost(5, TimeUnit.SECONDS)
+      .untilAsserted(() -> assertThat(activeCreatedThreadsName()).isEqualTo(threadsBefore));
     assertThat(logTester.logs(Level.DEBUG))
       .hasSize(1)
       .anyMatch(s -> s.startsWith("Preparing Helm analysis for platform: "));

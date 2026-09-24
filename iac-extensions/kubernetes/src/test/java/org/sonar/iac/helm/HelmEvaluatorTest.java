@@ -19,9 +19,17 @@ package org.sonar.iac.helm;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.io.FileUtils;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +39,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junitpioneer.jupiter.RetryingTest;
-import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
@@ -40,11 +47,17 @@ import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class HelmEvaluatorTest {
@@ -54,6 +67,7 @@ class HelmEvaluatorTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
   private HelmEvaluator helmEvaluator;
+  private final List<CompletableFuture<Process>> pendingProcessExits = new CopyOnWriteArrayList<>();
 
   @BeforeEach
   void setUp() throws IOException {
@@ -65,6 +79,142 @@ class HelmEvaluatorTest {
   @AfterEach
   void release() {
     helmEvaluator.stop();
+    // Completing the exit futures cancels the orTimeout() timers that destroyAfterTimeout() scheduled on them.
+    // A pending timer would otherwise fire seconds later, while another test is running, and log its DEBUG line
+    // against whichever LogTester is active by then.
+    pendingProcessExits.forEach(exit -> exit.complete(null));
+  }
+
+  @Test
+  void stopShouldAwaitProcessMonitorTermination() throws Exception {
+    var blockedProcess = mockProcessBlockedOnItsPipes();
+    var helmEvaluatorSpy = spyEvaluatorStarting(blockedProcess.process());
+    var evaluation = startEvaluationOn(helmEvaluatorSpy);
+    assertThat(blockedProcess.errorOutput().awaitReadingStarted(5, TimeUnit.SECONDS)).isTrue();
+    assertThat(blockedProcess.errorOutput().blockedThreadName()).startsWith("helm-evaluator-");
+    assertThat(blockedProcess.errorOutput().isFinished()).isFalse();
+
+    helmEvaluatorSpy.stop();
+
+    assertThat(blockedProcess.errorOutput().isFinished()).isTrue();
+    evaluation.thread().join(5000);
+  }
+
+  @Test
+  void stopShouldDestroyLiveProcessAndAbortInFlightEvaluation() throws Exception {
+    var blockedProcess = mockProcessBlockedOnItsPipes();
+    var helmEvaluatorSpy = spyEvaluatorStarting(blockedProcess.process());
+    var evaluation = startEvaluationOn(helmEvaluatorSpy);
+    assertThat(blockedProcess.output().awaitReadingStarted(5, TimeUnit.SECONDS)).isTrue();
+
+    helmEvaluatorSpy.stop();
+
+    verify(blockedProcess.process()).destroy();
+    evaluation.thread().join(5000);
+    assertThat(evaluation.thread().isAlive()).isFalse();
+    assertThat(evaluation.thrown().get())
+      .isInstanceOf(HelmEvaluationAbortedException.class)
+      .hasMessage("sonar-helm-for-iac evaluation was aborted: the analyzer is shutting down");
+  }
+
+  @Test
+  void evaluateTemplateShouldBeAbortedAfterStopWithoutSpawningAProcess() throws IOException {
+    var helmEvaluatorSpy = spy(this.helmEvaluator);
+    helmEvaluatorSpy.stop();
+
+    var templateDependencies = Map.<String, String>of();
+    assertThatThrownBy(() -> helmEvaluatorSpy.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
+      .isInstanceOf(HelmEvaluationAbortedException.class)
+      .hasMessage("sonar-helm-for-iac evaluation was aborted: the analyzer is shutting down");
+    verify(helmEvaluatorSpy, never()).startProcess();
+  }
+
+  @Test
+  void evaluateTemplateShouldDestroyProcessWhenWritingTheTemplateFails() throws Exception {
+    var process = mockRunningProcess();
+    when(process.getErrorStream()).thenReturn(InputStream.nullInputStream());
+    var helmEvaluatorSpy = spy(this.helmEvaluator);
+    doReturn(process).when(helmEvaluatorSpy).startProcess();
+    doThrow(new IOException("Broken pipe")).when(helmEvaluatorSpy).writeTemplateAndDependencies(any(), any(), any(), any());
+
+    var templateDependencies = Map.<String, String>of();
+    assertThatThrownBy(() -> helmEvaluatorSpy.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
+      .isInstanceOf(IOException.class);
+
+    // the process never got its complete input, so it must not be left running until the timeout
+    verify(process).destroy();
+  }
+
+  @Test
+  void startShouldResetTheAbortedState() throws IOException {
+    helmEvaluator.stop();
+    helmEvaluator.start();
+
+    try (var ignored = mockStatic(ExecutableHelper.class)) {
+      when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[0]);
+      var helmEvaluatorSpy = spy(this.helmEvaluator);
+      var process = mockRunningProcess();
+      doReturn(process).when(helmEvaluatorSpy).startProcess();
+      doNothing().when(helmEvaluatorSpy).writeTemplateAndDependencies(any(), any(), any(), any());
+
+      var templateDependencies = Map.<String, String>of();
+      assertThatThrownBy(() -> helmEvaluatorSpy.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
+        .isInstanceOf(IllegalStateException.class)
+        .isNotInstanceOf(HelmEvaluationAbortedException.class)
+        .hasMessage("Empty evaluation result returned from sonar-helm-for-iac");
+    }
+  }
+
+  @Test
+  void stopShouldDestroyProcessStillRunningAfterItsEvaluation() throws IOException {
+    var process = mockRunningProcess();
+    evaluateWithEmptyResult(process);
+
+    helmEvaluator.stop();
+
+    verify(process).destroy();
+  }
+
+  @Test
+  void stopShouldNotDestroyProcessThatAlreadyExited() throws IOException {
+    var process = mockRunningProcess();
+    when(process.onExit()).thenReturn(CompletableFuture.completedFuture(process));
+    evaluateWithEmptyResult(process);
+
+    helmEvaluator.stop();
+
+    verify(process, never()).destroy();
+  }
+
+  @Test
+  void destroyAfterTimeoutShouldDestroyProcessStillRunningAfterTheTimeout() {
+    var process = mockRunningProcess();
+
+    HelmEvaluator.destroyAfterTimeout(process, 10, TimeUnit.MILLISECONDS);
+
+    await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> verify(process).destroy());
+    assertThat(logTester.logs(Level.DEBUG)).contains("sonar-helm-for-iac is taking longer than 10 milliseconds to finish");
+  }
+
+  @Test
+  void destroyAfterTimeoutShouldNotDestroyProcessThatExitedInTime() {
+    var process = mockRunningProcess();
+    when(process.onExit()).thenReturn(CompletableFuture.completedFuture(process));
+
+    HelmEvaluator.destroyAfterTimeout(process, 10, TimeUnit.MILLISECONDS);
+
+    verify(process, never()).destroy();
+  }
+
+  private void evaluateWithEmptyResult(Process process) throws IOException {
+    try (var ignored = mockStatic(ExecutableHelper.class)) {
+      when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[0]);
+      var helmEvaluatorSpy = spyEvaluatorStarting(process);
+
+      var templateDependencies = Map.<String, String>of();
+      assertThatThrownBy(() -> helmEvaluatorSpy.evaluateTemplate("/foo/bar/baz.yaml", "", templateDependencies))
+        .hasMessage("Empty evaluation result returned from sonar-helm-for-iac");
+    }
   }
 
   @AfterAll
@@ -87,10 +237,10 @@ class HelmEvaluatorTest {
 
   @Test
   void shouldThrowIfGoBinaryReturnsNonZero() throws IOException {
-    try (var ignored = Mockito.mockStatic(ExecutableHelper.class)) {
+    try (var ignored = mockStatic(ExecutableHelper.class)) {
       when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[0]);
-      var helmEvaluatorSpy = Mockito.spy(this.helmEvaluator);
-      var process = mock(Process.class);
+      var helmEvaluatorSpy = spy(this.helmEvaluator);
+      var process = mockRunningProcess();
       when(process.isAlive()).thenReturn(false);
       when(process.exitValue()).thenReturn(1);
       doReturn(process).when(helmEvaluatorSpy).startProcess();
@@ -105,10 +255,10 @@ class HelmEvaluatorTest {
 
   @Test
   void shouldThrowIfRawEvaluationResultIsEmpty() throws IOException {
-    try (var ignored = Mockito.mockStatic(ExecutableHelper.class)) {
+    try (var ignored = mockStatic(ExecutableHelper.class)) {
       when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[0]);
-      var helmEvaluatorSpy = Mockito.spy(this.helmEvaluator);
-      var process = mock(Process.class);
+      var helmEvaluatorSpy = spy(this.helmEvaluator);
+      var process = mockRunningProcess();
       when(process.isAlive()).thenReturn(false);
       when(process.exitValue()).thenReturn(0);
       doReturn(process).when(helmEvaluatorSpy).startProcess();
@@ -134,12 +284,12 @@ class HelmEvaluatorTest {
   void shouldThrowOnDeserializationError() throws IOException {
     try (var ignored = mockStatic(TemplateEvaluationResult.class); var ignored2 = mockStatic(ExecutableHelper.class)) {
       when(TemplateEvaluationResult.parseFrom(any(byte[].class))).thenThrow(new InvalidProtocolBufferException("Invalid input"));
-      var helmEvaluatorSpy = Mockito.spy(this.helmEvaluator);
+      var helmEvaluatorSpy = spy(this.helmEvaluator);
       when(ExecutableHelper.readProcessOutput(any())).thenReturn(new byte[1]);
       var pb = mock(ProcessBuilder.class);
       when(pb.command()).thenReturn(Collections.emptyList());
-      Mockito.doReturn(pb).when(helmEvaluatorSpy).prepareProcessBuilder();
-      Mockito.doReturn(null).when(helmEvaluatorSpy).startProcess();
+      doReturn(pb).when(helmEvaluatorSpy).prepareProcessBuilder();
+      doReturn(mockRunningProcess()).when(helmEvaluatorSpy).startProcess();
       doNothing().when(helmEvaluatorSpy).writeTemplateAndDependencies(any(), any(), any(), any());
 
       var templateDependencies = Map.<String, String>of();
@@ -186,6 +336,123 @@ class HelmEvaluatorTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Evaluation error in Go library: template: foo/templates/baz.yaml:1:10: " +
         "executing \"foo/templates/baz.yaml\" at <.Values.container.port>: nil pointer evaluating interface {}.port");
+  }
+
+  private record BlockedProcess(Process process, BlockingInputStream output, BlockingInputStream errorOutput) {
+  }
+
+  private record Evaluation(Thread thread, AtomicReference<Throwable> thrown) {
+  }
+
+  /**
+   * A mock process whose stdout and stderr both block their reader, and whose {@code destroy()} releases them -
+   * the way destroying a real process closes its pipes. A Mockito static mock of {@link ExecutableHelper} cannot
+   * be used instead: static mocks are thread-local, so they would not apply to the evaluation thread.
+   */
+  private BlockedProcess mockProcessBlockedOnItsPipes() {
+    var output = new BlockingInputStream();
+    var errorOutput = new BlockingInputStream();
+    var process = mockRunningProcess();
+    when(process.getInputStream()).thenReturn(output);
+    when(process.getErrorStream()).thenReturn(errorOutput);
+    doAnswer(invocation -> {
+      output.unblock();
+      errorOutput.unblock();
+      return null;
+    }).when(process).destroy();
+    return new BlockedProcess(process, output, errorOutput);
+  }
+
+  /**
+   * A mock process that never exits on its own. {@code onExit()} must be stubbed, as Mockito would otherwise return
+   * {@code null} from it. The future is registered so that {@link #release()} can complete it: an evaluation arms a
+   * {@code PROCESS_TIMEOUT_SECONDS} timer on it, which outlives the test unless the future completes.
+   */
+  private Process mockRunningProcess() {
+    var process = mock(Process.class);
+    var exit = new CompletableFuture<Process>();
+    pendingProcessExits.add(exit);
+    when(process.onExit()).thenReturn(exit);
+    return process;
+  }
+
+  private HelmEvaluator spyEvaluatorStarting(Process process) throws IOException {
+    var helmEvaluatorSpy = spy(this.helmEvaluator);
+    doReturn(process).when(helmEvaluatorSpy).startProcess();
+    doNothing().when(helmEvaluatorSpy).writeTemplateAndDependencies(any(), any(), any(), any());
+    return helmEvaluatorSpy;
+  }
+
+  private static Evaluation startEvaluationOn(HelmEvaluator evaluator) {
+    var thrown = new AtomicReference<Throwable>();
+    var thread = new Thread(() -> {
+      try {
+        evaluator.evaluateTemplate("/foo/bar/baz.yaml", "", Map.of());
+      } catch (Exception e) {
+        thrown.set(e);
+      }
+    }, "test-helm-evaluation");
+    thread.setDaemon(true);
+    thread.start();
+    return new Evaluation(thread, thrown);
+  }
+
+  /**
+   * Blocks in {@code read()} until {@link #unblock()} is called and then reports EOF, the way a process' pipe
+   * behaves when the process is destroyed while a reader is blocked on it. The wait deliberately ignores
+   * interruption, because plain blocking I/O on a process pipe cannot be aborted by {@code Thread.interrupt()}.
+   */
+  private static final class BlockingInputStream extends InputStream {
+    private final CountDownLatch readingStarted = new CountDownLatch(1);
+    private final CountDownLatch released = new CountDownLatch(1);
+    private final CountDownLatch closed = new CountDownLatch(1);
+    private final AtomicReference<String> blockedThreadName = new AtomicReference<>();
+
+    @Override
+    public int read() {
+      blockedThreadName.compareAndSet(null, Thread.currentThread().getName());
+      readingStarted.countDown();
+      var wasInterrupted = false;
+      var isReleased = false;
+      while (!isReleased) {
+        try {
+          released.await();
+          isReleased = true;
+        } catch (InterruptedException e) {
+          wasInterrupted = true;
+        }
+      }
+      if (wasInterrupted) {
+        Thread.currentThread().interrupt();
+      }
+      return -1;
+    }
+
+    @Override
+    public void close() {
+      closed.countDown();
+    }
+
+    boolean awaitReadingStarted(long timeout, TimeUnit unit) throws InterruptedException {
+      return readingStarted.await(timeout, unit);
+    }
+
+    @Nullable
+    String blockedThreadName() {
+      return blockedThreadName.get();
+    }
+
+    /**
+     * @return whether the reader left this stream, which the try-with-resources in {@link ExecutableHelper}
+     *   only does once its task is done
+     */
+    boolean isFinished() {
+      return closed.getCount() == 0;
+    }
+
+    void unblock() {
+      released.countDown();
+    }
   }
 
   @ParameterizedTest

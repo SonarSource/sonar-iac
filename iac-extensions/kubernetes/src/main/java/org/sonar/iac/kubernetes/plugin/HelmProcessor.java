@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.iac.common.extension.ParseException;
+import org.sonar.iac.helm.HelmEvaluationAbortedException;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
@@ -104,12 +105,16 @@ public class HelmProcessor {
     return evaluateHelmTemplate(path, inputFileContext, sourceWithComments, relatedHelmFiles);
   }
 
+  @Nullable
   String evaluateHelmTemplate(String path, HelmInputFileContext inputFileContext, String sourceWithComments, Map<String, String> templateDependencies) {
     var inputFile = inputFileContext.inputFile;
     try {
       var templateEvaluationResult = helmEvaluator.evaluateTemplate(path, sourceWithComments, templateDependencies);
       inputFileContext.setGoTemplateTree(GoTemplateTreeImpl.fromPbTree(templateEvaluationResult.getAst(), sourceWithComments));
       return templateEvaluationResult.getTemplate();
+    } catch (HelmEvaluationAbortedException e) {
+      LOG.debug("Evaluation of Helm file {} was aborted because the analyzer is shutting down, skipping it", inputFile);
+      return null;
     } catch (IllegalStateException | IOException e) {
       throw parseExceptionFor(inputFile, "Template evaluation failed", e.getMessage());
     }

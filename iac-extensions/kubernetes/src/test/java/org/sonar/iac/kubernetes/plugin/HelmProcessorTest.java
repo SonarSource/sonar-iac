@@ -38,6 +38,7 @@ import org.sonar.iac.common.extension.BasicTextPointer;
 import org.sonar.iac.common.extension.ParseException;
 import org.sonar.iac.common.filesystem.FileSystemUtils;
 import org.sonar.iac.common.testing.IacTestUtils;
+import org.sonar.iac.helm.HelmEvaluationAbortedException;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmEvaluatorMock;
 import org.sonar.iac.helm.HelmFileSystem;
@@ -223,6 +224,21 @@ class HelmProcessorTest {
     assertThatThrownBy(() -> helmProcessor.evaluateHelmTemplate(path, defaultInputFileContext, content, templateDependencies))
       .isInstanceOf(ParseException.class)
       .hasMessage("Failed to evaluate Helm file helm/templates/pod.yaml: Template evaluation failed");
+  }
+
+  @Test
+  void evaluateHelmTemplateShouldSkipTheFileWhenTheEvaluationWasAborted() throws IOException {
+    var helmProcessor = getHelmProcessor();
+    Map<String, String> templateDependencies = new HashMap<>();
+    when(helmEvaluator.evaluateTemplate(any(), any(), anyMap()))
+      .thenThrow(new HelmEvaluationAbortedException("sonar-helm-for-iac evaluation was aborted: the analyzer is shutting down"));
+
+    var evaluatedTemplate = helmProcessor.evaluateHelmTemplate("path", defaultInputFileContext, "content", templateDependencies);
+
+    // A shutdown is not a problem with the file, so it must not be reported as a failure to evaluate the template
+    assertThat(evaluatedTemplate).isNull();
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("Evaluation of Helm file helm/templates/pod.yaml was aborted because the analyzer is shutting down, skipping it");
   }
 
   // -------------------------------------------------

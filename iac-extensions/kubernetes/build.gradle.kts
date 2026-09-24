@@ -69,6 +69,7 @@ dependencies {
     testImplementation(libs.sonar.analyzer.test.commons)
     testImplementation(testFixtures(project(":iac-common")))
     testImplementation(libs.sonar.lint.analysis.engine)
+    testImplementation(libs.awaitility)
 }
 
 tasks.named<JacocoReport>("jacocoTestReport") {
