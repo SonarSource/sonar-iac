@@ -63,6 +63,8 @@ class AnalyzerLicensingPackagingRenderer(
     private val defaultDependencyLicenseOverrides = mapOf(
         "com.fasterxml.jackson.dataformat:jackson-dataformat-smile" to APACHE_LICENSE_FILE_NAME,
         "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml" to APACHE_LICENSE_FILE_NAME,
+        "tools.jackson.dataformat:jackson-dataformat-smile" to APACHE_LICENSE_FILE_NAME,
+        "tools.jackson.dataformat:jackson-dataformat-yaml" to APACHE_LICENSE_FILE_NAME,
         "com.fasterxml.woodstox:woodstox-core" to APACHE_LICENSE_FILE_NAME,
         "com.salesforce:apex-jorje-lsp-minimized" to "BSD-3.txt",
         "org.codehaus.woodstox:stax2-api" to "BSD-2.txt"
