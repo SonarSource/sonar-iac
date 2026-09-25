@@ -33,6 +33,8 @@ public class YamlLanguage extends ConfigurationLanguage {
   public static final String FILE_SUFFIXES_KEY = "sonar.yaml.file.suffixes";
   public static final String DEFAULT_FILE_SUFFIXES = ".yaml,.yml";
   public static final String ACTIVATION_KEY = "sonar.yaml.activate";
+  public static final String EXCLUSIONS_KEY = "sonar.yaml.exclusions";
+  public static final String DEFAULT_EXCLUSIONS = "**/pnpm-lock.yaml,**/pubspec.yaml,**/pubspec_overrides.yaml,**/conda-lock.yml,**/*.conda-lock.yml,**/conda-*.lock.yml";
 
   public YamlLanguage(Configuration configuration) {
     super(KEY, NAME, configuration, FILE_SUFFIXES_KEY, DEFAULT_FILE_SUFFIXES);
