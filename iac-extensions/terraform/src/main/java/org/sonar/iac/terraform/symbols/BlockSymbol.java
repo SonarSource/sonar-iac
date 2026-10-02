@@ -24,6 +24,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.checkdsl.ContextualTree;
 import org.sonar.iac.common.checks.PropertyUtils;
+import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
@@ -39,6 +40,38 @@ public class BlockSymbol extends ContextualTree<BlockSymbol, BlockTree> {
 
   public static BlockSymbol fromAbsent(CheckContext ctx, String name, @Nullable BlockSymbol parent) {
     return new BlockSymbol(ctx, null, name, parent);
+  }
+
+  /** Whether this top-level declaration produces a value that Terraform does not persist in state. */
+  public boolean isEphemeral() {
+    if (tree == null || !tree.isTopLevel() || tree.isDynamic()) {
+      return false;
+    }
+    return switch (tree.key().value()) {
+      case "ephemeral" -> tree.labels().size() == 2;
+      case "variable", "output" -> tree.labels().size() == 1 && hasEphemeralFlagSet(tree);
+      default -> false;
+    };
+  }
+
+  private static boolean hasEphemeralFlagSet(BlockTree tree) {
+    return PropertyUtils.get(tree, "ephemeral", AttributeTree.class)
+      .map(attribute -> TextUtils.isValueTrue(attribute.value()))
+      .orElse(false);
+  }
+
+  /** Whether this is a store block directly inside a terraform_data resource. */
+  public boolean isSensitiveStore() {
+    return tree != null
+      && "store".equals(tree.key().value())
+      && parent instanceof ResourceSymbol resource
+      && resource.isResourceDeclaration()
+      && "terraform_data".equals(resource.type);
+  }
+
+  /** Whether this block is nested inside a sensitive terraform_data store block. */
+  public boolean isSensitiveStoreContent() {
+    return tree != null && parent instanceof BlockSymbol block && (block.isSensitiveStore() || block.isSensitiveStoreContent());
   }
 
   public BlockSymbol block(String name) {

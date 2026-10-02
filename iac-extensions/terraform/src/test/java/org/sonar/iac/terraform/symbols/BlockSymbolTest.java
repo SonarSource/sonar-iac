@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BlockSymbolTest extends AbstractSymbolTest {
 
   @Test
-  void report_fromPresent() {
+  void reportFromPresent() {
     BlockTree tree = parseBlock("my_block {}");
     BlockSymbol block = BlockSymbol.fromPresent(ctx, tree, parentBlock);
     block.report("message");
@@ -34,21 +34,21 @@ class BlockSymbolTest extends AbstractSymbolTest {
   }
 
   @Test
-  void report_fromAbsent() {
+  void reportFromAbsent() {
     BlockSymbol block = BlockSymbol.fromAbsent(ctx, "my_block", parentBlock);
     block.report("message");
     assertNoIssueReported();
   }
 
   @Test
-  void reportIfAbsent_fromAbsent() {
+  void reportIfAbsentFromAbsent() {
     BlockSymbol block = BlockSymbol.fromAbsent(ctx, "my_block", parentBlock);
     block.reportIfAbsent("%s");
     assertIssueReported(parentBlock.tree.key(), "my_block");
   }
 
   @Test
-  void reportIfAbsent_fromPresent() {
+  void reportIfAbsentFromPresent() {
     BlockTree tree = parseBlock("my_block {}");
     BlockSymbol block = BlockSymbol.fromPresent(ctx, tree, parentBlock);
     block.reportIfAbsent("%s");
@@ -56,14 +56,14 @@ class BlockSymbolTest extends AbstractSymbolTest {
   }
 
   @Test
-  void reportIfAbsent_of_block_without_parent() {
+  void reportIfAbsentOfBlockWithoutParent() {
     BlockSymbol block = BlockSymbol.fromAbsent(ctx, "my_block", null);
     block.reportIfAbsent("%s");
     assertNoIssueReported();
   }
 
   @Test
-  void attribute_fromPresent() {
+  void attributeFromPresent() {
     BlockTree tree = parseBlock("my_block {my_attribute = 1}");
     BlockSymbol block = BlockSymbol.fromPresent(ctx, tree, parentBlock);
     assertThat(block.attribute("my_attribute").isPresent()).isTrue();
@@ -71,13 +71,13 @@ class BlockSymbolTest extends AbstractSymbolTest {
   }
 
   @Test
-  void attribute_fromAbsent() {
+  void attributeFromAbsent() {
     BlockSymbol block = BlockSymbol.fromAbsent(ctx, "my_block", parentBlock);
     assertThat(block.attribute("my_attribute").isPresent()).isFalse();
   }
 
   @Test
-  void reportIfAbsent_on_attribute_in_block_fromPresent() {
+  void reportIfAbsentOnAttributeInBlockFromPresent() {
     BlockTree tree = parseBlock("my_block {}");
     BlockSymbol block = BlockSymbol.fromPresent(ctx, tree, parentBlock);
     block.attribute("my_attribute").reportIfAbsent("%s");
@@ -85,21 +85,21 @@ class BlockSymbolTest extends AbstractSymbolTest {
   }
 
   @Test
-  void reportIfAbsent_on_attribute_in_block_fromAbsent() {
+  void reportIfAbsentOnAttributeInBlockFromAbsent() {
     BlockSymbol block = BlockSymbol.fromAbsent(ctx, "my_block", parentBlock);
     block.attribute("my_attribute").reportIfAbsent("%s");
     assertNoIssueReported();
   }
 
   @Test
-  void report_on_attribute_in_block_fromAbsent() {
+  void reportOnAttributeInBlockFromAbsent() {
     BlockSymbol block = BlockSymbol.fromAbsent(ctx, "my_block", parentBlock);
     block.attribute("my_attribute").report("%s");
     assertNoIssueReported();
   }
 
   @Test
-  void report_on_attribute_in_block_fromPresent() {
+  void reportOnAttributeInBlockFromPresent() {
     BlockTree tree = parseBlock("my_block {my_attribute = 1}");
     BlockSymbol block = BlockSymbol.fromPresent(ctx, tree, parentBlock);
     SecondaryLocation secondary = block.toSecondary("secondary");
@@ -108,7 +108,7 @@ class BlockSymbolTest extends AbstractSymbolTest {
   }
 
   @Test
-  void block_fromPresent() {
+  void blockFromPresent() {
     BlockTree tree = parseBlock("my_block {\nchild_block {}\n}");
     BlockSymbol block = BlockSymbol.fromPresent(ctx, tree, parentBlock);
     assertThat(block.block("child_block").isPresent()).isTrue();
@@ -117,14 +117,14 @@ class BlockSymbolTest extends AbstractSymbolTest {
   }
 
   @Test
-  void block_fromAbsent() {
+  void blockFromAbsent() {
     BlockSymbol block = BlockSymbol.fromAbsent(ctx, "my_block", parentBlock);
     assertThat(block.block("child_block").isPresent()).isFalse();
     assertThat(block.toSecondary("secondary")).isNull();
   }
 
   @Test
-  void reportIfAbsent_on_block_in_block_fromPresent() {
+  void reportIfAbsentOnBlockInBlockFromPresent() {
     BlockTree tree = parseBlock("my_block {}");
     BlockSymbol block = BlockSymbol.fromPresent(ctx, tree, parentBlock);
     block.block("child_block").reportIfAbsent("%s");
@@ -132,21 +132,21 @@ class BlockSymbolTest extends AbstractSymbolTest {
   }
 
   @Test
-  void reportIfAbsent_on_block_in_block_fromAbsent() {
+  void reportIfAbsentOnBlockInBlockFromAbsent() {
     BlockSymbol block = BlockSymbol.fromAbsent(ctx, "my_block", parentBlock);
     block.block("child_block").reportIfAbsent("%s");
     assertNoIssueReported();
   }
 
   @Test
-  void report_on_block_in_block_fromAbsent() {
+  void reportOnBlockInBlockFromAbsent() {
     BlockSymbol block = BlockSymbol.fromAbsent(ctx, "my_block", parentBlock);
     block.block("my_block").report("%s");
     assertNoIssueReported();
   }
 
   @Test
-  void report_on_block_in_block_fromPresent() {
+  void reportOnBlockInBlockFromPresent() {
     BlockTree tree = parseBlock("my_block {\nchild_block {}\n}");
     BlockSymbol block = BlockSymbol.fromPresent(ctx, tree, parentBlock);
     block.block("child_block").report("message");
@@ -154,7 +154,7 @@ class BlockSymbolTest extends AbstractSymbolTest {
   }
 
   @Test
-  void blocks_fromPresent() {
+  void blocksFromPresent() {
     BlockTree tree = parseBlock("my_block {\nchild_block {}\nchild_block {}\n}");
     BlockSymbol block = BlockSymbol.fromPresent(ctx, tree, parentBlock);
     assertThat(block.blocks("child_block")).hasSize(2);
@@ -162,13 +162,13 @@ class BlockSymbolTest extends AbstractSymbolTest {
   }
 
   @Test
-  void blocks_fromAbsent() {
+  void blocksFromAbsent() {
     BlockSymbol block = BlockSymbol.fromAbsent(ctx, "my_block", parentBlock);
     assertThat(block.blocks("child_block")).isEmpty();
   }
 
   @Test
-  void list_fromPresent() {
+  void listFromPresent() {
     BlockTree tree = parseBlock("my_block {my_list = [\"my_itm\"]}");
     BlockSymbol block = BlockSymbol.fromPresent(ctx, tree, parentBlock);
     assertThat(block.list("my_list").isPresent()).isTrue();
@@ -176,13 +176,13 @@ class BlockSymbolTest extends AbstractSymbolTest {
   }
 
   @Test
-  void list_fromAbsent() {
+  void listFromAbsent() {
     BlockSymbol block = BlockSymbol.fromAbsent(ctx, "my_block", parentBlock);
     assertThat(block.list("my_list").isPresent()).isFalse();
   }
 
   @Test
-  void reportItemIf_on_list_in_block_fromPresent() {
+  void reportItemIfOnListInBlockFromPresent() {
     BlockTree tree = parseBlock("my_block {my_list = [\"my_itm\"]}");
     BlockSymbol block = BlockSymbol.fromPresent(ctx, tree, parentBlock);
     block.list("my_list").reportItemIf(e -> true, "message");
@@ -190,9 +190,87 @@ class BlockSymbolTest extends AbstractSymbolTest {
   }
 
   @Test
-  void reportItemIf_on_list_in_block_fromAbsent() {
+  void reportItemIfOnListInBlockFromAbsent() {
     BlockSymbol block = BlockSymbol.fromAbsent(ctx, "my_block", parentBlock);
     assertThat(block.list("my_list").isPresent()).isFalse();
     assertNoIssueReported();
+  }
+
+  @Test
+  void ephemeralDeclarations() {
+    assertThat(BlockSymbol.fromPresent(ctx, parseBlock("ephemeral \"aws_secretsmanager_secret_version\" \"db\" {}"), null).isEphemeral()).isTrue();
+    assertThat(BlockSymbol.fromPresent(ctx, parseBlock("variable \"password\" { ephemeral = true }"), null).isEphemeral()).isTrue();
+    assertThat(BlockSymbol.fromPresent(ctx, parseBlock("output \"password\" { ephemeral = true }"), null).isEphemeral()).isTrue();
+    assertThat(BlockSymbol.fromPresent(ctx, parseBlock("variable \"password\" { ephemeral = false }"), null).isEphemeral()).isFalse();
+    assertThat(BlockSymbol.fromPresent(ctx, parseBlock("output \"password\" { ephemeral = var.enabled }"), null).isEphemeral()).isFalse();
+    assertThat(BlockSymbol.fromPresent(ctx, parseBlock("resource \"aws_db_instance\" \"db\" { ephemeral = true }"), null).isEphemeral()).isFalse();
+    assertThat(BlockSymbol.fromAbsent(ctx, "variable", null).isEphemeral()).isFalse();
+    assertThat(BlockSymbol.fromPresent(ctx, parseBlock("ephemeral \"type\" {}"), null).isEphemeral()).isFalse();
+    assertThat(BlockSymbol.fromPresent(ctx, parseBlock("ephemeral \"type\" \"name\" \"extra\" {}"), null).isEphemeral()).isFalse();
+    assertThat(BlockSymbol.fromPresent(ctx, parseBlock("variable {}"), null).isEphemeral()).isFalse();
+    assertThat(BlockSymbol.fromPresent(ctx, parseBlock("variable \"password\" {}"), null).isEphemeral()).isFalse();
+    assertThat(BlockSymbol.fromPresent(ctx, parseBlock("locals { ephemeral = true }"), null).isEphemeral()).isFalse();
+  }
+
+  @Test
+  void nestedDeclarationsAreNotEphemeral() {
+    BlockTree outerTree = parseBlock("""
+      outer {
+        ephemeral "type" "name" {}
+        variable "password" { ephemeral = true }
+        output "password" { ephemeral = true }
+      }
+      """);
+    BlockSymbol outer = BlockSymbol.fromPresent(ctx, outerTree, null);
+    assertThat(outer.block("ephemeral").isEphemeral()).isFalse();
+    assertThat(outer.block("variable").isEphemeral()).isFalse();
+    assertThat(outer.block("output").isEphemeral()).isFalse();
+    assertThat(BlockSymbol.fromPresent(ctx, (BlockTree) outerTree.value().statements().get(0), null).isEphemeral()).isFalse();
+  }
+
+  @Test
+  void terraformDataStoreAndNestedContent() {
+    BlockTree tree = parseBlock("""
+      resource "terraform_data" "credentials" {
+        store "db" {
+          value = "secret"
+          nested {
+            value = "another secret"
+          }
+        }
+      }
+      """);
+    ResourceSymbol resource = ResourceSymbol.fromPresent(ctx, tree);
+    BlockSymbol store = resource.block("store");
+    assertThat(store.isSensitiveStore()).isTrue();
+    assertThat(store.block("nested").isSensitiveStoreContent()).isTrue();
+    assertThat(store.block("missing").isSensitiveStoreContent()).isFalse();
+    assertThat(resource.block("missing").isSensitiveStore()).isFalse();
+    assertThat(resource.isSensitiveStoreContent()).isFalse();
+  }
+
+  @Test
+  void storeOutsideTerraformDataIsNotSensitive() {
+    ResourceSymbol other = ResourceSymbol.fromPresent(ctx, parseBlock("""
+      resource "aws_db_instance" "db" {
+        store {}
+      }
+      """));
+    assertThat(other.block("store").isSensitiveStore()).isFalse();
+
+    ResourceSymbol data = ResourceSymbol.fromPresent(ctx, parseBlock("""
+      data "terraform_data" "credentials" {
+        store {}
+      }
+      """));
+    assertThat(data.block("store").isSensitiveStore()).isFalse();
+
+    BlockSymbol unrelated = BlockSymbol.fromPresent(ctx, parseBlock("""
+      outer {
+        store {}
+      }
+      """), null);
+    assertThat(unrelated.block("store").isSensitiveStore()).isFalse();
+    assertThat(unrelated.block("store").isSensitiveStoreContent()).isFalse();
   }
 }

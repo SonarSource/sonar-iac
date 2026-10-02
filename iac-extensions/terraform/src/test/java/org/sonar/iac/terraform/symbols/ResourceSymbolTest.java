@@ -18,6 +18,8 @@ package org.sonar.iac.terraform.symbols;
 
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +45,7 @@ class ResourceSymbolTest extends AbstractSymbolTest {
   }
 
   @Test
-  void reportIfAbsent_with_resource_as_parent() {
+  void reportIfAbsentWithResourceAsParent() {
     BlockTree resourceTree = parseBlock("resource \"my_type\" \"my_name\" {}");
     BlockSymbol resource = ResourceSymbol.fromPresent(ctx, resourceTree);
     BlockSymbol child = BlockSymbol.fromAbsent(ctx, "missing_block", resource);
@@ -52,11 +54,44 @@ class ResourceSymbolTest extends AbstractSymbolTest {
   }
 
   @Test
-  void create_incomplete_resource() {
+  void createIncompleteResource() {
     BlockTree tree = parseBlock("resource {}");
     ResourceSymbol resource = ResourceSymbol.fromPresent(ctx, tree);
     assertThat(resource.type).isEmpty();
     resource.report("message", Collections.emptyList());
     assertNoIssueReported();
+  }
+
+  @Test
+  void writeOnlyCounterparts() {
+    ResourceSymbol db = ResourceSymbol.fromPresent(ctx, parseBlock("resource \"aws_db_instance\" \"db\" { password_wo = \"secret\" }"));
+    assertThat(db.writeOnlyCounterpart("password")).hasValue("password_wo");
+    assertThat(db.writeOnlyCounterpart("username")).isEmpty();
+
+    ResourceSymbol custom = ResourceSymbol.fromPresent(ctx, parseBlock("resource \"custom_resource\" \"x\" { token_wo = \"secret\" }"));
+    assertThat(custom.writeOnlyCounterpart("token")).hasValue("token_wo");
+    assertThat(custom.writeOnlyCounterpart("password")).isEmpty();
+
+    ResourceSymbol data = ResourceSymbol.fromPresent(ctx, parseBlock("data \"aws_db_instance\" \"db\" {}"));
+    assertThat(data.writeOnlyCounterpart("password")).isEmpty();
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "aws_db_instance, password",
+    "aws_docdb_cluster, master_password",
+    "aws_rds_cluster, master_password",
+    "aws_redshift_cluster, master_password",
+    "aws_secretsmanager_secret_version, secret_string",
+    "aws_ssm_parameter, value",
+    "azurerm_key_vault_secret, value",
+    "google_secret_manager_secret_version, secret_data",
+    "google_sql_user, password"
+  })
+  void knownWriteOnlyCounterpartsDoNotRequireTheWriteOnlyArgumentInTheDeclaration(String resourceType, String persistedArgument) {
+    String code = "resource \"" + resourceType + "\" \"x\" { " + persistedArgument + " = \"secret\" }";
+    ResourceSymbol resource = ResourceSymbol.fromPresent(ctx, parseBlock(code));
+
+    assertThat(resource.writeOnlyCounterpart(persistedArgument)).hasValue(persistedArgument + "_wo");
   }
 }

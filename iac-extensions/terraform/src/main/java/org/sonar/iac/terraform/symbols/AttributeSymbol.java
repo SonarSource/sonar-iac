@@ -24,6 +24,8 @@ import org.sonar.iac.terraform.api.tree.ExpressionTree;
 
 public class AttributeSymbol extends ContextualPropertyTree<AttributeSymbol, AttributeTree, ExpressionTree> {
 
+  static final String WRITE_ONLY_SUFFIX = "_wo";
+
   protected AttributeSymbol(CheckContext ctx, @Nullable AttributeTree tree, String name, BlockSymbol parent) {
     super(ctx, tree, name, parent);
   }
@@ -34,5 +36,28 @@ public class AttributeSymbol extends ContextualPropertyTree<AttributeSymbol, Att
 
   public static AttributeSymbol fromAbsent(CheckContext ctx, String name, BlockSymbol parent) {
     return new AttributeSymbol(ctx, null, name, parent);
+  }
+
+  public boolean isWriteOnly() {
+    return tree != null
+      && tree.key().value().endsWith(WRITE_ONLY_SUFFIX)
+      && tree.key().value().length() > WRITE_ONLY_SUFFIX.length()
+      && parent instanceof ResourceSymbol resource
+      && resource.isResourceDeclaration();
+  }
+
+  public boolean isWriteOnlyVersion() {
+    if (tree == null
+      || !tree.key().value().endsWith(WRITE_ONLY_SUFFIX + "_version")
+      || !(parent instanceof ResourceSymbol resource)
+      || !resource.isResourceDeclaration()) {
+      return false;
+    }
+    String writeOnlyName = tree.key().value().substring(0, tree.key().value().length() - "_version".length());
+    return resource.attribute(writeOnlyName).isWriteOnly();
+  }
+
+  public boolean isSensitiveStoreContent() {
+    return tree != null && parent instanceof BlockSymbol block && (block.isSensitiveStore() || block.isSensitiveStoreContent());
   }
 }

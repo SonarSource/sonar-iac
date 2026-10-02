@@ -27,4 +27,9 @@ public interface BlockTree extends HasProperties, StatementTree {
   BodyTree value();
 
   boolean isDynamic();
+
+  /** Whether this block is a direct child of the Terraform file. */
+  default boolean isTopLevel() {
+    return false;
+  }
 }

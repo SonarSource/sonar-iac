@@ -36,6 +36,7 @@ public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
   private final List<LabelTree> labels;
   private final BodyTree body;
   private final Kind kind;
+  private boolean topLevel;
 
   public BlockTreeImpl(@Nullable SyntaxToken dynamic, SyntaxToken key, @Nullable List<LabelTree> labels, BodyTree body, Kind kind) {
     this.dynamicKeyword = dynamic;
@@ -68,6 +69,15 @@ public class BlockTreeImpl extends TerraformTreeImpl implements BlockTree {
   @Override
   public boolean isDynamic() {
     return dynamicKeyword != null;
+  }
+
+  @Override
+  public boolean isTopLevel() {
+    return topLevel;
+  }
+
+  void markTopLevel() {
+    topLevel = true;
   }
 
   @Override

@@ -30,6 +30,11 @@ public class FileTreeImpl extends TerraformTreeImpl implements FileTree {
   public FileTreeImpl(List<StatementTree> statements, SyntaxToken eof) {
     this.statements = statements;
     this.eof = eof;
+    for (StatementTree statement : statements) {
+      if (statement instanceof BlockTreeImpl block) {
+        block.markTopLevel();
+      }
+    }
   }
 
   @Override
