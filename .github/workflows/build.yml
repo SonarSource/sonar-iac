@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  GO_VERSION: "1.25.1"
-  GOLANG_CI_LINT_VERSION: "2.4.0"
+  GO_VERSION: "1.27.1"
+  GOLANG_CI_LINT_VERSION: "2.14.0"
   SONAR_PROJECT_KEY: "SonarSource_sonar-iac"
 
 jobs:
@@ -35,7 +35,15 @@ jobs:
 
       - name: Install golangci-lint
         run: |
-          curl --proto "=https" -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /home/runner/go/bin v${GOLANG_CI_LINT_VERSION}
+          curl --proto "=https" -sSfL https://golangci-lint.run/install.sh -o /tmp/golangci-install.sh
+          actual_sum=$(sha256sum /tmp/golangci-install.sh | cut -d' ' -f1)
+          expected_sum="1022ddb4d87ed252350ed03fc9677e250a4ae95cc6bcd4658c2a20a8a23d390f"
+          if [ "$actual_sum" != "$expected_sum" ]; then
+            echo "golangci-lint install script checksum mismatch: expected $expected_sum, got $actual_sum"
+            exit 1
+          fi
+          sh /tmp/golangci-install.sh -b /home/runner/go/bin "v${GOLANG_CI_LINT_VERSION}"
+          rm -f /tmp/golangci-install.sh
           echo "/opt/go/bin:/opt/protoc/bin:/opt/musl/bin:/home/runner/go/bin" >> $GITHUB_PATH
 
       - name: Checkout build logic

@@ -70,23 +70,30 @@ func Test_read_template_and_empty_values(t *testing.T) {
 }
 
 func Test_read_with_empty_input(t *testing.T) {
-	timeout := time.After(1 * time.Second)
-	done := make(chan bool)
+	input, output, _ := os.Pipe()
+	// Both pipe ends have to stay referenced until the test is over. Once they become
+	// unreachable the garbage collector runs their finalizers, which close the pipe; ReadInput
+	// then returns on EOF instead of blocking and the test fails depending on GC timing.
+	defer func() {
+		_ = output.Close()
+		_ = input.Close()
+	}()
+	_, outputErr := output.Write([]byte(""))
 	loggingTestCollector := NewDefaultLoggingCollector()
+	done := make(chan bool, 1)
 	go func() {
-		input, output, _ := os.Pipe()
-		_, err := output.Write([]byte(""))
-		assert.NoError(t, err)
-		_, _, err = ReadInput(input, &loggingTestCollector)
-		assert.NoError(t, err)
+		// Nothing is asserted here on purpose: this goroutine outlives the test, and reporting
+		// on `t` after the test has completed panics and takes the whole test binary down.
+		_, _, _ = ReadInput(input, &loggingTestCollector)
 		done <- true
 	}()
 
 	select {
 	case <-done:
 		t.Fatal("It should be timeout for empty input")
-	case <-timeout:
+	case <-time.After(1 * time.Second):
 	}
+	assert.NoError(t, outputErr)
 	assert.Equal(t, 0, len(loggingTestCollector.GetLogs()))
 }
 

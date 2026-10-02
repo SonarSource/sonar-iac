@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 set -euox pipefail
 
-readonly GO_VERSION="${GO_VERSION:-1.25.1}"
+readonly GO_VERSION="${GO_VERSION:-1.27.1}"
 readonly DEFAULT_GO_BINARY_DIRECTORY="${GOPATH:=${HOME}/go}/bin"
 readonly DEFAULT_GO_BINARY="${DEFAULT_GO_BINARY_DIRECTORY}/go"
 readonly PROTOBUF_GO_VERSION="${PROTOBUF_GO_VERSION:-1.36.11}"
@@ -129,7 +129,11 @@ generate_test_report() {
   local path_to_binary
   path_to_binary=$(install_go "${GO_VERSION}")
   # Test
-  CGO_ENABLED=0 bash -c "${path_to_binary} test ./src/... -timeout 5s -coverprofile=build/test-coverage.out -json > build/test-report.json"
+  if ! CGO_ENABLED=0 bash -c "${path_to_binary} test ./src/... -timeout 5s -coverprofile=build/test-coverage.out -json > build/test-report.json"; then
+    echo "Go tests failed, contents of build/test-report.json:" >&2
+    cat build/test-report.json >&2
+    return 1
+  fi
 }
 
 main() {

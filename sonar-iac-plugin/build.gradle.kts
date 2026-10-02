@@ -90,7 +90,7 @@ tasks.shadowJar {
 
     val isCrossCompile: Boolean = providers.environmentVariable("GO_CROSS_COMPILE").map { it == "1" }.getOrElse(false)
     val (minSize, maxSize) = if (isCrossCompile) {
-        21_500_000L to 22_000_000L
+        23_000_000L to 23_500_000L
     } else {
         7_500_000L to 8_500_000L
     }

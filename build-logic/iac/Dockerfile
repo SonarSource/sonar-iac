@@ -1,4 +1,5 @@
-ARG GO_VERSION=1.25.1
+# syntax=docker/dockerfile:1
+ARG GO_VERSION=1.27.1
 # Possible values: dev_custom_cert, dev
 # Note: This Dockerfile is for local development only. GitHub Actions does not use it.
 ARG BUILD_ENV=dev
@@ -37,11 +38,15 @@ ONBUILD RUN cp ${CA_CERT}.cer ${CA_CERT}.crt && update-ca-certificates
 FROM ${BUILD_ENV}_image
 
 ARG GO_VERSION
-ARG GOLANG_CI_LINT_VERSION=2.4.0
+ARG GOLANG_CI_LINT_VERSION=2.14.0
+
+ADD --chmod=555 \
+    --checksum=sha256:1022ddb4d87ed252350ed03fc9677e250a4ae95cc6bcd4658c2a20a8a23d390f \
+    https://golangci-lint.run/install.sh /usr/local/bin/golangci-install.sh
 
 USER sonarsource
 
-RUN curl --proto "=https" -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /home/sonarsource/go/bin v${GOLANG_CI_LINT_VERSION}
+RUN /usr/local/bin/golangci-install.sh -b /home/sonarsource/go/bin "v${GOLANG_CI_LINT_VERSION}"
 
 ENV PATH="/opt/go/bin:/opt/protoc/bin:/opt/musl/bin:/home/sonarsource/go/bin:${PATH}"
 ENV GO_CROSS_COMPILE=1
