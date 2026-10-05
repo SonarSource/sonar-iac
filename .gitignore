@@ -69,3 +69,6 @@ CLAUDE.local.md
 
 # Some AI workflows clone rspec locally as submodule and it should be ignored
 rspec
+
+# ---- Python
+__pycache__/

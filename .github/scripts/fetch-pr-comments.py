@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Fetch a pull request's metadata and review comments from the GitHub API.
 
-Writes four files into the output directory (``/tmp`` by default):
+Writes four files into the output directory (a new private temporary directory, unless
+``--out-dir`` is given):
 
 * ``pr_title.txt``     — the PR title
 * ``pr_head_ref.txt``  — the PR head branch name
@@ -16,9 +17,11 @@ workflow reports and the comments Claude works from can never drift apart.
 import argparse
 import json
 import os
+import pathlib
 import re
 import subprocess
 import sys
+import tempfile
 import urllib.error
 import urllib.request
 
@@ -113,7 +116,9 @@ def main():
         help="owner/repo slug (default: $GITHUB_REPOSITORY, else %(default)s)",
     )
     parser.add_argument(
-        "--out-dir", default="/tmp", help="directory to write the output files to (default: %(default)s)"
+        "--out-dir",
+        default=None,
+        help="directory to write the output files to (default: a new private temporary directory)",
     )
     args = parser.parse_args()
 
@@ -143,8 +148,10 @@ def main():
         "pr_head_repo.txt": head_repo,
         "pr_comments.txt": format_comments(review_bodies, inline_comments, issue_comments),
     }
+    out_dir = pathlib.Path(args.out_dir or tempfile.mkdtemp(prefix="pr-comments-")).resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
     for name, content in outputs.items():
-        with open(os.path.join(args.out_dir, name), "w") as handle:
+        with open(out_dir / name, "w") as handle:
             handle.write(content)
 
     print(f"PR #{args.pr_number}: {pull_request['title']}")
@@ -153,6 +160,7 @@ def main():
         f"Comments: {len(inline_comments)} inline, {len(review_bodies)} review-level, "
         f"{len(issue_comments)} general"
     )
+    print(f"Output directory: {out_dir}")
 
 
 if __name__ == "__main__":
