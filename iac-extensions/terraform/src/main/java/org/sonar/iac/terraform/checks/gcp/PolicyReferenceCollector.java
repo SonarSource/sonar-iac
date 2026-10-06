@@ -46,8 +46,11 @@ class PolicyReferenceCollector extends TreeVisitor<TreeContext> {
   public PolicyReferenceCollector(Set<String> relevantResourceTypes) {
     relevantResources = relevantResourceTypes;
     register(BlockTree.class, (ctx, tree) -> {
-      if (isResource(tree) && relevantResources.contains(resourceType(tree))) {
-        collectReference(tree);
+      if (isResource(tree)) {
+        var type = resourceType(tree);
+        if (type != null && relevantResources.contains(type)) {
+          collectReference(tree);
+        }
       }
     });
   }

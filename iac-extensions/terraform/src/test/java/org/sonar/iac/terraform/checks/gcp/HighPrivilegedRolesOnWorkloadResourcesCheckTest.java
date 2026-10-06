@@ -46,6 +46,12 @@ class HighPrivilegedRolesOnWorkloadResourcesCheckTest {
     TerraformVerifier.verify("GCP/HighPrivilegedRolesOnWorkloadResourcesCheck/iam_policy.tf", new HighPrivilegedRolesOnWorkloadResourcesCheck());
   }
 
+  @Test
+  void dynamic_resource_block() {
+    TerraformVerifier.verifyNoIssue("GCP/HighPrivilegedRolesOnWorkloadResourcesCheck/dynamic_resource_block.tf",
+      new HighPrivilegedRolesOnWorkloadResourcesCheck());
+  }
+
   /**
    * If there is any state being kept in the check, analysis on the second file will try to create two secondary locations.
    */
