@@ -61,3 +61,8 @@
 [submodule "private/its/sources/spectral/spectral"]
 	path = private/its/sources/spectral/spectral
 	url = https://github.com/stoplightio/spectral.git
+[submodule "private/its/sources/terraform/terraform-aws-rds"]
+	path = private/its/sources/terraform/terraform-aws-rds
+	url = https://github.com/terraform-aws-modules/terraform-aws-rds.git
+
+; Keep the list in sync with .github/workflows/copybara/copy.bara.sky
