@@ -30,6 +30,7 @@ import org.sonar.iac.terraform.api.tree.ObjectElementTree;
 import org.sonar.iac.terraform.api.tree.ObjectTree;
 import org.sonar.iac.terraform.api.tree.ParenthesizedExpressionTree;
 import org.sonar.iac.terraform.api.tree.SeparatedTrees;
+import org.sonar.iac.terraform.api.tree.SyntaxToken;
 import org.sonar.iac.terraform.api.tree.TemplateForDirectiveTree;
 import org.sonar.iac.terraform.api.tree.TemplateIfDirectiveTree;
 import org.sonar.iac.terraform.api.tree.TemplateInterpolationTree;
@@ -368,10 +369,16 @@ public class HclGrammar {
 
   public FunctionCallTree FUNCTION_CALL() {
     return b.<FunctionCallTree>nonterminal(HclLexicalGrammar.FUNCTION_CALL).is(
-      f.functionCall(b.token(HclLexicalGrammar.IDENTIFIER),
+      f.functionCall(QUALIFIED_FUNCTION_NAME(),
         b.token(Punctuator.LPARENTHESIS),
         b.optional(FUNCTION_CALL_ARGUMENTS()),
         b.token(Punctuator.RPARENTHESIS)));
+  }
+
+  public SyntaxToken QUALIFIED_FUNCTION_NAME() {
+    return b.<SyntaxToken>nonterminal().is(
+      f.qualifiedFunctionName(b.token(HclLexicalGrammar.IDENTIFIER),
+        b.zeroOrMore(f.newPair(b.token(Punctuator.DOUBLE_COLON), b.token(HclLexicalGrammar.IDENTIFIER)))));
   }
 
   public SeparatedTrees<ExpressionTree> FUNCTION_CALL_ARGUMENTS() {

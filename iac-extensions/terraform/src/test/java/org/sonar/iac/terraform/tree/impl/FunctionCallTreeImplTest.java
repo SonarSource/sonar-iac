@@ -58,4 +58,18 @@ class FunctionCallTreeImplTest extends TerraformTreeModelTest {
     assertThat(tree.arguments().separators().get(0)).isInstanceOfSatisfying(SyntaxToken.class, a -> assertThat(a.value()).isEqualTo(","));
     assertThat(tree.arguments().separators().get(1)).isInstanceOfSatisfying(SyntaxToken.class, a -> assertThat(a.value()).isEqualTo("..."));
   }
+
+  @Test
+  void qualified_provider_function_call() {
+    FunctionCallTree tree = parse("provider::aws::trim_prefix(\"foo\", \"bar\")", HclLexicalGrammar.FUNCTION_CALL);
+    assertThat(tree.name().value()).isEqualTo("provider::aws::trim_prefix");
+    assertThat(tree.arguments().trees()).hasSize(2);
+  }
+
+  @Test
+  void qualified_function_call_with_single_qualifier() {
+    FunctionCallTree tree = parse("provider::a::b()", HclLexicalGrammar.FUNCTION_CALL);
+    assertThat(tree.name().value()).isEqualTo("provider::a::b");
+    assertThat(tree.arguments().trees()).isEmpty();
+  }
 }

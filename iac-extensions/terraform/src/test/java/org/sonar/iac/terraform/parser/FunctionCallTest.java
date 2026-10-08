@@ -30,9 +30,14 @@ class FunctionCallTest {
       .matches("a(1, 2,)")
       .matches("a(1, 2...)")
       .matches("a(b(1))")
+      .matches("provider::aws::trim_prefix(\"foo\", \"bar\")")
+      .matches("provider::aws::arn_parse(a)")
+      .matches("provider::a::b()")
       .notMatches("a(1")
       .notMatches("a(,)")
       .notMatches("a(...)")
-      .notMatches("a(1 2)");
+      .notMatches("a(1 2)")
+      .notMatches("provider::(1)")
+      .notMatches("provider::aws::(1)");
   }
 }

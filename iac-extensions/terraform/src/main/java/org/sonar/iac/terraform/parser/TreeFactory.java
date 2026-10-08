@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
+import org.sonar.iac.common.api.tree.impl.TextRanges;
 import org.sonar.iac.terraform.api.tree.AttributeAccessTree;
 import org.sonar.iac.terraform.api.tree.AttributeSplatAccessTree;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
@@ -195,6 +196,21 @@ public class TreeFactory {
 
   public FunctionCallTree functionCall(SyntaxToken name, SyntaxToken openParenthesis, Optional<SeparatedTrees<ExpressionTree>> arguments, SyntaxToken closeParenthesis) {
     return new FunctionCallTreeImpl(name, openParenthesis, arguments.orNull(), closeParenthesis);
+  }
+
+  public SyntaxToken qualifiedFunctionName(SyntaxToken firstIdentifier, Optional<List<Pair<SyntaxToken, SyntaxToken>>> qualifiers) {
+    if (!qualifiers.isPresent()) {
+      return firstIdentifier;
+    }
+
+    var value = new StringBuilder(firstIdentifier.value());
+    var lastIdentifier = firstIdentifier;
+    for (Pair<SyntaxToken, SyntaxToken> qualifier : qualifiers.get()) {
+      value.append(qualifier.first().value()).append(qualifier.second().value());
+      lastIdentifier = qualifier.second();
+    }
+
+    return new SyntaxTokenImpl(value.toString(), TextRanges.merge(firstIdentifier.textRange(), lastIdentifier.textRange()), firstIdentifier.comments());
   }
 
   public SeparatedTrees<ExpressionTree> functionCallArguments(

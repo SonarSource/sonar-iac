@@ -50,10 +50,14 @@ class LiteralExprTest {
       .notMatches("trueFoo")
       .notMatches("falseFoo")
       .notMatches("nullFoo")
-      .notMatches("<<EOF\n" +
-        "    foo\n" +
-        "    bar\n" +
-        "NOT_EOF");
-
+      .notMatches("""
+        <<EOF
+            foo
+            bar
+        NOT_EOF""")
+      .notMatches("""
+        <<EO::F
+            foo
+        EO::F""");
   }
 }

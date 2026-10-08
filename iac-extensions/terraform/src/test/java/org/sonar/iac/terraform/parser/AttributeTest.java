@@ -42,7 +42,13 @@ class AttributeTest {
       .matches("a = x.y.b.*.c")
       .matches("a = a ? b : c")
       .matches("a = a(1, a, \"foo\", [], {}, b())")
+      .matches("a = provider::aws::trim_prefix(\"foo\", \"bar\")")
       .notMatches("a")
-      .notMatches("a =");
+      .notMatches("a =")
+      .notMatches("a::b")
+      .notMatches("a::b = 1")
+      .notMatches("a::b::c")
+      .notMatches("a::b::c = 1")
+      .notMatches("a = provider::aws::foo");
   }
 }

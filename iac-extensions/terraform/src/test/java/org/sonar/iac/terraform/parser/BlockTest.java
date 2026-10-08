@@ -45,9 +45,18 @@ class BlockTest {
       .matches("""
         dynamic "a" label {
         }""")
+      .matches("""
+        resource "aws_instance" "this" {
+          name = provider::aws::trim_prefix(var.name, "prefix-")
+        }""")
       .notMatches("a{}")
       .notMatches("a")
-      .notMatches("");
+      .notMatches("")
+      .notMatches("a::b")
+      .notMatches("a::b::c")
+      .notMatches("""
+        resource::x "a" {
+        }""");
   }
 
   @Test
@@ -65,7 +74,10 @@ class BlockTest {
       .matches("dynamic a \"label1\" label2 {}")
       .matches("a {b = false}")
       .notMatches("a")
-      .notMatches("a{");
+      .notMatches("a{")
+      .notMatches("a::b {}")
+      .notMatches("a::b::c {}")
+      .notMatches("a b::c {}");
   }
 
   @Test
