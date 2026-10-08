@@ -21,11 +21,22 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.iac.terraform.TestTreeBuilders.BlockBuilder.block;
+
 class AbstractNewResourceCheckTest {
 
   @Test
   void test() {
     TerraformVerifier.verify("newAbstractResourceCheckTest.tf", new TestAbstractNewResourceCheck());
+  }
+
+  @Test
+  void resourcePredicateExcludesEphemeralBlocks() {
+    assertThat(AbstractNewResourceCheck.isResource(block().key("resource").build())).isTrue();
+    assertThat(AbstractNewResourceCheck.isResource(block().key("ephemeral").build())).isFalse();
+    assertThat(AbstractNewResourceCheck.isResourceOrEphemeral(block().key("ephemeral").build())).isTrue();
+    assertThat(AbstractNewResourceCheck.isResourceOrEphemeral(block().key("data").build())).isFalse();
   }
 
   static class TestAbstractNewResourceCheck extends AbstractNewResourceCheck {
@@ -49,7 +60,7 @@ class AbstractNewResourceCheckTest {
     @Override
     protected void provideResource(CheckContext ctx, BlockTree blockTree) {
       super.provideResource(ctx, blockTree);
-      if (isResource(blockTree) && resourceType(blockTree) == null) {
+      if (isResourceOrEphemeral(blockTree) && resourceType(blockTree) == null) {
         ctx.reportIssue(blockTree, "missing resource type");
       }
     }

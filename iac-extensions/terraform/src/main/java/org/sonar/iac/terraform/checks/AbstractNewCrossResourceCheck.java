@@ -32,9 +32,7 @@ public abstract class AbstractNewCrossResourceCheck extends AbstractNewResourceC
 
   @Override
   public void initialize(InitContext init) {
-    init.register(FileTree.class, (CheckContext ctx, FileTree tree) -> blockNameToBlockTree = tree.properties().stream()
-      .filter(BlockTree.class::isInstance)
-      .map(BlockTree.class::cast)
+    init.register(FileTree.class, (CheckContext ctx, FileTree tree) -> blockNameToBlockTree = blocksIncludingCheckChildren(tree)
       .filter(AbstractResourceCheck::hasReferenceLabel)
       .collect(toMap(AbstractResourceCheck::getReferenceLabel, Function.identity(), (block1, block2) ->
       // In theory, a valid Terraform file should not contain two blocks with the same name. This check is to be on the safe side.

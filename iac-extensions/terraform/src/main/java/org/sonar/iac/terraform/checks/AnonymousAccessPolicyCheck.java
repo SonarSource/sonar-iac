@@ -49,7 +49,7 @@ public class AnonymousAccessPolicyCheck extends AbstractResourceCheck {
 
     // in order to catch other statements, we need to register to other elements than resources
     init.register(BlockTree.class, (ctx, tree) -> {
-      if (!isResource(tree)) {
+      if (!isResourceOrEphemeral(tree)) {
         checkInsecureStatementsOutsideResources(ctx, tree);
       }
     });

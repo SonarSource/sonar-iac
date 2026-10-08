@@ -70,3 +70,7 @@ resource "google_iap_web_iam_policy" "compliant_ref3" {
 resource "google_iap_web_iam_policy" "compliant_ref4" {
   policy_data = data.google_iam_policy.compliant_policy3.policy_data
 }
+
+# A resource without a type must not stop the remaining checks.
+resource {
+}

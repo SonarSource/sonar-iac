@@ -8,6 +8,10 @@ resource "missing_attribute" "compliant" {
   expected_attribute = true
 }
 
+ephemeral "missing_attribute" "noncompliant" { // Noncompliant {{attribute is missing}}
+//        ^^^^^^^^^^^^^^^^^^^
+}
+
 // Check reportIfAbsent on BlockSymbol
 
 resource "missing_block" "noncompliant" { // Noncompliant {{block is missing}}
@@ -34,4 +38,7 @@ resource "not_relevant_resource" "coverage" {
 }
 
 resource { // Noncompliant {{missing resource type}}
+}
+
+ephemeral { // Noncompliant {{missing resource type}}
 }

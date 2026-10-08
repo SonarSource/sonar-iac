@@ -4,6 +4,12 @@ resource "azurerm_kubernetes_cluster" "sensitive" {
   name = "example-k8s"
 }
 
+# Noncompliant@+1 {{Omitting the "identity" block disables Azure Managed Identities. Make sure it is safe here.}}
+ephemeral "azurerm_kubernetes_cluster" "temporary" {
+  #       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  name = "example-k8s"
+}
+
 resource "azurerm_kubernetes_cluster" "compliant" {
   name = "example-k8s"
   identity {

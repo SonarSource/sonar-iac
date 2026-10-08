@@ -40,7 +40,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     init.register(BlockTree.class, (ctx, tree) -> {
-      if (isResource(tree)) {
+      if (isResourceOrEphemeral(tree)) {
         checkResource(ctx, tree);
       }
     });
@@ -69,6 +69,11 @@ public abstract class AbstractResourceCheck implements IacCheck {
 
   public static boolean isResource(BlockTree tree) {
     return TextUtils.matchesValue(tree.key(), "resource"::equals).isTrue();
+  }
+
+  /** Resource consumers also receive ephemeral declarations of the same type, although their provider arguments may differ. */
+  public static boolean isResourceOrEphemeral(BlockTree tree) {
+    return TextUtils.matchesValue(tree.key(), key -> "resource".equals(key) || "ephemeral".equals(key)).isTrue();
   }
 
   public static boolean isResource(BlockTree tree, String type) {

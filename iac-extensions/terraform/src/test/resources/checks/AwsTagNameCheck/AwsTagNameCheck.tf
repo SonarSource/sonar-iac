@@ -8,3 +8,10 @@ resource "aws_s3_bucket" "examplebucket" {
     "compliant:format" = "Example"
   }
 }
+
+ephemeral "aws_s3_bucket" "temporary" {
+  tags = {
+    "aws:temporary" = "value" # Noncompliant {{Rename tag key "aws:temporary" to comply with required format.}}
+#   ^^^^^^^^^^^^^^^
+  }
+}

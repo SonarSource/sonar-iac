@@ -29,14 +29,12 @@ import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 import org.sonar.iac.terraform.api.tree.FileTree;
-import org.sonar.iac.terraform.api.tree.StatementTree;
 import org.sonar.iac.terraform.checks.AbstractNewResourceCheck;
 import org.sonar.iac.terraform.symbols.AttributeSymbol;
 import org.sonar.iac.terraform.symbols.BlockSymbol;
 import org.sonar.iac.terraform.symbols.ReferenceSymbol;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
-import static org.sonar.iac.terraform.api.tree.TerraformTree.Kind.BLOCK;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.isFalse;
 import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.matchesPattern;
@@ -75,10 +73,10 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
   }
 
   private void collectPolicyData(CheckContext ctx, FileTree file) {
-    policyDataCollection = file.properties().stream()
+    policyDataCollection = blocksIncludingCheckChildren(file)
       .filter(PublicAccessCheck::isPolicyDataBlock)
-      .map(BlockTree.class::cast)
-      .collect(Collectors.toMap(data -> String.format("data.google_iam_policy.%s.policy_data", getName(data)), data -> ResourceSymbol.fromPresent(ctx, data)));
+      .collect(Collectors.toMap(data -> String.format("data.google_iam_policy.%s.policy_data", getName(data)), data -> ResourceSymbol.fromPresent(ctx, data),
+        (first, duplicate) -> first));
   }
 
   @Override
@@ -150,8 +148,8 @@ public class PublicAccessCheck extends AbstractNewResourceCheck {
       .toList();
   }
 
-  private static boolean isPolicyDataBlock(StatementTree statement) {
-    return statement.is(BLOCK) && isDataOfType((BlockTree) statement, "google_iam_policy") && getName((BlockTree) statement) != null;
+  private static boolean isPolicyDataBlock(BlockTree block) {
+    return isDataOfType(block, "google_iam_policy") && getName(block) != null;
   }
 
   @Nullable

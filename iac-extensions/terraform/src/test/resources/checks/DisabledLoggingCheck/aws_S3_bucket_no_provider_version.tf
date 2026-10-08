@@ -67,6 +67,10 @@ data "aws_iam_policy_document" "policy_document" {
   }
 }
 
+# A policy document without a name must not stop the remaining checks.
+data "aws_iam_policy_document" {
+}
+
 resource "aws_s3_bucket_policy" "bucket_policy_1" {
   bucket = aws_s3_bucket.bucket_with_policy.id
   policy = data.aws_iam_policy_document.policy_document.json
@@ -181,4 +185,43 @@ resource "aws_s3_bucket_logging" "invalid_bucket_logging_no_id_suffix" {
 
 resource "aws_s3_bucket_logging" "invalid_bucket_logging_no_bucket_name" {
   bucket = aws_s3_bucket
+}
+
+# A check-scoped policy document must not shadow the top-level document with the same name.
+check "shadowing_policy" {
+  data "aws_iam_policy_document" "shadowed_policy_document" {
+    statement {
+      principals {
+        type = "NOT-Service"
+        identifiers = ["logging.s3.amazonaws.com"]
+      }
+    }
+  }
+
+  assert {
+    condition = length(data.aws_iam_policy_document.shadowed_policy_document.json) > 0
+    error_message = "The policy document must not be empty."
+  }
+}
+
+resource "aws_s3_bucket" "bucket_with_shadowed_policy" {
+  bucket = "shadowed-policy-bucket" # Compliant: the top-level policy document makes this a logging bucket
+}
+
+data "aws_iam_policy_document" "shadowed_policy_document" {
+  statement {
+    principals {
+      type = "Service"
+      identifiers = ["logging.s3.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "shadowed_bucket_policy" {
+  bucket = aws_s3_bucket.bucket_with_shadowed_policy.id
+  policy = data.aws_iam_policy_document.shadowed_policy_document.json
+}
+
+# A resource without a type must not stop the remaining checks.
+resource {
 }

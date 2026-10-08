@@ -31,3 +31,14 @@ data "azurerm_storage_account_blob_container_sas" "compliant_storage_account_blo
 data "non_azurerm_storage_account_blob_container_sas" "coverage" {
   https_only = false
 }
+
+check "scoped_sas" {
+  data "azurerm_storage_account_blob_container_sas" "scoped" {
+    https_only = false # Noncompliant {{Make sure allowing clear-text traffic is safe here.}}
+  }
+
+  assert {
+    condition = data.azurerm_storage_account_blob_container_sas.scoped.https_only
+    error_message = "The SAS must require HTTPS."
+  }
+}

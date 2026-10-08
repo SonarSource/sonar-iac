@@ -32,14 +32,29 @@ class AbstractResourceCheckTest {
   @ParameterizedTest
   @CsvSource({
     "resource, true",
+    "ephemeral, false",
     "Resource, false",
-    "data, false"
+    "data, false",
+    "import, false",
+    "moved, false",
+    "removed, false"
   })
-  void testIsResource(String type, boolean isS3Bucket) {
+  void testIsResource(String type, boolean isResource) {
     BlockTree blockTree = block()
       .key(type)
       .build();
-    assertThat(AbstractResourceCheck.isResource(blockTree)).isEqualTo(isS3Bucket);
+    assertThat(AbstractResourceCheck.isResource(blockTree)).isEqualTo(isResource);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "resource, true",
+    "ephemeral, true",
+    "data, false",
+    "import, false"
+  })
+  void testIsResourceOrEphemeral(String type, boolean expected) {
+    assertThat(AbstractResourceCheck.isResourceOrEphemeral(block().key(type).build())).isEqualTo(expected);
   }
 
   @ParameterizedTest
@@ -59,6 +74,7 @@ class AbstractResourceCheckTest {
   @ParameterizedTest
   @CsvSource({
     "resource, \"aws_s3_bucket\", true",
+    "ephemeral, \"aws_s3_bucket\", false",
     "resource, \"not_a_bucket\", false",
     "date, \"aws_s3_bucket\", false"
   })
@@ -74,7 +90,18 @@ class AbstractResourceCheckTest {
   void checkResource() {
     TestAbstractResourceCheck check = new TestAbstractResourceCheck();
     TerraformVerifier.verifyNoIssue("AbstractResourceCheck/test.tf", check);
-    assertThat(check.visitedBlocks).hasSize(2);
+    assertThat(check.visitedBlocks).hasSize(3);
+  }
+
+  @Test
+  void ephemeralHasResourceLabels() {
+    BlockTree blockTree = block()
+      .key("ephemeral")
+      .labels(label("\"aws_secretsmanager_secret_version\""), label("\"example\""))
+      .build();
+    assertThat(AbstractResourceCheck.getResourceType(blockTree)).isEqualTo("aws_secretsmanager_secret_version");
+    assertThat(AbstractResourceCheck.hasReferenceLabel(blockTree)).isTrue();
+    assertThat(AbstractResourceCheck.getReferenceLabel(blockTree)).isEqualTo("example");
   }
 
   static class TestAbstractResourceCheck extends AbstractResourceCheck {

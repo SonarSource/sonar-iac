@@ -2,6 +2,10 @@ resource "aws_ebs_volume" "ebs_volume" { # Noncompliant {{Omitting "encrypted" d
 #        ^^^^^^^^^^^^^^^^
 }
 
+ephemeral "aws_ebs_volume" "temporary" { # Noncompliant {{Omitting "encrypted" disables volumes encryption. Make sure it is safe here.}}
+#         ^^^^^^^^^^^^^^^^
+}
+
 resource "aws_ebs_volume" "ebs_volume" {
   encrypted = false # Noncompliant {{Make sure that using unencrypted volumes is safe here.}}
 # ^^^^^^^^^^^^^^^^^
@@ -61,4 +65,3 @@ resource "locals" {
 resource {
   # unnamed resource ?
 }
-

@@ -73,15 +73,13 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewCrossResourceCheck {
   }
 
   private void init(FileTree tree) {
-    typeToTree = tree.properties().stream()
-      .filter(BlockTree.class::isInstance)
-      .map(BlockTree.class::cast)
+    typeToTree = blocksIncludingCheckChildren(tree)
       .filter(AbstractNewResourceCheck::isResource)
+      .filter(block -> AbstractResourceCheck.getResourceType(block) != null)
       .collect(Collectors.groupingBy(AbstractResourceCheck::getResourceType, Collectors.mapping(e -> e, Collectors.toList())));
-    iamPolicyDocuments = tree.properties().stream()
-      .filter(BlockTree.class::isInstance)
-      .map(BlockTree.class::cast)
+    iamPolicyDocuments = blocksIncludingCheckChildren(tree)
       .filter(block -> isDataOfType(block, "aws_iam_policy_document"))
+      .filter(AbstractResourceCheck::hasReferenceLabel)
       // In theory, a valid Terraform file should not contain two iam policy document blocks with the same name.
       // This check is to be on the safe side.
       .collect(toMap(AbstractResourceCheck::getReferenceLabel, Function.identity(), (block1, block2) -> block1));

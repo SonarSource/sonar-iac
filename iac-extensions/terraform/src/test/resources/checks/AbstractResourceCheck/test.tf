@@ -8,3 +8,7 @@ resource "no_s3_bucket" "mybuckets1234" {
 data "aws_s3_bucket" "mydatas1234" {
 
 }
+
+ephemeral "aws_secretsmanager_secret_version" "temporary" {
+  secret_id = "example"
+}

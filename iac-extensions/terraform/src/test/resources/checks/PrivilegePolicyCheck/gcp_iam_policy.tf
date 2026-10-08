@@ -125,3 +125,7 @@ data "not_google_iam_policy" "coverage1" {
 resource "google_project_iam_policy" "coverage1" {
   policy_data = data.not_google_iam_policy.coverage1.policy_data
 }
+
+# A resource without a type must not stop the remaining checks.
+resource {
+}

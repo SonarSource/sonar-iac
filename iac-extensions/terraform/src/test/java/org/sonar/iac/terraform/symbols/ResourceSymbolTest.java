@@ -76,6 +76,27 @@ class ResourceSymbolTest extends AbstractSymbolTest {
     assertThat(data.writeOnlyCounterpart("password")).isEmpty();
   }
 
+  @Test
+  void ephemeralBlocksDoNotHavePersistedResourceSemantics() {
+    ResourceSymbol db = ResourceSymbol.fromPresent(ctx, parseBlock("""
+      ephemeral "aws_db_instance" "db" {
+        password = "secret"
+        password_wo = "secret"
+        password_wo_version = 1
+      }
+      """));
+    assertThat(db.writeOnlyCounterpart("password")).isEmpty();
+    assertThat(db.attribute("password_wo").isWriteOnly()).isFalse();
+    assertThat(db.attribute("password_wo_version").isWriteOnlyVersion()).isFalse();
+
+    ResourceSymbol data = ResourceSymbol.fromPresent(ctx, parseBlock("""
+      ephemeral "terraform_data" "credentials" {
+        store {}
+      }
+      """));
+    assertThat(data.block("store").isSensitiveStore()).isFalse();
+  }
+
   @ParameterizedTest
   @CsvSource({
     "aws_db_instance, password",

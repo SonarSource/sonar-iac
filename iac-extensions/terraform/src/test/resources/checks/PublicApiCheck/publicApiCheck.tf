@@ -236,3 +236,25 @@ resource "aws_apigatewayv2_route" "login_websocket_connect_compliant" {
   api_id    = aws_apigatewayv2_api.aws_apigatewayv2_api_websocket_login.id
   route_key = "$connect" # Compliant: name matches bootstrap exclusion
 }
+
+# A check-scoped data source must not shadow the top-level API with the same name.
+check "shadowing_api" {
+  data "aws_apigatewayv2_api" "shadowed_http_api" {
+    api_id = "abc123"
+  }
+
+  assert {
+    condition = data.aws_apigatewayv2_api.shadowed_http_api.protocol_type == "HTTP"
+    error_message = "The API must be an HTTP API."
+  }
+}
+
+resource "aws_apigatewayv2_api" "shadowed_http_api" {
+  protocol_type = "HTTP"
+}
+
+# Noncompliant@+1 {{Make sure creating a public API is safe here.}}
+resource "aws_apigatewayv2_route" "shadowed_http_route" {
+  api_id = aws_apigatewayv2_api.shadowed_http_api.id
+  route_key = "POST /example"
+}

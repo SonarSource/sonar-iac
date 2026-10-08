@@ -432,3 +432,13 @@ resource "aws_s3_bucket_policy" "compliant_jsonencode_deny_with_condition" {
     }]
   })
 }
+
+# The ephemeral declaration is analyzed once through the resource path.
+ephemeral "aws_s3_bucket_policy" "temporary" {
+  policy = jsonencode({
+    Statement = [{
+      Effect    = "Allow"
+      Principal = "*" # Noncompliant {{Make sure granting public access is safe here.}}
+    }]
+  })
+}

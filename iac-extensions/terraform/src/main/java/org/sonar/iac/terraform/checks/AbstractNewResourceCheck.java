@@ -22,11 +22,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.FileTree;
 import org.sonar.iac.terraform.symbols.ResourceSymbol;
 
 public abstract class AbstractNewResourceCheck implements IacCheck {
@@ -42,7 +44,7 @@ public abstract class AbstractNewResourceCheck implements IacCheck {
   protected abstract void registerResourceConsumer();
 
   protected void provideResource(CheckContext ctx, BlockTree blockTree) {
-    if (isResource(blockTree)) {
+    if (isResourceOrEphemeral(blockTree)) {
       ResourceSymbol resource = ResourceSymbol.fromPresent(ctx, blockTree);
       if (resourceConsumers.containsKey(resource.type)) {
         resourceConsumers.get(resource.type).forEach(consumer -> consumer.accept(resource));
@@ -58,12 +60,35 @@ public abstract class AbstractNewResourceCheck implements IacCheck {
     resourceNames.forEach(resourceName -> register(resourceName, consumer));
   }
 
-  /** If needed - add similar method isData(BlockTree blockTree) */
+  /** Only matches persisted resource declarations. */
   public static boolean isResource(BlockTree blockTree) {
     return "resource".equals(blockTree.key().value());
   }
 
-  /** If needed - add similar method isResourceOfType(BlockTree blockTree, String dataType) */
+  /** Resource consumers also receive ephemeral declarations of the same type, although their provider arguments may differ. */
+  public static boolean isResourceOrEphemeral(BlockTree blockTree) {
+    return isResource(blockTree) || "ephemeral".equals(blockTree.key().value());
+  }
+
+  /**
+   * Top-level blocks followed by the scoped data blocks of check blocks, the only blocks Terraform allows there besides assert.
+   * Top-level blocks come first, so they take precedence over check-scoped data blocks with the same name when building indexes.
+   */
+  protected static Stream<BlockTree> blocksIncludingCheckChildren(FileTree tree) {
+    List<BlockTree> topLevelBlocks = tree.properties().stream()
+      .filter(BlockTree.class::isInstance)
+      .map(BlockTree.class::cast)
+      .toList();
+    Stream<BlockTree> checkScopedData = topLevelBlocks.stream()
+      .filter(block -> "check".equals(block.key().value()))
+      .flatMap(check -> check.properties().stream()
+        .filter(BlockTree.class::isInstance)
+        .map(BlockTree.class::cast)
+        .filter(block -> "data".equals(block.key().value())));
+    return Stream.concat(topLevelBlocks.stream(), checkScopedData);
+  }
+
+  /** Matches a data source declaration by type. */
   public static boolean isDataOfType(BlockTree blockTree, String dataType) {
     return "data".equals(blockTree.key().value()) && dataType.equals(resourceType(blockTree));
   }

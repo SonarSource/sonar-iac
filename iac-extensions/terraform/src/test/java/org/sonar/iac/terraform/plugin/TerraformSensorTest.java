@@ -180,6 +180,31 @@ class TerraformSensorTest extends ExtensionSensorTest {
   }
 
   @Test
+  void shouldParseImportBlocksInModuleFile() {
+    InputFile moduleFile = inputFile("modules/child/main.tf", """
+      import {
+        to = aws_s3_bucket.by_id
+        id = "literal"
+      }
+
+      import {
+        to = aws_s3_bucket.by_identity
+        identity = {
+          bucket = "my-bucket"
+          region = "us-east-1"
+        }
+      }
+      """);
+
+    analyze(sensor(), moduleFile);
+
+    assertThat(context.allIssues()).isEmpty();
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.terraform.files.count", "1")
+      .containsEntry("iac.terraform.files.parsed", "1");
+  }
+
+  @Test
   void shouldReportFilesCountAndParsedWhenSomeFilesFail() {
     analyze(sensor(), validFile(), fileWithParsingError());
 
