@@ -70,7 +70,6 @@ tasks.jar {
                 "Plugin-OrganizationUrl" to "https://www.sonarsource.com",
                 "Plugin-SourcesUrl" to "https://github.com/SonarSource/sonar-iac/sonar-iac-plugin",
                 "Plugin-Version" to project.version,
-                "Sonar-Version" to "8.9",
                 "SonarLint-Supported" to "true",
                 "Version" to project.version.toString(),
                 "Jre-Min-Version" to java.sourceCompatibility.majorVersion
