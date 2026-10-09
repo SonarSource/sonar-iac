@@ -10,15 +10,15 @@ It is a component of the [SonarQube Server](https://www.sonarqube.org/) platform
 It enables developers to produce stable and easily supported [integrated code quality and security](https://www.sonarsource.com/solutions/for-developers/?utm_medium=referral&utm_source=github&utm_campaign=clean-code&utm_content=sonar-iac) by helping you find and correct vulnerabilities and code issues in your projects.
 
 # Features
-* 100+ rules
+* 180+ rules
 * Supports Azure Resource Manager JSON/Bicep
 * Supports CloudFormation JSON/YAML
 * Supports Kubernetes YAML and Helm Charts
 * Supports Dockerfiles
 * Supports Terraform for AWS
   * HCL native syntax for files named with a .tf suffix (JSON format not supported)
-  * Terraform for Azure and GCP: coming soon
-* Supports configuration files for Spring and Micronaut
+  * Terraform for Azure and GCP
+* Supports configuration files for Spring, Micronaut and Quarkus
 * Domains Covered:
   * AWS S3 Buckets
   * Permissions
@@ -42,11 +42,11 @@ which get loaded by the main plugin class and are structured similarly to other 
 ## Build & Test
 
 ### Requirements
-* Java 17
+* Java 21
 * Docker should be installed to perform the build of the Go part inside a container
   * In some environments, importing a custom certificate must be performed during the Docker build. Refer to the [dedicated readme](sonar-helm-for-iac/Readme.md#build-docker-image) for more details.
-* Alternatively, to replicate CI setup and use system Go toolchain, set environment variable `CI=true`. Go 1.23 and the following dependencies are needed:
-  * musl on Linux (`musl-gcc` should be present on `PATH`)
+* Alternatively, to replicate CI setup and use system Go toolchain, set environment variable `CI=true`. Go 1.27.1 and the following dependencies are needed:
+  * `golangci-lint` (version in `gradle.properties`, `goLangCiLintVersion`) and `$(go env GOPATH)/bin` on `PATH`
 
 ### Setup
 To configure build dependencies, run the following command:
@@ -76,7 +76,7 @@ For more information see [README.md](https://github.com/SonarSource/cloud-native
 If you are behind a corporate proxy, you might encounter certificate issues during the build, with following error:
 
 ```text
-ERROR: failed to solve: failed to compute cache key: failed to calculate checksum of ref xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx::yyyyyyyyyyyyyyyyyyyyyyyy: "/Sonar-FGT-FW-TLS-Traffic-Inspection.cer": not found
+ERROR: failed to solve: failed to compute cache key: failed to calculate checksum of ref xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx::yyyyyyyyyyyyyyyyyyyyyyyy: "/Sonar-CloudFlare-Inspection-Cert.cer": not found
 ```
 
 To fix the issue please copy the certificate to `sonar-helm-for-iac` directory or specify `-DtrafficInspection=false` property during the build:
@@ -145,13 +145,13 @@ Additionally, an optional property `-Pbranch=<branch name>` can be set to fetch 
 
 ### Generate metadata for external linter rules
 
-To update rules from external linters (Hadolint, TFLint, CfnLint, Ansible Lint) from their upstream sources, execute the following command:
+To update rules from external linters (Hadolint, TFLint, CfnLint, Ansible Lint, Actionlint, Spectral) from their upstream sources, execute the following command:
 
 ```shell
 ./gradlew generateExternalRules
 ```
 
-This will update all external linter rules across all extensions. To update rules for a specific extension, run the task `generateExternalRules` on a specific Gradle subproject, for example :iac-extensions:terraform:generateExternalRules`.
+This will update all external linter rules across all extensions. To update rules for a specific extension, run the task `generateExternalRules` on a specific Gradle subproject, for example `:iac-extensions:terraform:generateExternalRules`.
 
 These tasks automatically download the latest rule documentation from upstream sources and regenerate the `rules.json` files.
 

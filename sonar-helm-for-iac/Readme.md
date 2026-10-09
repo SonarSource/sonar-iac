@@ -7,7 +7,7 @@ It is a small glue code for re-use the implementation of Helm Charts templates e
 
 ## Requirements
 * Docker (specifically, Docker Buildx)
-* CA certificate for FortiClient traffic inspection
+* CA certificate for traffic inspection (`Sonar-CloudFlare-Inspection-Cert.cer`)
 
 ## The build
 
