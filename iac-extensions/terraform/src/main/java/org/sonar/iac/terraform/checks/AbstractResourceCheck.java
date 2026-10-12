@@ -27,6 +27,7 @@ import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
+import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.checks.TextUtils;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
@@ -80,6 +81,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
     return isResource(tree) && type.equals(getResourceType(tree));
   }
 
+  /** Requires {@link #hasReferenceLabel(BlockTree)}: blocks such as {@code variable}, {@code locals} or {@code module} have no second label. */
   public static String getReferenceLabel(BlockTree resource) {
     return resource.labels().get(1).value();
   }
@@ -102,15 +104,20 @@ public abstract class AbstractResourceCheck implements IacCheck {
   }
 
   public static void reportResource(CheckContext ctx, BlockTree resource, String message) {
-    ctx.reportIssue(resource.labels().get(0), message);
+    ctx.reportIssue(primaryLocation(resource), message);
   }
 
   public static void reportResource(CheckContext ctx, BlockTree resource, String message, List<SecondaryLocation> secondaries) {
-    ctx.reportIssue(resource.labels().get(0), message, secondaries);
+    ctx.reportIssue(primaryLocation(resource), message, secondaries);
   }
 
   public static void reportResource(CheckContext ctx, BlockTree resource, String message, String ruleDescriptionContextKey) {
-    ctx.reportIssue(resource.labels().get(0), message, List.of(), ruleDescriptionContextKey);
+    ctx.reportIssue(primaryLocation(resource), message, List.of(), ruleDescriptionContextKey);
+  }
+
+  /** Highlights the type label, or the block key for label-less blocks such as {@code locals} and {@code terraform}. */
+  private static HasTextRange primaryLocation(BlockTree block) {
+    return block.labels().isEmpty() ? block.key() : block.labels().get(0);
   }
 
   protected static void reportOnTrue(CheckContext ctx, AttributeTree attribute, String message, String ruleDescriptionContextKey) {

@@ -17,13 +17,17 @@
 package org.sonar.iac.terraform.checks;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.terraform.api.tree.BlockTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.iac.terraform.TestTreeBuilders.BlockBuilder.block;
 import static org.sonar.iac.terraform.TestTreeBuilders.LabelBuilder.label;
 
@@ -102,6 +106,31 @@ class AbstractResourceCheckTest {
     assertThat(AbstractResourceCheck.getResourceType(blockTree)).isEqualTo("aws_secretsmanager_secret_version");
     assertThat(AbstractResourceCheck.hasReferenceLabel(blockTree)).isTrue();
     assertThat(AbstractResourceCheck.getReferenceLabel(blockTree)).isEqualTo("example");
+  }
+
+  @Test
+  void reportResourceHighlightsKeyOfLabelLessBlocks() {
+    var ctx = mock(CheckContext.class);
+    BlockTree blockTree = block().key("locals").build();
+
+    AbstractResourceCheck.reportResource(ctx, blockTree, "message");
+    AbstractResourceCheck.reportResource(ctx, blockTree, "message", List.of());
+    AbstractResourceCheck.reportResource(ctx, blockTree, "message", "context");
+
+    verify(ctx).reportIssue(blockTree.key(), "message");
+    verify(ctx).reportIssue(blockTree.key(), "message", List.of());
+    verify(ctx).reportIssue(blockTree.key(), "message", List.of(), "context");
+  }
+
+  @Test
+  void reportResourceHighlightsFirstLabelOfSingleLabelBlocks() {
+    var ctx = mock(CheckContext.class);
+    BlockTree blockTree = block().key("variable").labels(label("\"example\"")).build();
+
+    AbstractResourceCheck.reportResource(ctx, blockTree, "message");
+
+    verify(ctx).reportIssue(blockTree.labels().get(0), "message");
+    assertThat(AbstractResourceCheck.hasReferenceLabel(blockTree)).isFalse();
   }
 
   static class TestAbstractResourceCheck extends AbstractResourceCheck {
