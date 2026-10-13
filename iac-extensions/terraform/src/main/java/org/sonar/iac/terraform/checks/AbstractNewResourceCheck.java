@@ -65,7 +65,10 @@ public abstract class AbstractNewResourceCheck implements IacCheck {
     return "resource".equals(blockTree.key().value());
   }
 
-  /** Resource consumers also receive ephemeral declarations of the same type, although their provider arguments may differ. */
+  /**
+   * Resource consumers also receive ephemeral declarations of the same type, although their provider arguments may differ.
+   * Action declarations are excluded, as all consumers here are type-specific, see {@link AbstractResourceCheck#checkResource}.
+   */
   public static boolean isResourceOrEphemeral(BlockTree blockTree) {
     return isResource(blockTree) || "ephemeral".equals(blockTree.key().value());
   }

@@ -28,11 +28,13 @@ public class ClearTextProtocolsCheck implements IacCheck {
 
   public static final String MESSAGE_CLEAR_TEXT = "Make sure allowing clear-text traffic is safe here.";
   public static final String MESSAGE_OMITTING = "Omitting \"%s\" enables clear-text traffic. Make sure it is safe here.";
+  public static final String MESSAGE_CLEAR_TEXT_PROTOCOL = "Make sure that using clear-text protocols is safe here.";
 
   @Override
   public void initialize(InitContext init) {
     new AwsClearTextProtocolsCheckPart().initialize(init);
     new AzureClearTextProtocolsCheckPart().initialize(init);
     new GcpClearTextProtocolsCheckPart().initialize(init);
+    new ActionClearTextProtocolsCheckPart().initialize(init);
   }
 }

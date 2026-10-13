@@ -99,4 +99,9 @@ class ClearTextProtocolsCheckTest {
   void google_compute_region_backend_service() {
     TerraformVerifier.verify("ClearTextProtocolsCheck/google_compute_region_backend_service.tf", new ClearTextProtocolsCheck());
   }
+
+  @Test
+  void shouldRaiseOnUnencryptedUrlsInActionConfig() {
+    TerraformVerifier.verify("ClearTextProtocolsCheck/action.tf", new ClearTextProtocolsCheck());
+  }
 }

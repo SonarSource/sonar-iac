@@ -17,6 +17,7 @@
 package org.sonar.iac.terraform.symbols;
 
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -24,6 +25,7 @@ import org.sonar.iac.terraform.api.tree.BlockTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.iac.terraform.checks.utils.ExpressionPredicate.equalTo;
 
 class ResourceSymbolTest extends AbstractSymbolTest {
 
@@ -95,6 +97,73 @@ class ResourceSymbolTest extends AbstractSymbolTest {
       }
       """));
     assertThat(data.block("store").isSensitiveStore()).isFalse();
+  }
+
+  @Test
+  void shouldExposeLifecycleActionTriggersWithBareIdentifierValues() {
+    ResourceSymbol resource = ResourceSymbol.fromPresent(ctx, parseBlock("""
+      resource "aws_db_instance" "main" {
+        lifecycle {
+          action_trigger {
+            events     = [after_create, after_update]
+            actions    = [action.aws_lambda_invoke.rotate]
+            on_failure = halt
+          }
+          action_trigger {
+            events    = [before_destroy]
+            actions   = [action.aws_lambda_invoke.cleanup]
+            condition = var.cleanup_enabled
+          }
+        }
+      }
+      """));
+
+    List<BlockSymbol> triggers = resource.actionTriggers().toList();
+
+    assertThat(triggers).hasSize(2);
+    BlockSymbol trigger = triggers.get(0);
+    assertThat(trigger.attribute("on_failure").is(equalTo("halt"))).isTrue();
+    assertThat(trigger.list("events").getItemIf(equalTo("after_update"))).hasSize(1);
+    assertThat(trigger.list("actions").isPresent()).isTrue();
+    assertThat(triggers.get(1).attribute("on_failure").isAbsent()).isTrue();
+    assertThat(triggers.get(1).attribute("condition").isPresent()).isTrue();
+  }
+
+  @Test
+  void shouldExposeNoActionTriggersOutsideManagedResourceLifecycle() {
+    assertThat(ResourceSymbol.fromPresent(ctx, parseBlock("resource \"aws_db_instance\" \"main\" {}")).actionTriggers()).isEmpty();
+    assertThat(ResourceSymbol.fromPresent(ctx, parseBlock("""
+      resource "aws_db_instance" "main" {
+        action_trigger {
+          events = [after_create]
+        }
+      }
+      """)).actionTriggers()).isEmpty();
+    assertThat(ResourceSymbol.fromPresent(ctx, parseBlock("""
+      ephemeral "aws_db_instance" "main" {
+        lifecycle {
+          action_trigger {
+            events = [after_create]
+          }
+        }
+      }
+      """)).actionTriggers()).isEmpty();
+  }
+
+  @Test
+  void actionBlocksDoNotHavePersistedResourceSemantics() {
+    ResourceSymbol action = ResourceSymbol.fromPresent(ctx, parseBlock("""
+      action "aws_lambda_invoke" "rotate" {
+        config {
+          function_name = "rotate"
+        }
+      }
+      """));
+    assertThat(action.type).isEqualTo("aws_lambda_invoke");
+    assertThat(action.name).isEqualTo("rotate");
+    assertThat(action.isResourceDeclaration()).isFalse();
+    assertThat(action.writeOnlyCounterpart("password")).isEmpty();
+    assertThat(action.block("config").attribute("function_name").isPresent()).isTrue();
   }
 
   @ParameterizedTest

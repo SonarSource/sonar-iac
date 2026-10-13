@@ -41,7 +41,7 @@ public abstract class AbstractResourceCheck implements IacCheck {
   @Override
   public void initialize(InitContext init) {
     init.register(BlockTree.class, (ctx, tree) -> {
-      if (isResourceOrEphemeral(tree)) {
+      if (isResourceLike(tree)) {
         checkResource(ctx, tree);
       }
     });
@@ -60,9 +60,13 @@ public abstract class AbstractResourceCheck implements IacCheck {
     Arrays.asList(resourceNames).forEach(resourceName -> resourceChecks.computeIfAbsent(resourceName, i -> new ArrayList<>()).add(resourceCheck));
   }
 
+  /**
+   * Type-specific checks only receive resource and ephemeral declarations: action arguments are nested in a config block,
+   * so checks written against a resource type would misread an action whose type has the same name.
+   */
   protected void checkResource(CheckContext ctx, BlockTree resource) {
     String resourceType = getResourceType(resource);
-    if (resourceChecks.containsKey(resourceType)) {
+    if (!isAction(resource) && resourceChecks.containsKey(resourceType)) {
       resourceChecks.get(resourceType).forEach(consumer -> consumer.accept(ctx, resource));
     }
     allResourcesChecks.forEach(consumer -> consumer.accept(ctx, resource));
@@ -75,6 +79,19 @@ public abstract class AbstractResourceCheck implements IacCheck {
   /** Resource consumers also receive ephemeral declarations of the same type, although their provider arguments may differ. */
   public static boolean isResourceOrEphemeral(BlockTree tree) {
     return TextUtils.matchesValue(tree.key(), key -> "resource".equals(key) || "ephemeral".equals(key)).isTrue();
+  }
+
+  /**
+   * Resource-shaped declarations sharing the type and name labels of resources. Only top-level action blocks qualify,
+   * as several resources nest a block named {@code action}.
+   */
+  public static boolean isResourceLike(BlockTree tree) {
+    return isResourceOrEphemeral(tree) || isAction(tree);
+  }
+
+  /** Matches a top-level action declaration, an imperative provider operation that resources invoke through lifecycle action triggers. */
+  public static boolean isAction(BlockTree tree) {
+    return tree.isTopLevel() && TextUtils.matchesValue(tree.key(), "action"::equals).isTrue();
   }
 
   public static boolean isResource(BlockTree tree, String type) {

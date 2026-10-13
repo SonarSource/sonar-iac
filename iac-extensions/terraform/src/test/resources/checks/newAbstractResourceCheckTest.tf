@@ -12,6 +12,15 @@ ephemeral "missing_attribute" "noncompliant" { // Noncompliant {{attribute is mi
 //        ^^^^^^^^^^^^^^^^^^^
 }
 
+// Type-specific consumers do not receive action declarations, whose arguments are nested in a config block
+action "missing_attribute" "compliant" {
+}
+
+resource "not_relevant_resource" "nested_action" {
+  action "missing_attribute" "nested" {
+  }
+}
+
 // Check reportIfAbsent on BlockSymbol
 
 resource "missing_block" "noncompliant" { // Noncompliant {{block is missing}}
@@ -41,4 +50,7 @@ resource { // Noncompliant {{missing resource type}}
 }
 
 ephemeral { // Noncompliant {{missing resource type}}
+}
+
+action {
 }

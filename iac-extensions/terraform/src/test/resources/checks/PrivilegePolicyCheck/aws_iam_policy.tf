@@ -155,3 +155,31 @@ resource "aws_iam_role" "compliant_policy4" {
     })
   }
 }
+
+action "aws_example_put_policy" "non_compliant_action" {
+  config {
+    policy = jsonencode({
+      Statement = [
+        {
+          Action = "*" # Noncompliant {{Make sure granting all privileges is safe here.}}
+#                  ^^^
+          Effect = "Allow"
+#                  ^^^^^^^< {{Related effect}}
+        }
+      ]
+    })
+  }
+}
+
+action "aws_example_put_policy" "compliant_action" {
+  config {
+    policy = jsonencode({
+      Statement = [
+        {
+          Action = "s3:GetObject" # Compliant
+          Effect = "Allow"
+        }
+      ]
+    })
+  }
+}

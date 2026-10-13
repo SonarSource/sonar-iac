@@ -24,6 +24,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.terraform.api.tree.BlockTree;
+import org.sonar.iac.terraform.api.tree.FileTree;
+import org.sonar.iac.terraform.parser.HclParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -33,6 +35,8 @@ import static org.sonar.iac.terraform.TestTreeBuilders.LabelBuilder.label;
 
 class AbstractResourceCheckTest {
 
+  private final HclParser parser = new HclParser();
+
   @ParameterizedTest
   @CsvSource({
     "resource, true",
@@ -41,7 +45,8 @@ class AbstractResourceCheckTest {
     "data, false",
     "import, false",
     "moved, false",
-    "removed, false"
+    "removed, false",
+    "action, false"
   })
   void testIsResource(String type, boolean isResource) {
     BlockTree blockTree = block()
@@ -55,10 +60,42 @@ class AbstractResourceCheckTest {
     "resource, true",
     "ephemeral, true",
     "data, false",
-    "import, false"
+    "import, false",
+    "action_trigger, false"
   })
-  void testIsResourceOrEphemeral(String type, boolean expected) {
+  void testIsResourceLike(String type, boolean expected) {
+    assertThat(AbstractResourceCheck.isResourceLike(block().key(type).build())).isEqualTo(expected);
     assertThat(AbstractResourceCheck.isResourceOrEphemeral(block().key(type).build())).isEqualTo(expected);
+  }
+
+  @Test
+  void shouldTreatOnlyTopLevelActionBlocksAsResourceLike() {
+    BlockTree action = parseBlock("action \"aws_lambda_invoke\" \"rotate\" {}");
+    assertThat(AbstractResourceCheck.isAction(action)).isTrue();
+    assertThat(AbstractResourceCheck.isResourceLike(action)).isTrue();
+    assertThat(AbstractResourceCheck.isResourceOrEphemeral(action)).isFalse();
+    assertThat(AbstractResourceCheck.isResource(action)).isFalse();
+
+    BlockTree nestedAction = (BlockTree) parseBlock("""
+      resource "aws_wafv2_web_acl" "acl" {
+        action {}
+      }
+      """).properties().get(0);
+    assertThat(AbstractResourceCheck.isAction(nestedAction)).isFalse();
+    assertThat(AbstractResourceCheck.isResourceLike(nestedAction)).isFalse();
+    assertThat(AbstractResourceCheck.isAction(block().key("action").build())).isFalse();
+  }
+
+  @Test
+  void actionHasResourceLabels() {
+    BlockTree action = parseBlock("action \"aws_lambda_invoke\" \"rotate\" {}");
+    assertThat(AbstractResourceCheck.getResourceType(action)).isEqualTo("aws_lambda_invoke");
+    assertThat(AbstractResourceCheck.hasReferenceLabel(action)).isTrue();
+    assertThat(AbstractResourceCheck.getReferenceLabel(action)).isEqualTo("rotate");
+
+    BlockTree unlabeledAction = parseBlock("action {}");
+    assertThat(AbstractResourceCheck.getResourceType(unlabeledAction)).isNull();
+    assertThat(AbstractResourceCheck.hasReferenceLabel(unlabeledAction)).isFalse();
   }
 
   @ParameterizedTest
@@ -94,7 +131,10 @@ class AbstractResourceCheckTest {
   void checkResource() {
     TestAbstractResourceCheck check = new TestAbstractResourceCheck();
     TerraformVerifier.verifyNoIssue("AbstractResourceCheck/test.tf", check);
-    assertThat(check.visitedBlocks).hasSize(3);
+    assertThat(check.visitedBlocks).hasSize(6);
+    assertThat(check.visitedS3Buckets)
+      .singleElement()
+      .satisfies(bucket -> assertThat(AbstractResourceCheck.isResource(bucket)).isTrue());
   }
 
   @Test
@@ -133,13 +173,19 @@ class AbstractResourceCheckTest {
     assertThat(AbstractResourceCheck.hasReferenceLabel(blockTree)).isFalse();
   }
 
+  private BlockTree parseBlock(String source) {
+    return (BlockTree) ((FileTree) parser.parse(source)).properties().get(0);
+  }
+
   static class TestAbstractResourceCheck extends AbstractResourceCheck {
 
     public final Set<BlockTree> visitedBlocks = new HashSet<>();
+    public final Set<BlockTree> visitedS3Buckets = new HashSet<>();
 
     @Override
     protected void registerResourceChecks() {
       register((ctx, resource) -> visitedBlocks.add(resource));
+      register((ctx, resource) -> visitedS3Buckets.add(resource), S3_BUCKET);
     }
   }
 }

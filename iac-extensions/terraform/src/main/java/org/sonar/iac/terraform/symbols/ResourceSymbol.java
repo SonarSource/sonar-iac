@@ -19,6 +19,7 @@ package org.sonar.iac.terraform.symbols;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.checks.CheckContext;
 import org.sonar.iac.common.api.checks.SecondaryLocation;
@@ -63,6 +64,15 @@ public class ResourceSymbol extends BlockSymbol {
 
   boolean isResourceDeclaration() {
     return tree != null && isResource(tree);
+  }
+
+  /**
+   * Action triggers declared in the lifecycle block, which Terraform only accepts on managed resources.
+   * Their {@code events} items and {@code on_failure} value are bare identifiers, such as {@code after_create} or {@code halt},
+   * which value predicates match like string literals.
+   */
+  public Stream<BlockSymbol> actionTriggers() {
+    return isResourceDeclaration() ? block("lifecycle").blocks("action_trigger") : Stream.empty();
   }
 
   /** Returns a provider-supported or locally observed write-only counterpart for this resource type. */

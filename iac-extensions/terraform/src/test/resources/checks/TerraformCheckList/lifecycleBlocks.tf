@@ -37,3 +37,27 @@ check "health_check" {
     error_message = "The health endpoint must return 200."
   }
 }
+
+action "aws_lambda_invoke" "rotate" {
+  config {
+    function_name = var.rotation_function_name
+    payload       = jsonencode({ endpoint = "https://internal.example.com/hook" })
+  }
+}
+
+action "aws_lambda_invoke" {
+}
+
+action {
+}
+
+resource "terraform_data" "rotation_trigger" {
+  lifecycle {
+    action_trigger {
+      events     = [after_create, after_update]
+      actions    = [action.aws_lambda_invoke.rotate]
+      on_failure = halt
+      condition  = var.rotation_enabled
+    }
+  }
+}

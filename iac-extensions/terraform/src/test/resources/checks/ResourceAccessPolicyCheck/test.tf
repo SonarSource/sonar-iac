@@ -311,3 +311,34 @@ resource "aws_iam_policy" "compliant_heredoc_specific_resource" {
 }
 POLICY
 }
+
+action "aws_example_put_policy" "non_compliant_action" {
+  config {
+    policy = jsonencode({
+      Statement = [
+        {
+          Resource = "*" # Noncompliant {{Make sure granting access to all resources is safe here.}}
+#                    ^^^
+          Effect = "Allow"
+#                  ^^^^^^^< {{Related effect}}
+          Action = "iam:CreatePolicyVersion"
+#                  ^^^^^^^^^^^^^^^^^^^^^^^^^< {{Related action}}
+        }
+      ]
+    })
+  }
+}
+
+action "aws_example_put_policy" "compliant_action" {
+  config {
+    policy = jsonencode({
+      Statement = [
+        {
+          Resource = "arn:aws:iam::123456789012:policy/MyPolicy" # Compliant
+          Effect   = "Allow"
+          Action   = "iam:CreatePolicyVersion"
+        }
+      ]
+    })
+  }
+}

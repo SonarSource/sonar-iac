@@ -205,6 +205,65 @@ class TerraformSensorTest extends ExtensionSensorTest {
   }
 
   @Test
+  void shouldNotRaiseParsingErrorOnActionBlocksOfAnyShape() {
+    InputFile actionsFile = inputFile("actions.tf", """
+      action "aws_lambda_invoke" "full" {
+        provider = aws.secondary
+        count    = 2
+        config {
+          function_name = "rotate"
+          payload       = jsonencode({ key = "value" })
+          nested {
+            setting = <<EOT
+            multi-line
+            EOT
+          }
+        }
+      }
+
+      action "aws_lambda_invoke" "per_key" {
+        for_each = toset(["a", "b"])
+        config {
+          function_name = each.key
+        }
+      }
+
+      action "aws_lambda_invoke" "no_config" {}
+      action "aws_lambda_invoke" {}
+      action {}
+
+      resource "terraform_data" "triggers" {
+        lifecycle {
+          action_trigger {
+            events     = [before_create, after_create, before_update, after_update, before_destroy, after_destroy]
+            actions    = [action.aws_lambda_invoke.full[0], action.aws_lambda_invoke.per_key["a"], action.aws_lambda_invoke.no_config]
+            on_failure = halt
+            condition  = var.enabled && length(var.items) > 0
+          }
+          action_trigger {
+            events     = [after_create]
+            actions    = [action.aws_lambda_invoke.no_config]
+            on_failure = taint
+          }
+          action_trigger {
+            events     = [after_update]
+            actions    = [action.aws_lambda_invoke.no_config]
+            on_failure = continue
+          }
+          action_trigger {}
+        }
+      }
+      """);
+
+    analyze(sensor(PARSING_ERROR_RULE_KEY), actionsFile);
+
+    assertThat(context.allIssues()).isEmpty();
+    assertThat(context.getTelemetryProperties())
+      .containsEntry("iac.terraform.files.count", "1")
+      .containsEntry("iac.terraform.files.parsed", "1");
+  }
+
+  @Test
   void shouldReportFilesCountAndParsedWhenSomeFilesFail() {
     analyze(sensor(), validFile(), fileWithParsingError());
 

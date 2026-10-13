@@ -442,3 +442,26 @@ ephemeral "aws_s3_bucket_policy" "temporary" {
     }]
   })
 }
+
+# Action declarations are analyzed through the resource path, including policies nested in their config block.
+action "aws_example_put_policy" "public" {
+  config {
+    policy = jsonencode({
+      Statement = [{
+        Effect    = "Allow"
+        Principal = "*" # Noncompliant {{Make sure granting public access is safe here.}}
+      }]
+    })
+  }
+}
+
+action "aws_example_put_policy" "restricted" {
+  config {
+    policy = jsonencode({
+      Statement = [{
+        Effect    = "Allow"
+        Principal = { "AWS" = "arn:aws:iam::123456789012:root" }
+      }]
+    })
+  }
+}
