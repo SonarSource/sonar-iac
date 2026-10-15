@@ -42,6 +42,10 @@ public class SourceCodeFinder {
     this.cachedSourceLines = null;
   }
 
+  public String source() {
+    return source;
+  }
+
   public String findSourceCode(HasTextRange node) {
     return findSourceCode(node.textRange().start(), node.textRange().end());
   }
