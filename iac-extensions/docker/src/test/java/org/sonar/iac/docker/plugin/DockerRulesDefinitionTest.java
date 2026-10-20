@@ -17,13 +17,25 @@
 package org.sonar.iac.docker.plugin;
 
 import java.util.List;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.Version;
 import org.sonar.iac.common.extension.IacRulesDefinition;
 import org.sonar.iac.common.testing.AbstractRulesDefinitionTest;
 import org.sonar.iac.docker.checks.DockerCheckList;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class DockerRulesDefinitionTest extends AbstractRulesDefinitionTest {
+
+  @Test
+  void shouldNotRegisterShellDeprecatedKeyForSharedTodoCheck() {
+    var repository = createRuleRepository();
+
+    var rule = repository.rule("S1135");
+    assertThat(rule).isNotNull();
+    assertThat(rule.deprecatedRuleKeys()).isEmpty();
+  }
 
   @Override
   protected Version sonarVersion() {

@@ -20,11 +20,13 @@ import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.iac.common.api.checks.IacCheck;
 import org.sonar.iac.common.api.checks.InitContext;
+import org.sonar.iac.common.api.checks.ShellDeprecatedRuleKey;
 import org.sonar.iac.common.api.tree.Comment;
 import org.sonar.iac.common.api.tree.HasComments;
 import org.sonar.iac.common.api.tree.Tree;
 
 @Rule(key = "S1135")
+@ShellDeprecatedRuleKey(repository = "shelldre", key = "S1135")
 public class ToDoCommentCheck implements IacCheck {
 
   private static final String MESSAGE = "Complete the task associated to this \"TODO\" comment.";
