@@ -16,11 +16,13 @@
  */
 package org.sonar.iac.common.filesystem;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
+import org.sonar.iac.common.filesystem.FileSystemUtils.ReferencedFile;
+
+import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 
 public final class TestFileSystemUtils {
 
@@ -29,9 +31,9 @@ public final class TestFileSystemUtils {
 
   /**
    * Resolves relative to the analyzed file's own directory, for test harnesses with a real path and no {@code SensorContext}.
-   * Production code should use {@link FileSystemUtils#readReferencedFile}.
+   * Production code should use {@link FileSystemUtils#resolveReferencedFile}.
    */
-  public static Optional<String> readReferencedFileRelativeTo(@Nullable Path analyzedFile, String referencedPath) {
+  public static Optional<ReferencedFile> resolveReferencedFileRelativeTo(@Nullable Path analyzedFile, String referencedPath) {
     if (analyzedFile == null || !FileSystemUtils.isLocalReference(referencedPath)) {
       return Optional.empty();
     }
@@ -44,10 +46,16 @@ public final class TestFileSystemUtils {
     if (!normalized.startsWith(bound) || !Files.isRegularFile(normalized)) {
       return Optional.empty();
     }
-    try {
-      return Optional.of(Files.readString(normalized));
-    } catch (IOException e) {
-      return Optional.empty();
+    return Optional.of(new ReferencedFile(normalized, inputFile(normalized)));
+  }
+
+  public static final class ReferencedFileTestCache {
+
+    private final ReferencedFileCache cache = new ReferencedFileCache();
+
+    public <R> Optional<R> readReferencedFileRelativeTo(@Nullable Path analyzedFile, String referencedPath, ParsedFileType<R> type) {
+      return resolveReferencedFileRelativeTo(analyzedFile, referencedPath)
+        .flatMap(file -> cache.parse(file, type));
     }
   }
 }

@@ -27,11 +27,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.languages.IacLanguage;
 
@@ -45,12 +48,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.filesystem.FileSystemUtils.canonical;
 import static org.sonar.iac.common.filesystem.FileSystemUtils.directoryOf;
-import static org.sonar.iac.common.filesystem.FileSystemUtils.readReferencedFile;
+import static org.sonar.iac.common.filesystem.FileSystemUtils.resolveReferencedFile;
 import static org.sonar.iac.common.filesystem.FileSystemUtils.retrieveHelmProjectFolder;
 import static org.sonar.iac.common.testing.IacTestUtils.SONARLINT_RUNTIME_9_9;
 import static org.sonar.iac.common.testing.IacTestUtils.inputFile;
 
 class FileSystemUtilsTest {
+
+  @RegisterExtension
+  public final LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @TempDir
   protected File tmpDir;
@@ -95,7 +101,8 @@ class FileSystemUtilsTest {
       when(Files.exists(any())).thenReturn(false);
 
       var inputFilePath = mock(Path.class);
-      when(inputFilePath.getParent()).thenReturn(mock(Path.class));
+      var parent = mock(Path.class);
+      when(inputFilePath.getParent()).thenReturn(parent);
       var canonicalFile = mock(File.class);
       when(inputFilePath.toFile()).thenReturn(canonicalFile);
       when(canonicalFile.getCanonicalFile()).thenReturn(canonicalFile);
@@ -125,19 +132,19 @@ class FileSystemUtilsTest {
     var inputFilePath = baseDir.resolve("test.yaml");
 
     // Layer 1: Mock File that throws IOException on getCanonicalFile()
-    var mockFileFromToFile = Mockito.mock(java.io.File.class);
+    var mockFileFromToFile = mock(File.class);
     when(mockFileFromToFile.getCanonicalFile()).thenThrow(new IOException("Test IOException in canonical path resolution"));
 
     // Layer 2: Mock Path that returns the mock File from Layer 1 on toFile()
-    var mockPathFromBaseDir = Mockito.spy(baseDir.resolve(""));
+    var mockPathFromBaseDir = spy(baseDir.resolve(""));
     when(mockPathFromBaseDir.toFile()).thenReturn(mockFileFromToFile);
 
     // Layer 3: Mock File that returns the mock Path from Layer 2 on toPath()
-    var mockBaseDirFile = Mockito.mock(java.io.File.class);
+    var mockBaseDirFile = mock(File.class);
     when(mockBaseDirFile.toPath()).thenReturn(mockPathFromBaseDir);
 
     // Layer 4: Mock FileSystem that returns the mock File from Layer 3 on baseDir()
-    var mockFileSystem = Mockito.mock(org.sonar.api.batch.fs.FileSystem.class);
+    var mockFileSystem = mock(FileSystem.class);
     when(mockFileSystem.baseDir()).thenReturn(mockBaseDirFile);
 
     var result = FileSystemUtils.retrieveHelmProjectFolder(
@@ -195,36 +202,51 @@ class FileSystemUtilsTest {
   }
 
   @Test
-  void shouldReadReferencedFileRelativeToAnalyzedFileDirectory() {
-    indexFile("app/requirements.txt", "flask==3.1.0 --hash=sha256:abc");
+  void shouldResolveReferencedFileRelativeToAnalyzedFileDirectoryWithoutReadingContents() throws IOException {
+    var indexed = spy(inputFile("app/requirements.txt", baseDir, "flask==3.1.0 --hash=sha256:abc", null));
+    context.fileSystem().add(indexed);
     var analyzedFile = inputFile("app/Dockerfile", baseDir, "FROM python", null);
 
-    assertThat(readReferencedFile(context, directoryOf(analyzedFile), "requirements.txt"))
-      .hasValue("flask==3.1.0 --hash=sha256:abc");
+    assertThat(resolveReferencedFile(context, directoryOf(analyzedFile), "requirements.txt"))
+      .contains(new FileSystemUtils.ReferencedFile(baseDir.resolve("app/requirements.txt"), indexed));
+    verify(indexed, never()).contents();
   }
 
   @Test
-  void shouldReadReferencedFileRelativeToProjectRoot() {
+  void shouldResolveReferencedFileRelativeToProjectRoot() {
     indexFile("requirements.txt", "flask==3.1.0 --hash=sha256:abc");
 
-    assertThat(readReferencedFile(context, baseDir, ".github/../requirements.txt"))
-      .hasValue("flask==3.1.0 --hash=sha256:abc");
+    assertThat(resolveReferencedFile(context, baseDir, ".github/../requirements.txt"))
+      .hasValueSatisfying(file -> {
+        assertThat(file.canonicalPath()).isEqualTo(baseDir.resolve("requirements.txt"));
+        assertThat(file.contents()).hasValue("flask==3.1.0 --hash=sha256:abc");
+      });
   }
 
   /**
    * The scanner indexes files under the base directory it was pointed at, without resolving symlinks, so a lookup by the
    * canonical path finds nothing whenever the project root is reached through one: macOS temporary directories under
    * {@code /var}, a symlinked CI workspace, or (with the short and long form swapped) a Windows 8.3 base directory.
+   * Assert indexed-file identity rather than the canonical path, since Windows does not reliably dereference symlinks.
    */
   @Test
-  void shouldReadReferencedFileWhenProjectRootIsReachedThroughSymlink() {
+  void shouldResolveReferencedFileWhenProjectRootIsReachedThroughSymlink() {
     var symlinkedBaseDir = symlink(baseDir.getParent().resolve("symlinked-project"), baseDir);
     var symlinkedContext = SensorContextTester.create(symlinkedBaseDir);
-    symlinkedContext.fileSystem().add(inputFile("app/requirements.txt", symlinkedBaseDir, "flask==3.1.0 --hash=sha256:abc", null));
+    var indexed = inputFile("app/requirements.txt", symlinkedBaseDir, "flask==3.1.0 --hash=sha256:abc", null);
+    symlinkedContext.fileSystem().add(indexed);
     var analyzedFile = inputFile("app/Dockerfile", symlinkedBaseDir, "FROM python", null);
 
-    assertThat(readReferencedFile(symlinkedContext, directoryOf(analyzedFile), "requirements.txt"))
-      .hasValue("flask==3.1.0 --hash=sha256:abc");
+    assertThat(resolveReferencedFile(symlinkedContext, directoryOf(analyzedFile), "requirements.txt"))
+      .hasValueSatisfying(file -> {
+        assertThat(file.inputFile()).isSameAs(indexed);
+        assertThat(file.contents()).hasValue("flask==3.1.0 --hash=sha256:abc");
+      });
+    assertThat(resolveReferencedFile(symlinkedContext, symlinkedBaseDir, ".github/../app/requirements.txt"))
+      .hasValueSatisfying(file -> {
+        assertThat(file.inputFile()).isSameAs(indexed);
+        assertThat(file.contents()).hasValue("flask==3.1.0 --hash=sha256:abc");
+      });
   }
 
   /**
@@ -233,23 +255,26 @@ class FileSystemUtilsTest {
    */
   @Test
   @DisabledOnOs(value = OS.WINDOWS, disabledReason = "getCanonicalFile() does not dereference symlinks/junctions on Windows, a known and accepted gap")
-  void shouldReadReferencedFileIndexedUnderItsRealPathWhenReferencedThroughSymlink() {
+  void shouldResolveReferencedFileIndexedUnderItsRealPathWhenReferencedThroughSymlink() {
     indexFile("app/requirements.txt", "flask==3.1.0 --hash=sha256:abc");
     var symlinkedBaseDir = symlink(baseDir.getParent().resolve("symlinked-project"), baseDir);
     var analyzedFile = inputFile("app/Dockerfile", symlinkedBaseDir, "FROM python", null);
 
-    assertThat(readReferencedFile(context, directoryOf(analyzedFile), "requirements.txt"))
-      .hasValue("flask==3.1.0 --hash=sha256:abc");
+    assertThat(resolveReferencedFile(context, directoryOf(analyzedFile), "requirements.txt"))
+      .hasValueSatisfying(file -> {
+        assertThat(file.canonicalPath()).isEqualTo(baseDir.resolve("app/requirements.txt"));
+        assertThat(file.contents()).hasValue("flask==3.1.0 --hash=sha256:abc");
+      });
   }
 
   @Test
-  void shouldNotReadReferencedFileLeavingWorkingDirectoryThroughSymlink() {
+  void shouldNotResolveReferencedFileLeavingWorkingDirectoryThroughSymlink() {
     context.fileSystem().add(inputFile("secret.txt", baseDir.getParent(), "flask==3.1.0 --hash=sha256:abc", null));
     // The link sits inside the working directory but points outside of it
     symlink(baseDir.resolve("outside"), baseDir.getParent());
     var analyzedFile = inputFile("Dockerfile", baseDir, "FROM python", null);
 
-    assertThat(readReferencedFile(context, directoryOf(analyzedFile), "outside/secret.txt")).isEmpty();
+    assertThat(resolveReferencedFile(context, directoryOf(analyzedFile), "outside/secret.txt")).isEmpty();
   }
 
   private static Path symlink(Path link, Path target) {
@@ -261,7 +286,7 @@ class FileSystemUtilsTest {
   }
 
   @Test
-  void shouldNotReadReferencedFileInSonarLintContext() {
+  void shouldNotResolveReferencedFileInSonarLintContext() {
     indexFile("app/requirements.txt", "flask==3.1.0 --hash=sha256:abc");
     var analyzedFile = inputFile("app/Dockerfile", baseDir, "FROM python", null);
     var sensorContext = mock(SensorContext.class);
@@ -269,34 +294,34 @@ class FileSystemUtilsTest {
     when(sensorContext.runtime()).thenReturn(SONARLINT_RUNTIME_9_9);
     when(sensorContext.fileSystem()).thenReturn(fileSystem);
     // SonarLint does not reliably index the whole project for a single-file analysis; simulate that querying it blows up,
-    // and assert readReferencedFile never reaches that call in this context.
+    // and assert resolveReferencedFile never reaches that call in this context.
     when(fileSystem.inputFile(any())).thenThrow(new IllegalStateException("must not be called in SonarLint context"));
 
-    assertThat(readReferencedFile(sensorContext, directoryOf(analyzedFile), "requirements.txt")).isEmpty();
+    assertThat(resolveReferencedFile(sensorContext, directoryOf(analyzedFile), "requirements.txt")).isEmpty();
   }
 
   @Test
-  void shouldNotReadSameNamedFileFromSiblingDirectory() {
+  void shouldNotResolveSameNamedFileFromSiblingDirectory() {
     indexFile("services/b/requirements.txt", "flask==3.1.0 --hash=sha256:abc");
     var analyzedFile = inputFile("services/a/Dockerfile", baseDir, "FROM python", null);
 
-    assertThat(readReferencedFile(context, directoryOf(analyzedFile), "requirements.txt")).isEmpty();
+    assertThat(resolveReferencedFile(context, directoryOf(analyzedFile), "requirements.txt")).isEmpty();
   }
 
   @Test
   void shouldReturnEmptyWhenReferencedFileIsNotFound() {
     var analyzedFile = inputFile("app/Dockerfile", baseDir, "FROM python", null);
 
-    assertThat(readReferencedFile(context, directoryOf(analyzedFile), "requirements.txt")).isEmpty();
+    assertThat(resolveReferencedFile(context, directoryOf(analyzedFile), "requirements.txt")).isEmpty();
   }
 
   @Test
-  void shouldNotReadReferencedFileOutsideWorkingDirectory() throws IOException {
+  void shouldNotResolveReferencedFileOutsideWorkingDirectory() throws IOException {
     var secretFile = inputFile("secret.txt", tmpDir.toPath().toRealPath(), "flask==3.1.0 --hash=sha256:abc", null);
     context.fileSystem().add(secretFile);
     var analyzedFile = inputFile("app/Dockerfile", baseDir, "FROM python", null);
 
-    assertThat(readReferencedFile(context, directoryOf(analyzedFile), "../../secret.txt")).isEmpty();
+    assertThat(resolveReferencedFile(context, directoryOf(analyzedFile), "../../secret.txt")).isEmpty();
   }
 
   @Test
@@ -304,10 +329,10 @@ class FileSystemUtilsTest {
     var analyzedFile = inputFile("app/Dockerfile", baseDir, "FROM python", null);
     var analyzedDir = directoryOf(analyzedFile);
 
-    assertThat(readReferencedFile(context, analyzedDir, "/etc/passwd")).isEmpty();
-    assertThat(readReferencedFile(context, analyzedDir, "https://example.com/requirements.txt")).isEmpty();
-    assertThat(readReferencedFile(context, analyzedDir, "$REQUIREMENTS")).isEmpty();
-    assertThat(readReferencedFile(context, analyzedDir, "~/requirements.txt")).isEmpty();
+    assertThat(resolveReferencedFile(context, analyzedDir, "/etc/passwd")).isEmpty();
+    assertThat(resolveReferencedFile(context, analyzedDir, "https://example.com/requirements.txt")).isEmpty();
+    assertThat(resolveReferencedFile(context, analyzedDir, "$REQUIREMENTS")).isEmpty();
+    assertThat(resolveReferencedFile(context, analyzedDir, "~/requirements.txt")).isEmpty();
   }
 
   @Test
@@ -315,33 +340,42 @@ class FileSystemUtilsTest {
     var analyzedFile = inputFile("app/Dockerfile", baseDir, "FROM python", null);
 
     // A NUL byte makes the path unparsable on any file system.
-    assertThat(readReferencedFile(context, directoryOf(analyzedFile), "requirements\0.txt")).isEmpty();
+    assertThat(resolveReferencedFile(context, directoryOf(analyzedFile), "requirements\0.txt")).isEmpty();
   }
 
   @Test
-  void shouldReturnEmptyWhenReferencedFileCannotBeRead() throws IOException {
+  void shouldReturnEmptyContentsWhenResolvedFileCannotBeRead() throws IOException {
     var analyzedFile = inputFile("app/Dockerfile", baseDir, "FROM python", null);
     var unreadableFile = spy(inputFile("app/requirements.txt", baseDir, "flask==3.1.0 --hash=sha256:abc", null));
     when(unreadableFile.contents()).thenThrow(new IOException("unreadable"));
     context.fileSystem().add(unreadableFile);
 
-    assertThat(readReferencedFile(context, directoryOf(analyzedFile), "requirements.txt")).isEmpty();
+    assertThat(resolveReferencedFile(context, directoryOf(analyzedFile), "requirements.txt"))
+      .hasValueSatisfying(file -> {
+        assertThat(file.inputFile()).isSameAs(unreadableFile);
+        assertThat(file.contents()).isEmpty();
+      });
+    assertThat(logTester.logs(Level.DEBUG))
+      .containsExactly("Could not read referenced file " + baseDir.resolve("app/requirements.txt"));
   }
 
   @Test
-  void shouldReadReferencedFileWhenWorkingDirectoryHasNoCanonicalForm() {
+  void shouldResolveReferencedFileWhenWorkingDirectoryHasNoCanonicalForm() {
     indexFile("app/requirements.txt", "flask==3.1.0 --hash=sha256:abc");
     var workingDirectory = spy(baseDir.resolve("app"));
     // toFile() rejects paths outside the default file system
     when(workingDirectory.toFile()).thenThrow(new UnsupportedOperationException("not a default file system path"));
 
-    assertThat(readReferencedFile(context, workingDirectory, "requirements.txt"))
-      .hasValue("flask==3.1.0 --hash=sha256:abc");
+    assertThat(resolveReferencedFile(context, workingDirectory, "requirements.txt"))
+      .hasValueSatisfying(file -> {
+        assertThat(file.canonicalPath()).isEqualTo(baseDir.resolve("app/requirements.txt"));
+        assertThat(file.contents()).hasValue("flask==3.1.0 --hash=sha256:abc");
+      });
   }
 
   @Test
   void shouldReturnEmptyWhenWorkingDirectoryIsUnknown() {
-    assertThat(readReferencedFile(context, null, "requirements.txt")).isEmpty();
+    assertThat(resolveReferencedFile(context, null, "requirements.txt")).isEmpty();
   }
 
   @Test

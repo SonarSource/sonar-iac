@@ -28,24 +28,44 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.iac.common.extension.SonarRuntimeUtils;
 
 public class FileSystemUtils {
+
+  private static final Logger LOG = LoggerFactory.getLogger(FileSystemUtils.class);
+
   private FileSystemUtils() {
   }
 
   /**
-   * Reads a file referenced relative to {@code workingDirectory}.
+   * Indexed referenced file.
+   * {@code canonicalPath} is its cache identity.
+   */
+  public record ReferencedFile(Path canonicalPath, InputFile inputFile) {
+    public Optional<String> contents() {
+      try {
+        return Optional.of(inputFile.contents());
+      } catch (IOException e) {
+        LOG.debug("Could not read referenced file {}", canonicalPath, e);
+        return Optional.empty();
+      }
+    }
+  }
+
+  /**
+   * Resolves a file referenced relative to {@code workingDirectory}, without reading its contents.
    * Returns empty when the reference is absent, escapes that directory, the directory is unknown, or the file is not part of the analysis-scoped {@code fileSystem} index.
    * Resolution is exact — a namesake elsewhere in the project is never substituted.
    * <p>
    * Skipped entirely in a SonarLint context, since a single-file analysis there does not reliably index the whole project.
    * Revisit once we expose referenced files there ourselves, e.g. via a {@code @SonarLintSide(MODULE)} component backed by SonarLint's {@code ModuleFileSystem}.
    */
-  public static Optional<String> readReferencedFile(SensorContext sensorContext, @Nullable Path workingDirectory, String referencedPath) {
+  public static Optional<ReferencedFile> resolveReferencedFile(SensorContext sensorContext, @Nullable Path workingDirectory, String referencedPath) {
     if (workingDirectory == null || SonarRuntimeUtils.isSonarLintContext(sensorContext.runtime()) || !isLocalReference(referencedPath)) {
       return Optional.empty();
     }
@@ -55,7 +75,7 @@ public class FileSystemUtils {
     if (!canonicalCandidate.startsWith(canonical(workingDirectory))) {
       return Optional.empty();
     }
-    return readIndexedFile(sensorContext.fileSystem(), candidate, canonicalCandidate);
+    return resolveIndexedFile(sensorContext.fileSystem(), candidate, canonicalCandidate);
   }
 
   /**
@@ -78,19 +98,12 @@ public class FileSystemUtils {
     }
   }
 
-  private static Optional<String> readIndexedFile(FileSystem fileSystem, Path candidate, Path canonicalCandidate) {
+  private static Optional<ReferencedFile> resolveIndexedFile(FileSystem fileSystem, Path candidate, Path canonicalCandidate) {
     var inputFile = indexedFile(fileSystem, candidate);
     if (inputFile == null && !canonicalCandidate.equals(candidate)) {
       inputFile = indexedFile(fileSystem, canonicalCandidate);
     }
-    if (inputFile == null) {
-      return Optional.empty();
-    }
-    try {
-      return Optional.of(inputFile.contents());
-    } catch (IOException e) {
-      return Optional.empty();
-    }
+    return inputFile == null ? Optional.empty() : Optional.of(new ReferencedFile(canonicalCandidate, inputFile));
   }
 
   @Nullable
