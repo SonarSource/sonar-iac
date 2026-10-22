@@ -6,8 +6,8 @@ sonarqube = "26.9.0.129388"
 sonar-plugin-api = "13.4.2.4284"
 sonar-commons = "2.32.0.5319"
 sonar-license-api = "3.4"
-sonar-orchestrator = "6.4.3.4676"
-sonar-scanner-integration-tester = "1.2.0.1354"
+sonar-orchestrator = "6.4.4.4797"
+sonar-scanner-integration-tester = "1.5.0.1412"
 junit = "6.1.3"
 junit-pioneer = "2.3.0"
 assertj = "3.27.7"
@@ -43,6 +43,7 @@ sonar-license-api = { module = "com.sonarsource.license:license-api", version.re
 sonar-plugin-api = { module = "org.sonarsource.api.plugin:sonar-plugin-api", version.ref = "sonar-plugin-api" }
 sonar-plugin-api-test-fixtures = { module = "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures", version.ref = "sonar-plugin-api" }
 sonar-ws = { module = "org.sonarsource.sonarqube:sonar-ws", version.ref = "sonarqube" }
+sonar-orchestrator-locators = { module = "org.sonarsource.orchestrator:sonar-orchestrator-locators", version.ref = "sonar-orchestrator" }
 sonar-orchestrator-junit5 = { module = "org.sonarsource.orchestrator:sonar-orchestrator-junit5", version.ref = "sonar-orchestrator" }
 sonar-scanner-integration-tester = { module = "com.sonarsource.scanner.integrationtester:sonar-scanner-integration-tester", version.ref = "sonar-scanner-integration-tester" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
