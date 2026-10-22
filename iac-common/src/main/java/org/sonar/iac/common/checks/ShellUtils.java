@@ -35,6 +35,15 @@ public final class ShellUtils {
     return SUPPORTED_SHELLS.contains(normalizedShell);
   }
 
+  /**
+   * Whether a single shell option token enables errexit, e.g. {@code -e}, {@code -eu} or {@code -eo}.
+   * Only matches short, dash-prefixed option combinations; it does not recognize the long form
+   * {@code --errexit} or the two-token {@code -o errexit} form.
+   */
+  public static boolean isErrexitOption(String token) {
+    return token.startsWith("-") && !token.startsWith("--") && token.contains("e");
+  }
+
   private static String getNormalizedShellCommand(String shell) {
     var normalizedShell = shell.toLowerCase(Locale.ROOT).trim();
     if (normalizedShell.contains(" ")) {

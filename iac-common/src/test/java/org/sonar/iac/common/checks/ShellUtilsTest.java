@@ -78,4 +78,16 @@ class ShellUtilsTest {
   void shouldNotDetectBashShell(String text) {
     assertThat(ShellUtils.isBashShell(text)).isFalse();
   }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"-e", "-eu", "-eo", "-euo", "-xe", "-ex"})
+  void shouldDetectErrexitOption(String text) {
+    assertThat(ShellUtils.isErrexitOption(text)).isTrue();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"-x", "-u", "-o", "--errexit", "errexit", "e", "pipefail", "{0}"})
+  void shouldNotDetectErrexitOption(String text) {
+    assertThat(ShellUtils.isErrexitOption(text)).isFalse();
+  }
 }
