@@ -147,12 +147,10 @@ public class RedundantResourceDependenciesCheck implements IacCheck {
   }
 
   private static Stream<Expression> getAllPropertyValues(Expression expression) {
-    if (expression instanceof ObjectExpression objectExpression) {
-      return objectExpression.allPropertiesFlattened().flatMap(prop -> getAllPropertyValues(prop.value()));
-    } else if (expression instanceof ArrayExpression arrayExpression) {
-      return arrayExpression.elements().stream().flatMap(RedundantResourceDependenciesCheck::getAllPropertyValues);
-    } else {
-      return Stream.of(expression);
-    }
+    return switch (expression) {
+      case ObjectExpression objectExpression -> objectExpression.allPropertiesFlattened().flatMap(prop -> getAllPropertyValues(prop.value()));
+      case ArrayExpression arrayExpression -> arrayExpression.elements().stream().flatMap(RedundantResourceDependenciesCheck::getAllPropertyValues);
+      default -> Stream.of(expression);
+    };
   }
 }

@@ -134,17 +134,15 @@ public final class ContextualResource extends ContextualMap<ContextualResource, 
   }
 
   private static Stream<ResourceDeclaration> getChildResources(ArmTree tree) {
-    if (tree instanceof File file) {
-      return Stream.concat(
+    return switch (tree) {
+      case File file -> Stream.concat(
         file.statements().stream().filter(ResourceDeclaration.class::isInstance).map(ResourceDeclaration.class::cast),
         file.statements().stream().flatMap(ContextualResource::getChildResources));
-    } else if (tree instanceof HasResources hasResources) {
-      return Stream.concat(
+      case HasResources hasResources -> Stream.concat(
         hasResources.childResources().stream(),
         hasResources.childResources().stream().flatMap(ContextualResource::getChildResources));
-    } else {
-      return Stream.empty();
-    }
+      default -> Stream.empty();
+    };
   }
 
   private boolean isExternalChildOfThis(ResourceDeclaration child) {

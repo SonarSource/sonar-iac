@@ -194,22 +194,23 @@ public class ArmJsonBaseConverter {
   }
 
   public Expression toExpression(@Nullable YamlTree tree) {
-    if (tree instanceof SequenceTree sequence) {
-      return toArrayExpression(sequence);
-    } else if (tree instanceof MappingTree mapping) {
-      return toObjectExpression(mapping);
-    } else if (tree instanceof ScalarTree scalar) {
-      if (isArmJsonExpression(scalar.value())) {
-        return toExpressionFromString(scalar);
+    return switch (tree) {
+      case SequenceTree sequence -> toArrayExpression(sequence);
+      case MappingTree mapping -> toObjectExpression(mapping);
+      case ScalarTree scalar -> {
+        if (isArmJsonExpression(scalar.value())) {
+          yield toExpressionFromString(scalar);
+        }
+        yield toLiteralExpression(scalar);
       }
-      return toLiteralExpression(scalar);
-    } else {
-      var className = Optional.ofNullable(tree).map(Object::getClass).map(Class::getSimpleName).orElse("null");
-      var textPointer = Optional.ofNullable(tree).map(YamlTree::metadata).map(YamlTreeMetadata::textRange).map(BasicTextPointer::new).orElse(null);
-      throw createParseException("Couldn't convert to Expression, unsupported class " + className,
-        inputFileContext,
-        textPointer);
-    }
+      case null, default -> {
+        var className = Optional.ofNullable(tree).map(Object::getClass).map(Class::getSimpleName).orElse("null");
+        var textPointer = Optional.ofNullable(tree).map(YamlTree::metadata).map(YamlTreeMetadata::textRange).map(BasicTextPointer::new).orElse(null);
+        throw createParseException("Couldn't convert to Expression, unsupported class " + className,
+          inputFileContext,
+          textPointer);
+      }
+    };
   }
 
   private static boolean isArmJsonExpression(String value) {
@@ -220,20 +221,16 @@ public class ArmJsonBaseConverter {
     var expression = (Expression) ARM_TEMPLATE_EXPRESSION_PARSER.parse(scalar);
 
     // Repack top-level nodes so that their text ranges cover the entire text range of the expression
-    if (expression instanceof FunctionCall functionCall) {
-      return new FunctionCallImpl(scalar.metadata(), functionCall.name(), functionCall.argumentList());
-    } else if (expression instanceof StringLiteral stringLiteral) {
-      return new StringLiteralImpl(stringLiteral.value(), scalar.metadata());
-    } else if (expression instanceof MemberExpression memberExpression) {
-      return new MemberExpressionImpl(scalar.metadata(), memberExpression.expression(), memberExpression.separatingToken(), memberExpression.memberAccess());
-    } else if (expression instanceof Parameter parameter) {
-      return new ParameterImpl(parameter.identifier(), scalar.textRange());
-    } else if (expression instanceof Variable variable) {
-      return new VariableImpl(variable.identifier(), scalar.textRange());
-    } else {
-      throw createParseException("Failed to parse ARM template expression: " + scalar.value() + "; top-level expression is of kind " + expression.getKind(),
+    return switch (expression) {
+      case FunctionCall functionCall -> new FunctionCallImpl(scalar.metadata(), functionCall.name(), functionCall.argumentList());
+      case StringLiteral stringLiteral -> new StringLiteralImpl(stringLiteral.value(), scalar.metadata());
+      case MemberExpression memberExpression -> new MemberExpressionImpl(scalar.metadata(), memberExpression.expression(), memberExpression.separatingToken(),
+        memberExpression.memberAccess());
+      case Parameter parameter -> new ParameterImpl(parameter.identifier(), scalar.textRange());
+      case Variable variable -> new VariableImpl(variable.identifier(), scalar.textRange());
+      default -> throw createParseException("Failed to parse ARM template expression: " + scalar.value() + "; top-level expression is of kind " + expression.getKind(),
         inputFileContext, new BasicTextPointer(scalar.metadata().textRange()));
-    }
+    };
   }
 
   public Expression toLiteralExpression(ScalarTree tree) {

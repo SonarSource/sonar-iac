@@ -319,9 +319,7 @@ public class TreeFactory {
     }
 
     ExpressionTree result = expression;
-    List<SyntaxToken> reversedPrefixes = new ArrayList<>(prefixes.get());
-    Collections.reverse(reversedPrefixes);
-    for (SyntaxToken prefix : reversedPrefixes) {
+    for (SyntaxToken prefix : prefixes.get().reversed()) {
       result = new PrefixExpressionTreeImpl(prefix, result);
     }
 
