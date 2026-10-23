@@ -45,7 +45,7 @@ which get loaded by the main plugin class and are structured similarly to other 
 * Java 21
 * Docker should be installed to perform the build of the Go part inside a container
   * In some environments, importing a custom certificate must be performed during the Docker build. Refer to the [dedicated readme](sonar-helm-for-iac/Readme.md#build-docker-image) for more details.
-* Alternatively, to replicate CI setup and use system Go toolchain, set environment variable `CI=true`. Go 1.27.1 and the following dependencies are needed:
+* Alternatively, to replicate CI setup and use system Go toolchain, set environment variable `CI=true`. Go 1.27.3 and the following dependencies are needed:
   * `golangci-lint` (version in `gradle.properties`, `goLangCiLintVersion`) and `$(go env GOPATH)/bin` on `PATH`
 
 ### Setup

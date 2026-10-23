@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-ARG GO_VERSION=1.27.1
+ARG GO_VERSION=1.27.3
 # Possible values: dev_custom_cert, dev
 # Note: This Dockerfile is for local development only. GitHub Actions does not use it.
 ARG BUILD_ENV=dev
