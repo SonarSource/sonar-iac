@@ -42,6 +42,18 @@ def resolve_token():
         )
 
 
+def next_link(link_header):
+    """Return the URL of the last `rel="next"` entry in an RFC 5988 Link header, or None."""
+    url = None
+    for part in link_header.split(","):
+        if 'rel="next"' not in part:
+            continue
+        match = re.search(r"<([^>]+)>", part)
+        if match:
+            url = match.group(1)
+    return url
+
+
 def make_getters(token):
     headers = {
         "Authorization": f"token {token}",
@@ -66,15 +78,20 @@ def make_getters(token):
         while url:
             with request(url) as response:
                 results.extend(json.loads(response.read()))
-                url = None
-                for part in response.getheader("Link", "").split(","):
-                    if 'rel="next"' in part:
-                        match = re.search(r"<([^>]+)>", part)
-                        if match:
-                            url = match.group(1)
+                url = next_link(response.getheader("Link", ""))
         return results
 
     return get, get_all
+
+
+def format_inline_comment(comment):
+    line = comment.get("line") or comment.get("original_line", "?")
+    body = (comment.get("body") or "").strip()
+    lines = [f"**{comment['user']['login']}** on `{comment['path']}` (line {line}):\n{body}\n"]
+    diff_hunk = comment.get("diff_hunk", "")
+    if diff_hunk:
+        lines.append(f"```diff\n{diff_hunk}\n```\n")
+    return lines
 
 
 def format_comments(review_bodies, inline_comments, issue_comments):
@@ -89,14 +106,7 @@ def format_comments(review_bodies, inline_comments, issue_comments):
     if inline_comments:
         lines.append("## Inline (line-level) comments\n")
         for comment in inline_comments:
-            line = comment.get("line") or comment.get("original_line", "?")
-            body = (comment.get("body") or "").strip()
-            lines.append(
-                f"**{comment['user']['login']}** on `{comment['path']}` (line {line}):\n{body}\n"
-            )
-            diff_hunk = comment.get("diff_hunk", "")
-            if diff_hunk:
-                lines.append(f"```diff\n{diff_hunk}\n```\n")
+            lines.extend(format_inline_comment(comment))
 
     if issue_comments:
         lines.append("## General PR comments\n")
