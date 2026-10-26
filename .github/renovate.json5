@@ -8,6 +8,7 @@
     // from 00:00 to 16:59
     "* 0-16 * * 1"
   ],
+  "internalChecksAsSuccess": true,
   "enabledManagers": [
     "gradle",
     "gradle-wrapper",
