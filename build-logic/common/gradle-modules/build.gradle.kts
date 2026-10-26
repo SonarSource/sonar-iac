@@ -29,7 +29,9 @@ dependencies {
     }
     implementation(libs.jfrog.buildinfo.gradle) {
         exclude("ch.qos.logback", "logback-core")
+        exclude("org.apache.ivy", "ivy")
     }
+    implementation(libs.apache.ivy)
     implementation(libs.shadow)
     implementation(libs.license.report)
 }

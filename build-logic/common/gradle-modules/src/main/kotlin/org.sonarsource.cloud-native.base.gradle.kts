@@ -20,7 +20,7 @@ configurations.all {
     resolutionStrategy {
         // Pinned to avoid dependency risks
         force("org.apache.logging.log4j:log4j-core:2.26.1")
-        force("org.codehaus.plexus:plexus-utils:4.0.3")
+        force("org.codehaus.plexus:plexus-utils:4.1.0")
     }
 }
 
