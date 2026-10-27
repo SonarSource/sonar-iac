@@ -24,6 +24,7 @@ sonar {
         property("sonar.projectKey", System.getenv("SONAR_PROJECT_KEY"))
         property("sonar.organization", "sonarsource")
         property("sonar.exclusions", "**/build/**/*")
+        property("sonar.coverage.exclusions", ".github/scripts/fetch-pr-comments.py")
         property("sonar.links.ci", "https://github.com/SonarSource/sonar-iac-enterprise/actions")
         property("sonar.links.scm", "https://github.com/SonarSource/sonar-iac-enterprise")
         property("sonar.links.issue", "https://jira.sonarsource.com/projects/SONARIAC")
