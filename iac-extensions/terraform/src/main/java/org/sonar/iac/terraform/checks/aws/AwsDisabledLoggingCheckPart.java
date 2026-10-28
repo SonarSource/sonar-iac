@@ -64,6 +64,7 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewCrossResourceCheck {
 
   private Map<String, List<BlockTree>> typeToTree = new HashMap<>();
   private Map<String, BlockTree> iamPolicyDocuments = new HashMap<>();
+  private Set<String> logDestinations = Set.of();
 
   @Override
   public void initialize(InitContext init) {
@@ -83,6 +84,7 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewCrossResourceCheck {
       // In theory, a valid Terraform file should not contain two iam policy document blocks with the same name.
       // This check is to be on the safe side.
       .collect(toMap(AbstractResourceCheck::getReferenceLabel, Function.identity(), (block1, block2) -> block1));
+    logDestinations = collectLogDestinations();
   }
 
   @Override
@@ -186,6 +188,9 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewCrossResourceCheck {
 
   private void s3BucketConsumer(ResourceSymbol resource) {
     BlockTree resourceBlock = resource.tree;
+    if (isLogDestination(resource.name)) {
+      return;
+    }
     if (resource.provider(AWS).hasVersionLowerThan(AWS_V_4)) {
       if (!hasPreV4Logging(resourceBlock)) {
         resource.report(String.format(MESSAGE_OMITTING, "logging\" or acl=\"log-delivery-write"));
@@ -199,6 +204,35 @@ public class AwsDisabledLoggingCheckPart extends AbstractNewCrossResourceCheck {
         resource.report(MESSAGE);
       }
     }
+  }
+
+  /**
+   * Buckets that receive logs are exempt, as requested in SONARIAC-3043:
+   * - the target of another bucket's inline "logging" block: AWS discourages logging a log bucket as it creates a recursive loop of logs;
+   * - the delivery bucket of an "aws_cloudtrail": exempted to remove reported false positives, not because of the recursion argument.
+   */
+  private boolean isLogDestination(String resourceName) {
+    return logDestinations.contains(resourceName);
+  }
+
+  private Set<String> collectLogDestinations() {
+    var trailDestinations = typeToTree.getOrDefault("aws_cloudtrail", List.of()).stream()
+      .flatMap(trail -> PropertyUtils.get(trail, "s3_bucket_name", AttributeTree.class).stream());
+    var inlineLoggingTargets = typeToTree.getOrDefault(S3_BUCKET, List.of()).stream()
+      .flatMap(bucket -> PropertyUtils.getAll(bucket, LOGGING, BlockTree.class).stream())
+      .flatMap(logging -> PropertyUtils.get(logging, "target_bucket", AttributeTree.class).stream());
+    return Stream.concat(trailDestinations, inlineLoggingTargets)
+      .flatMap(attribute -> referencedS3BucketName(attribute).stream())
+      .collect(Collectors.toSet());
+  }
+
+  private static Optional<String> referencedS3BucketName(StatementTree block) {
+    if (block.value() instanceof AttributeAccessTree accessTree &&
+      TerraformUtils.unwrapIndexAccess(accessTree.object()) instanceof AttributeAccessTree accessTreeNested &&
+      TextUtils.isValue(accessTreeNested.object(), "aws_s3_bucket").isTrue()) {
+      return TextUtils.getValue(accessTreeNested.attribute());
+    }
+    return Optional.empty();
   }
 
   private static boolean hasPreV4Logging(BlockTree resourceBlock) {

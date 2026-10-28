@@ -252,3 +252,33 @@ resource "aws_s3_bucket" "foreach_bucket_no_logging" {
   for_each = toset(var.logged_bucket_keys)
   bucket   = "foreach-bucket-no-logging-${each.key}"
 }
+
+# Compliant: bucket is the delivery destination of a CloudTrail trail.
+resource "aws_s3_bucket" "trail_destination" {
+  bucket = "trail-destination"
+}
+resource "aws_cloudtrail" "trail" {
+  name           = "trail"
+  s3_bucket_name = aws_s3_bucket.trail_destination.id
+}
+
+# Compliant: bucket is the target of another bucket's inline logging block.
+resource "aws_s3_bucket" "inline_logging_destination" {
+  bucket = "inline-logging-destination"
+}
+# Noncompliant@+1
+resource "aws_s3_bucket" "inline_logging_source" {
+  bucket = "inline-logging-source"
+  logging {
+    target_bucket = aws_s3_bucket.inline_logging_destination.id
+  }
+}
+
+# Noncompliant@+1
+resource "aws_s3_bucket" "trail_unrelated_destination" {
+  bucket = "trail-unrelated"
+}
+resource "aws_cloudtrail" "other_trail" {
+  name           = "other-trail"
+  s3_bucket_name = "some-literal-bucket"
+}

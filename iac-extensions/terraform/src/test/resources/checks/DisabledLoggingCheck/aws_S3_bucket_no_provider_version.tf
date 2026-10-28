@@ -225,3 +225,32 @@ resource "aws_s3_bucket_policy" "shadowed_bucket_policy" {
 # A resource without a type must not stop the remaining checks.
 resource {
 }
+
+# Compliant: destination of a CloudTrail trail.
+resource "aws_s3_bucket" "trail_destination" {
+  bucket = "trail-destination"
+}
+resource "aws_cloudtrail" "trail" {
+  name           = "trail"
+  s3_bucket_name = aws_s3_bucket.trail_destination.id
+}
+
+# Compliant: target of another bucket's inline logging block.
+resource "aws_s3_bucket" "inline_logging_destination" {
+  bucket = "inline-logging-destination"
+}
+resource "aws_s3_bucket" "inline_logging_source" {
+  bucket = "inline-logging-source"
+  logging {
+    target_bucket = aws_s3_bucket.inline_logging_destination.id
+  }
+}
+
+# Noncompliant@+1
+resource "aws_s3_bucket" "trail_unrelated_destination" {
+  bucket = "trail-unrelated"
+}
+resource "aws_cloudtrail" "other_trail" {
+  name           = "other-trail"
+  s3_bucket_name = "some-literal-bucket"
+}
