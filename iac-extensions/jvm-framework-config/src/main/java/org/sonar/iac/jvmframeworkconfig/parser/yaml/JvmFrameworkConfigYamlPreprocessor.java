@@ -23,33 +23,19 @@ import java.util.stream.Stream;
 
 public class JvmFrameworkConfigYamlPreprocessor {
   private static final Pattern LINE_SEPARATORS = Pattern.compile("(\r\n|\n|\r|\u2028|\u2029)");
-  private static final String DOCUMENT_BREAK = "---";
-  private static final int DOCUMENT_BREAK_LENGTH = DOCUMENT_BREAK.length();
   private static final Pattern MAVEN_VARIABLE_AT_TOKEN_START = Pattern.compile("([^:]++:\\p{javaWhitespace}*)@(?<name>[^@]++)@(.*+)");
-  private static final Predicate<String> containsInlineCommentAfterDocumentBreak = line -> line.startsWith(DOCUMENT_BREAK);
   private static final Predicate<String> containsMavenVariableAtTokenStart = line -> MAVEN_VARIABLE_AT_TOKEN_START.matcher(line).matches();
 
   public String preprocess(String source) {
     var lines = LINE_SEPARATORS.split(source, -1);
 
-    if (Stream.of(lines).noneMatch(containsInlineCommentAfterDocumentBreak.or(containsMavenVariableAtTokenStart))) {
+    if (Stream.of(lines).noneMatch(containsMavenVariableAtTokenStart)) {
       return source;
     }
 
     return Stream.of(lines)
-      .map(JvmFrameworkConfigYamlPreprocessor::removeInlineCommentAfterDocumentBreak)
       .map(JvmFrameworkConfigYamlPreprocessor::transformMavenSubstitutions)
       .collect(Collectors.joining("\n"));
-  }
-
-  private static String removeInlineCommentAfterDocumentBreak(String line) {
-    if (line.startsWith(DOCUMENT_BREAK)) {
-      var textAfterBreak = line.substring(DOCUMENT_BREAK_LENGTH).trim();
-      if (textAfterBreak.startsWith("#")) {
-        return line.substring(0, line.indexOf(DOCUMENT_BREAK) + DOCUMENT_BREAK_LENGTH);
-      }
-    }
-    return line;
   }
 
   /**

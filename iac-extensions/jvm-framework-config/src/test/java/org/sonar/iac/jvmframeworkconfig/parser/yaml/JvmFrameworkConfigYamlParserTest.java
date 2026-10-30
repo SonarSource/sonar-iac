@@ -292,6 +292,37 @@ class JvmFrameworkConfigYamlParserTest {
     TextRangeAssert.assertThat(file.profiles().get(2).textRange()).hasRange(5, 0, 5, 4);
   }
 
+  @Test
+  void shouldParseInlineCommentAfterDocumentBreak() {
+    String source = """
+      a: b
+      --- ### comment
+      a: b
+      --- ###
+      a: b""";
+    File file = parser.parse(source, inputFileContext);
+
+    List<Profile> profiles = file.profiles();
+    // snakeyaml-engine does not attach comments on a document marker line to any node
+    assertThat(profiles)
+      .hasSize(3)
+      .allSatisfy(profile -> {
+        assertThat(profile.properties()).hasSize(1);
+        assertThat(profile.comments()).isEmpty();
+      });
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "a: b\n--- ###",
+    "a: b\n--- ### comment\n",
+    "--- foo ###\n",
+    "a: b\n... ###\n",
+  })
+  void shouldParseInlineCommentAfterDocumentMarkerAtEndOfFile(String source) {
+    assertThatNoException().isThrownBy(() -> parser.parse(source, inputFileContext));
+  }
+
   static Stream<Arguments> shouldParseProfileName() {
     return Stream.of(
       Arguments.of("""

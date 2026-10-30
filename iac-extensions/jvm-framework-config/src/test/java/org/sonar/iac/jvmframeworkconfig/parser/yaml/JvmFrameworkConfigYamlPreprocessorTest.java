@@ -34,6 +34,8 @@ class JvmFrameworkConfigYamlPreprocessorTest {
       # block comment after
       foo: bar
       --- foo: bar # inline comment
+      --- ### comment ###
+      ---     ### comment ###
       --- !foo bar
       --- >
         foo
@@ -42,31 +44,6 @@ class JvmFrameworkConfigYamlPreprocessorTest {
       """;
 
     assertThat(new JvmFrameworkConfigYamlPreprocessor().preprocess(code)).isEqualTo(code);
-  }
-
-  @Test
-  void shouldRemoveInlineCommentsAfterDocumentBreak() {
-    // language=yaml
-    var code = """
-      foo: bar # comment
-      --- ### comment ###
-      ---     ### comment ###
-      baz: qux
-      --- baz: qux
-      --- baz: qux # comment
-      ---
-      """;
-    // language=yaml
-    var expected = """
-      foo: bar # comment
-      ---
-      ---
-      baz: qux
-      --- baz: qux
-      --- baz: qux # comment
-      ---
-      """;
-    assertThat(new JvmFrameworkConfigYamlPreprocessor().preprocess(code)).isEqualTo(expected);
   }
 
   @Test
@@ -100,11 +77,11 @@ class JvmFrameworkConfigYamlPreprocessorTest {
   @ValueSource(strings = {"\n", "\r", "\r\n", "\u2028", "\u2029"})
   void shouldTransformFilesWithDifferentLineTerminators(String lineTerminator) {
     var code = "foo: bar" + lineTerminator +
-      "--- ###" + lineTerminator +
+      "baz: @maven.property@" + lineTerminator +
       "bar: foo" + lineTerminator;
     var expected = """
       foo: bar
-      ---
+      baz: 'maven.property'
       bar: foo
       """;
 
