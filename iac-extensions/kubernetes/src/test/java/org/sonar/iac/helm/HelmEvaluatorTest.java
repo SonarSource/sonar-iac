@@ -43,7 +43,6 @@ import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.iac.helm.protobuf.TemplateEvaluationResult;
 import org.sonar.iac.helm.utils.ExecutableHelper;
-import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -71,7 +70,7 @@ class HelmEvaluatorTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    this.helmEvaluator = new HelmEvaluator(new DefaultTempFolder(tempDir, false));
+    this.helmEvaluator = HelmEvaluatorTestUtils.helmEvaluator(tempDir);
     this.helmEvaluator.start();
     this.helmEvaluator.initialize();
   }

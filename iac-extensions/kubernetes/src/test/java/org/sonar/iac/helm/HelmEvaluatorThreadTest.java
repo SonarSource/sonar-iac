@@ -28,7 +28,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Isolated;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -51,7 +50,7 @@ class HelmEvaluatorThreadTest {
   @Test
   void shouldNotLeakThread() throws IOException {
     var threadsBefore = activeCreatedThreadsName();
-    var helmEvaluator = new HelmEvaluator(new DefaultTempFolder(tempDir, false));
+    var helmEvaluator = HelmEvaluatorTestUtils.helmEvaluator(tempDir);
     helmEvaluator.start();
     helmEvaluator.initialize();
 

@@ -101,4 +101,44 @@ class TerraformMetricsVisitorTest extends AbstractMetricsTest {
     verify(noSonarFilter).noSonarInFile(inputFile, nosonarLines);
     verifyLinesOfCodeMetricsAndTelemetry(1, 3, 4);
   }
+
+  @Test
+  void shouldCoverWholeHeredocWithFullLineNoSonarCommentAboveIt() {
+    scan("""
+      resource "aws_s3_bucket_policy" "example" {
+        # NOSONAR
+        policy = <<EOF
+      {
+        "Statement": [{ "Effect": "Allow", "Principal": "*" }]
+      }
+      EOF
+        bucket = "example"
+      }""");
+    assertThat(visitor.noSonarLines()).containsExactlyInAnyOrder(2, 3, 4, 5, 6, 7);
+    verify(noSonarFilter).noSonarInFile(inputFile, Set.of(2, 3, 4, 5, 6, 7));
+  }
+
+  @Test
+  void shouldCoverWholeHeredocWithNoSonarCommentOnHeredocStartLine() {
+    scan("""
+      resource "aws_s3_bucket_policy" "example" {
+        policy = /* NOSONAR */ <<EOF
+      { "Statement": [{ "Effect": "Allow", "Principal": "*" }] }
+      EOF
+      }""");
+    assertThat(visitor.noSonarLines()).containsExactlyInAnyOrder(2, 3, 4);
+  }
+
+  @Test
+  void shouldNotCoverNextLineWithFullLineNoSonarCommentAboveOtherCode() {
+    scan("""
+      resource "aws_s3_bucket" "example" {
+        # NOSONAR
+        acl = "public-read"
+        policy = <<EOF
+      { "Statement": [] }
+      EOF
+      }""");
+    assertThat(visitor.noSonarLines()).containsExactly(2);
+  }
 }

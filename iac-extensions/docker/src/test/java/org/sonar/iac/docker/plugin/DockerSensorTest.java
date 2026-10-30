@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,8 @@ import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -514,5 +517,25 @@ class DockerSensorTest extends ExtensionSensorTest {
       # TODO update this image
       FROM my-image:1.2.3@sha256:26c68657ccce2cb0a31b330cb0be2b5e108d467f641c62e13ab40cbec258c68d
       """);
+  }
+
+  @Test
+  void shouldRegisterNoSonarLinesBeforeChecksRaiseIssues() {
+    var inputFile = inputFile("Dockerfile", """
+      FROM ubuntu:22.04
+      # NOSONAR
+      USER root
+      """);
+    List<Integer> issueCountsWhenNoSonarLinesAreRegistered = new ArrayList<>();
+    doAnswer(invocation -> {
+      issueCountsWhenNoSonarLinesAreRegistered.add(context.allIssues().size());
+      return null;
+    }).when(noSonarFilter).noSonarInFile(eq(inputFile), any());
+
+    analyze(sensor(checkFactory("S6471")), inputFile);
+
+    verify(noSonarFilter).noSonarInFile(inputFile, Set.of(2, 3));
+    assertThat(issueCountsWhenNoSonarLinesAreRegistered).containsOnly(0);
+    assertThat(context.allIssues()).hasSize(1);
   }
 }

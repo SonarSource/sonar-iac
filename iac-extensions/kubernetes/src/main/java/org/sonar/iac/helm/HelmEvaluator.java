@@ -58,6 +58,7 @@ public class HelmEvaluator implements Startable {
     .factory();
 
   private final File workingDir;
+  private final int processTimeoutSeconds;
   private final Set<Process> liveProcesses = ConcurrentHashMap.newKeySet();
   // Bound by the component lifecycle: the thread pool in start(), the process builder in initialize()
   @Nullable
@@ -67,7 +68,13 @@ public class HelmEvaluator implements Startable {
   private volatile boolean stopped;
 
   public HelmEvaluator(TempFolder tempFolder) {
+    this(tempFolder, PROCESS_TIMEOUT_SECONDS);
+  }
+
+  // Visible for testing: tests share the machine with other build tasks, which can slow down the first run of the binary
+  HelmEvaluator(TempFolder tempFolder, int processTimeoutSeconds) {
     workingDir = tempFolder.newDir();
+    this.processTimeoutSeconds = processTimeoutSeconds;
   }
 
   public void initialize() throws IOException {
@@ -114,7 +121,7 @@ public class HelmEvaluator implements Startable {
     // Tracked until the process exits rather than until this method returns, so that stop() can still destroy it
     liveProcesses.add(process);
     process.onExit().thenRun(() -> liveProcesses.remove(process));
-    destroyAfterTimeout(process, PROCESS_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+    destroyAfterTimeout(process, processTimeoutSeconds, TimeUnit.SECONDS);
     var isInputWritten = false;
     try {
       if (stopped) {

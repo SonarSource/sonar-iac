@@ -20,15 +20,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.helm.HelmEvaluatorTestUtils;
 import org.sonar.iac.helm.tree.api.GoTemplateTree;
 import org.sonar.iac.helm.tree.impl.GoTemplateTreeImpl;
-import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 
 public class GoAstCreator {
   private final HelmEvaluator helmEvaluator;
 
   public GoAstCreator(File workingDir) throws IOException {
-    this.helmEvaluator = new HelmEvaluator(new DefaultTempFolder(workingDir, false));
+    this.helmEvaluator = HelmEvaluatorTestUtils.helmEvaluator(workingDir);
     this.helmEvaluator.initialize();
     this.helmEvaluator.start();
   }

@@ -117,15 +117,20 @@ public class JvmFrameworkConfigSensor extends IacSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     var visitors = new ArrayList<TreeVisitor<InputFileContext>>();
+    var isNotSonarLintContext = SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime());
+
+    if (isNotSonarLintContext) {
+      // The suppressed lines must be registered with NoSonarFilter before ChecksVisitor saves the issues
+      visitors.add(new JvmFrameworkConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
+    }
 
     visitors.add(new ChecksVisitor(ChecksVisitor.activeChecks(commonConfigChecks), statistics));
     visitors.add(new ChecksVisitor(ChecksVisitor.activeChecks(springConfigChecks), statistics));
     visitors.add(new ChecksVisitor(ChecksVisitor.activeChecks(micronautConfigChecks), statistics));
     visitors.add(new ChecksVisitor(ChecksVisitor.activeChecks(quarkusConfigChecks), statistics));
 
-    if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
+    if (isNotSonarLintContext) {
       visitors.add(telemetryVisitor);
-      visitors.add(new JvmFrameworkConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
       visitors.add(new JvmFrameworkConfigHighlightingVisitor());
     }
 

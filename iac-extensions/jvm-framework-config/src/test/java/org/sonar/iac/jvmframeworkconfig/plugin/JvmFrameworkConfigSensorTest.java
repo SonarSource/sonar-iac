@@ -26,10 +26,12 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.config.Configuration;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.predicates.YamlFileTypeCache;
 import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.yaml.YamlLanguage;
+import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigMetricsVisitor;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 
@@ -268,5 +270,13 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
 
   private InputFile emptyFileInResources(String filename) {
     return inputFile(PATH_PREFIX + filename, "");
+  }
+
+  @Test
+  void shouldRunMetricsVisitorBeforeChecksVisitorsToRegisterNoSonarLinesFirst() {
+    var sensor = (JvmFrameworkConfigSensor) sensor(checkFactory());
+    var visitors = sensor.visitors(context, null);
+    assertThat(visitors.get(0)).isInstanceOf(JvmFrameworkConfigMetricsVisitor.class);
+    assertThat(visitors.subList(1, 5)).allMatch(ChecksVisitor.class::isInstance);
   }
 }

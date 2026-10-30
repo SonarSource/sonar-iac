@@ -54,6 +54,7 @@ import org.sonar.iac.common.languages.IacLanguage;
 import org.sonar.iac.common.testing.Verifier;
 import org.sonar.iac.common.yaml.YamlParser;
 import org.sonar.iac.helm.HelmEvaluator;
+import org.sonar.iac.helm.HelmEvaluatorTestUtils;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.helm.tree.api.Node;
 import org.sonar.iac.kubernetes.plugin.HelmParser;
@@ -69,7 +70,6 @@ import org.sonar.iac.kubernetes.visitors.LocationShifter;
 import org.sonar.iac.kubernetes.visitors.ProjectContextEnricherVisitor;
 import org.sonar.iac.kubernetes.visitors.ProjectContextImpl;
 import org.sonar.iac.kubernetes.visitors.SecondaryLocationLocator;
-import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 import org.sonarsource.analyzer.commons.checks.verifier.MultiFileVerifier;
 
 import static org.sonar.iac.common.filesystem.FileSystemUtils.retrieveHelmProjectFolder;
@@ -191,7 +191,7 @@ public class KubernetesVerifier {
     } catch (IOException e) {
       throw new IllegalStateException("Could not create temporary directory", e);
     }
-    HelmEvaluator helmEvaluator = new HelmEvaluator(new DefaultTempFolder(temporaryDirectory, false));
+    HelmEvaluator helmEvaluator = HelmEvaluatorTestUtils.helmEvaluator(temporaryDirectory);
     HelmFileSystem helmFileSystem = new HelmFileSystem(new DefaultFileSystemProvider(SENSOR_CONTEXT.fileSystem()));
     HelmProcessor helmProcessor = new HelmProcessor(helmEvaluator, helmFileSystem, new KubernetesParserStatistics());
     helmProcessor.initialize();

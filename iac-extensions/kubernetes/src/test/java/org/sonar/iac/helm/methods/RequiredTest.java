@@ -27,7 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.iac.helm.HelmEvaluator;
-import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
+import org.sonar.iac.helm.HelmEvaluatorTestUtils;
 
 class RequiredTest {
   @TempDir
@@ -37,7 +37,7 @@ class RequiredTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    this.helmEvaluator = new HelmEvaluator(new DefaultTempFolder(tempDir, false));
+    this.helmEvaluator = HelmEvaluatorTestUtils.helmEvaluator(tempDir);
     this.helmEvaluator.initialize();
     this.helmEvaluator.start();
   }

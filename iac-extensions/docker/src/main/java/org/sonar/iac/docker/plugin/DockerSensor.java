@@ -189,9 +189,14 @@ public class DockerSensor extends IacSensor {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
     visitors.add(new DockerSymbolVisitor());
     visitors.addAll(preCheckVisitors());
-    visitors.add(createChecksVisitor(activeChecks(sensorContext), statistics));
-    if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
+    var isNotSonarLintContext = SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime());
+    if (isNotSonarLintContext) {
+      // The suppressed lines must be registered with NoSonarFilter before ChecksVisitor saves the issues
       visitors.add(new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
+      visitors.addAll(noSonarVisitors());
+    }
+    visitors.add(createChecksVisitor(activeChecks(sensorContext), statistics));
+    if (isNotSonarLintContext) {
       visitors.add(new DockerHighlightingVisitor());
     }
     return visitors;
@@ -227,6 +232,14 @@ public class DockerSensor extends IacSensor {
   }
 
   protected List<TreeVisitor<InputFileContext>> preCheckVisitors() {
+    return List.of();
+  }
+
+  /**
+   * Visitors registering further suppressed lines with {@link NoSonarFilter}, in addition to the metrics visitor.
+   * Like the metrics visitor, they run before the checks and only outside of SonarLint.
+   */
+  protected List<TreeVisitor<InputFileContext>> noSonarVisitors() {
     return List.of();
   }
 
