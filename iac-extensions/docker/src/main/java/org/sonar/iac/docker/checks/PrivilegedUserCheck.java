@@ -90,8 +90,14 @@ public class PrivilegedUserCheck implements IacCheck {
 
   private static final Pattern SHELL_SEGMENT_SEPARATOR = Pattern.compile("[;&|\\n]");
 
+  private static final String COMPOUND_COMMAND_PREFIX = "(?:(?:then|do|else|\\{)\\s++|\\(\\s*+)?";
+  private static final String BUILTIN_PREFIX = "(?:(?:exec|command)\\s++)?";
+  private static final String ABSOLUTE_PATH_PREFIX = "(?:/(?:[\\w.-]++/)*+)?";
+
+  // shortcut: only simple prefixes and unquoted paths; use shell parsing if broader syntax is needed.
   private static final Pattern SEGMENT_INVOKES_PRIVILEGE_DROP = Pattern.compile(
-    "\\s*+(?:" + String.join("|", PRIVILEGE_DROP_COMMANDS) + ")\\b");
+    "\\s*+" + COMPOUND_COMMAND_PREFIX + BUILTIN_PREFIX + ABSOLUTE_PATH_PREFIX
+      + "(?:" + String.join("|", PRIVILEGE_DROP_COMMANDS) + ")(?=[\\s;&|()<>]|$)");
 
   // Bare interpreters/shells that, when launched without a script argument, run interactively.
   private static final Set<String> INTERACTIVE_REPL_COMMANDS = Set.of(
