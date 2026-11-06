@@ -17,7 +17,9 @@
 package org.sonar.iac.docker.plugin;
 
 import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +28,11 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.IndexedFile;
@@ -36,6 +40,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.Version;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
@@ -80,7 +85,7 @@ class DockerSensorTest extends ExtensionSensorTest {
     sensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("IaC Docker Sensor");
     assertThat(descriptor.languages()).isEmpty();
-    assertThat(descriptor.isProcessesFilesIndependently()).isTrue();
+    assertThat(descriptor.isProcessesFilesIndependently()).isFalse();
   }
 
   @Test
@@ -201,6 +206,88 @@ class DockerSensorTest extends ExtensionSensorTest {
   @Test
   void shouldReportS8431WithoutDependencyManagementConfiguration() {
     analyze(sensor("S8431"), dockerfileWithTagAndDigest());
+
+    assertThat(context.allIssues()).extracting(issue -> issue.ruleKey().rule()).containsExactly("S8431");
+  }
+
+  @ParameterizedTest
+  @CsvSource({"true, 2", "false, 3"})
+  void shouldSkipUnchangedDockerfilesOnlyWhenAllowed(boolean canSkipUnchangedFiles, int expectedCount) {
+    context.setCanSkipUnchangedFiles(canSkipUnchangedFiles);
+
+    analyze(sensor("S1135"),
+      dockerfileWithStatus("changed.Dockerfile", InputFile.Status.CHANGED),
+      dockerfileWithStatus("added.Dockerfile", InputFile.Status.ADDED),
+      dockerfileWithStatus("unchanged.Dockerfile", InputFile.Status.SAME));
+
+    assertThat(context.allIssues()).extracting(issue -> issue.primaryLocation().inputComponent().key())
+      .contains("moduleKey:changed.Dockerfile", "moduleKey:added.Dockerfile");
+    assertThat(context.allIssues()).hasSize(expectedCount);
+    assertThat(context.getTelemetryProperties()).containsEntry("iac.docker.files.count", String.valueOf(expectedCount));
+  }
+
+  @Test
+  void shouldAnalyzeUnchangedDockerfilesWhenRuntimeDoesNotSupportSkipping() {
+    var runtime = mock(SonarRuntime.class);
+    doReturn(Version.create(9, 3)).when(runtime).getApiVersion();
+    context.setRuntime(runtime).setCanSkipUnchangedFiles(true);
+    var contextSpy = spy(context);
+
+    analyze(contextSpy, sensor(checkFactory("S1135"), new MapSettings(), runtime), dockerfileWithStatus("Dockerfile", InputFile.Status.SAME));
+
+    verify(contextSpy, never()).canSkipUnchangedFiles();
+    assertThat(context.allIssues()).extracting(issue -> issue.ruleKey().rule()).containsExactly("S1135");
+  }
+
+  @Test
+  void shouldSkipUnchangedDockerfilesAtApi94Boundary() {
+    var runtime = mock(SonarRuntime.class);
+    doReturn(Version.create(9, 4)).when(runtime).getApiVersion();
+    doReturn(SonarProduct.SONARQUBE).when(runtime).getProduct();
+    context.setRuntime(runtime).setCanSkipUnchangedFiles(true);
+    var contextSpy = spy(context);
+
+    analyze(contextSpy, sensor(checkFactory("S1135"), new MapSettings(), runtime), dockerfileWithStatus("Dockerfile", InputFile.Status.SAME));
+
+    verify(contextSpy).canSkipUnchangedFiles();
+    assertThat(context.allIssues()).isEmpty();
+  }
+
+  @Test
+  void shouldAnalyzeUnchangedDockerfilesInSonarLint() {
+    sonarLintContext.setCanSkipUnchangedFiles(true);
+
+    var contextSpy = spy(sonarLintContext);
+    analyze(contextSpy, sonarLintSensor("S1135"), dockerfileWithStatus("Dockerfile", InputFile.Status.SAME));
+
+    verify(contextSpy, never()).canSkipUnchangedFiles();
+    assertThat(sonarLintContext.allIssues()).extracting(issue -> issue.ruleKey().rule()).containsExactly("S1135");
+  }
+
+  @ParameterizedTest
+  @MethodSource("dependencyManagementConfigurationFiles")
+  void shouldSuppressS8431WithUnchangedDependencyManagementConfigurationDuringPullRequestAnalysis(String relativePath) {
+    context.setCanSkipUnchangedFiles(true);
+    var configuration = new TestInputFileBuilder("moduleKey", relativePath)
+      .setModuleBaseDir(baseDir.toPath())
+      .setType(InputFile.Type.MAIN)
+      .setStatus(InputFile.Status.SAME)
+      .setHidden(relativePath.startsWith("."))
+      .setContents("configuration")
+      .build();
+
+    analyze(sensor("S8431", "S1135"), configuration, dockerfileWithStatus("Dockerfile", InputFile.Status.CHANGED));
+
+    assertThat(context.allIssues()).extracting(issue -> issue.ruleKey().rule()).containsExactly("S1135");
+    assertThat(context.getTelemetryProperties()).containsEntry("iac.docker.files.count", "1");
+  }
+
+  @Test
+  void shouldReportS8431WhenDependencyManagementConfigurationIsNotIndexed() throws IOException {
+    context.setCanSkipUnchangedFiles(true);
+    Files.writeString(baseDir.toPath().resolve("renovate.json"), "{}");
+
+    analyze(sensor("S8431"), dockerfileWithStatus("Dockerfile", InputFile.Status.CHANGED));
 
     assertThat(context.allIssues()).extracting(issue -> issue.ruleKey().rule()).containsExactly("S8431");
   }
@@ -537,5 +624,18 @@ class DockerSensorTest extends ExtensionSensorTest {
     verify(noSonarFilter).noSonarInFile(inputFile, Set.of(2, 3));
     assertThat(issueCountsWhenNoSonarLinesAreRegistered).containsOnly(0);
     assertThat(context.allIssues()).hasSize(1);
+  }
+
+  private InputFile dockerfileWithStatus(String relativePath, InputFile.Status status) {
+    return new TestInputFileBuilder("moduleKey", relativePath)
+      .setModuleBaseDir(baseDir.toPath())
+      .setType(InputFile.Type.MAIN)
+      .setLanguage(DockerLanguage.KEY)
+      .setStatus(status)
+      .setContents("""
+        # TODO update this image
+        FROM my-image:1.2.3@sha256:26c68657ccce2cb0a31b330cb0be2b5e108d467f641c62e13ab40cbec258c68d
+        """)
+      .build();
   }
 }

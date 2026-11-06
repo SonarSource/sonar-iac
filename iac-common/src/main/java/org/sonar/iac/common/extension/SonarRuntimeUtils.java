@@ -23,6 +23,7 @@ import org.sonar.api.utils.Version;
 
 public final class SonarRuntimeUtils {
 
+  public static final Version SKIP_UNCHANGED_FILES_SUPPORTED_API_VERSION = Version.create(9, 4);
   public static final Version HIDDEN_FILES_SUPPORTED_API_VERSION = Version.create(12, 0);
 
   private SonarRuntimeUtils() {

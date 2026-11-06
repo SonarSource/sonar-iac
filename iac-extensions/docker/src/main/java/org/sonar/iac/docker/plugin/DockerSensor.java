@@ -90,9 +90,8 @@ public class DockerSensor extends IacSensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor
-      .processesFilesIndependently()
-      .name("IaC " + languageName() + " Sensor");
+    // Bot detection needs unchanged configuration files in the scanner index during PR analysis.
+    descriptor.name("IaC " + languageName() + " Sensor");
     SonarRuntimeUtils.activateHiddenFilesProcessing(sonarRuntime, descriptor);
   }
 
@@ -141,7 +140,17 @@ public class DockerSensor extends IacSensor {
         dockerLanguageOrPathPattern);
     }
 
-    return p.and(p.hasType(InputFile.Type.MAIN), dockerLanguageOrPathPattern);
+    var predicate = p.and(p.hasType(InputFile.Type.MAIN), dockerLanguageOrPathPattern);
+    if (canSkipUnchangedDockerfiles(sensorContext)) {
+      return p.and(predicate, p.not(p.hasStatus(InputFile.Status.SAME)));
+    }
+    return predicate;
+  }
+
+  private boolean canSkipUnchangedDockerfiles(SensorContext sensorContext) {
+    return SonarRuntimeUtils.isNotSonarLintContext(sonarRuntime)
+      && sonarRuntime.getApiVersion().isGreaterThanOrEqual(SonarRuntimeUtils.SKIP_UNCHANGED_FILES_SUPPORTED_API_VERSION)
+      && sensorContext.canSkipUnchangedFiles();
   }
 
   @Override
