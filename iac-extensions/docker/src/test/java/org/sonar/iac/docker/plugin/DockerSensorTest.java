@@ -42,12 +42,15 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.Version;
 import org.sonar.iac.common.extension.DurationStatistics;
+import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.testing.IacTestUtils;
+import org.sonar.iac.docker.visitors.DockerNoSonarVisitor;
+import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 
@@ -194,13 +197,15 @@ class DockerSensorTest extends ExtensionSensorTest {
 
   @Test
   void shouldReturnVisitors() {
-    assertThat(sensor().visitors(context, null)).hasSize(4);
+    assertThat(sensor().visitors(context, null)).hasSize(5);
   }
 
   @Test
   void shouldNotReturnHighlightingAndMetricsVisitorsInSonarLintContext() {
     List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(sonarLintContext, null);
-    assertThat(visitors).doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class);
+    assertThat(visitors)
+      .doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class)
+      .hasExactlyElementsOfTypes(DockerSymbolVisitor.class, DockerNoSonarVisitor.class, ChecksVisitor.class);
   }
 
   @Test
@@ -624,6 +629,26 @@ class DockerSensorTest extends ExtensionSensorTest {
     verify(noSonarFilter).noSonarInFile(inputFile, Set.of(2, 3));
     assertThat(issueCountsWhenNoSonarLinesAreRegistered).containsOnly(0);
     assertThat(context.allIssues()).hasSize(1);
+  }
+
+  @Test
+  void shouldRegisterNoSonarLinesBeforeChecksRaiseIssuesInSonarLintContext() {
+    var inputFile = inputFile("Dockerfile", """
+      FROM ubuntu:22.04
+      # NOSONAR
+      USER root
+      """);
+    List<Integer> issueCountsWhenNoSonarLinesAreRegistered = new ArrayList<>();
+    doAnswer(invocation -> {
+      issueCountsWhenNoSonarLinesAreRegistered.add(sonarLintContext.allIssues().size());
+      return null;
+    }).when(noSonarFilter).noSonarInFile(eq(inputFile), any());
+
+    analyze(sonarLintContext, sonarLintSensor("S6471"), inputFile);
+
+    verify(noSonarFilter).noSonarInFile(inputFile, Set.of(2, 3));
+    assertThat(issueCountsWhenNoSonarLinesAreRegistered).containsOnly(0);
+    assertThat(sonarLintContext.allIssues()).hasSize(1);
   }
 
   private InputFile dockerfileWithStatus(String relativePath, InputFile.Status status) {

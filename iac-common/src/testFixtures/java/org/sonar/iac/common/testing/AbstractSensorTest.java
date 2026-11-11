@@ -43,6 +43,7 @@ import org.sonar.scanner.plugin.api.impl.rule.NewActiveRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.sonar.iac.common.extension.IacSensor.EXTENDED_LOGGING_PROPERTY_NAME;
 import static org.sonar.iac.common.predicates.CloudFormationFilePredicate.CLOUDFORMATION_FILE_IDENTIFIER_DEFAULT_VALUE;
@@ -77,6 +78,8 @@ public abstract class AbstractSensorTest {
   void setup() throws IOException {
     // toRealPath resolves the Windows 8.3 short form, which InputFile.uri() does not use
     baseDir = baseDir.toPath().toRealPath().toFile();
+    // The filter is shared by all tests, so the registered lines of a test must not leak into the verifications of another one
+    reset(noSonarFilter);
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(ArgumentMatchers.any(InputFile.class))).thenReturn(fileLinesContext);
     settings = new MapSettings();

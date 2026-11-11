@@ -38,6 +38,7 @@ import org.sonar.iac.terraform.parser.HclParser;
 import org.sonar.iac.terraform.visitors.TerraformChecksVisitor;
 import org.sonar.iac.terraform.visitors.TerraformHighlightingVisitor;
 import org.sonar.iac.terraform.visitors.TerraformMetricsVisitor;
+import org.sonar.iac.terraform.visitors.TerraformNoSonarVisitor;
 
 public class TerraformSensor extends IacSensor {
 
@@ -66,8 +67,9 @@ public class TerraformSensor extends IacSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
+    visitors.add(new TerraformNoSonarVisitor(noSonarFilter));
     if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
-      visitors.add(new TerraformMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
+      visitors.add(new TerraformMetricsVisitor(fileLinesContextFactory, sensorTelemetry));
       visitors.add(new TerraformHighlightingVisitor());
     }
     visitors.add(new TerraformChecksVisitor(ChecksVisitor.activeChecks(checks), statistics, providerVersions));

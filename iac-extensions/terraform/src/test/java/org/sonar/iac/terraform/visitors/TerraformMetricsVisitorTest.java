@@ -16,8 +16,6 @@
  */
 package org.sonar.iac.terraform.visitors;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
@@ -26,7 +24,6 @@ import org.sonar.iac.terraform.parser.HclParser;
 import org.sonar.iac.terraform.plugin.TerraformLanguage;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 
 class TerraformMetricsVisitorTest extends AbstractMetricsTest {
 
@@ -37,7 +34,7 @@ class TerraformMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new TerraformMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry);
+    return new TerraformMetricsVisitor(fileLinesContextFactory, sensorTelemetry);
   }
 
   @Override
@@ -50,7 +47,6 @@ class TerraformMetricsVisitorTest extends AbstractMetricsTest {
     scan("");
     assertThat(visitor.linesOfCode()).isEmpty();
     assertThat(visitor.commentLines()).isEmpty();
-    verify(noSonarFilter).noSonarInFile(inputFile, new HashSet<>());
     verifyLinesOfCodeMetricsAndTelemetry();
   }
 
@@ -86,59 +82,5 @@ class TerraformMetricsVisitorTest extends AbstractMetricsTest {
     assertThat(visitor.commentLines()).containsExactly(1, 2, 3);
     assertThat(visitor.linesOfCode()).isEmpty();
     verifyLinesOfCodeMetricsAndTelemetry();
-  }
-
-  @Test
-  void noSonarLines() {
-    scan("""
-      a {
-      // NOSONAR comment
-      b = {}
-      }""");
-    assertThat(visitor.noSonarLines()).containsExactly(2);
-    Set<Integer> nosonarLines = new HashSet<>();
-    nosonarLines.add(2);
-    verify(noSonarFilter).noSonarInFile(inputFile, nosonarLines);
-    verifyLinesOfCodeMetricsAndTelemetry(1, 3, 4);
-  }
-
-  @Test
-  void shouldCoverWholeHeredocWithFullLineNoSonarCommentAboveIt() {
-    scan("""
-      resource "aws_s3_bucket_policy" "example" {
-        # NOSONAR
-        policy = <<EOF
-      {
-        "Statement": [{ "Effect": "Allow", "Principal": "*" }]
-      }
-      EOF
-        bucket = "example"
-      }""");
-    assertThat(visitor.noSonarLines()).containsExactlyInAnyOrder(2, 3, 4, 5, 6, 7);
-    verify(noSonarFilter).noSonarInFile(inputFile, Set.of(2, 3, 4, 5, 6, 7));
-  }
-
-  @Test
-  void shouldCoverWholeHeredocWithNoSonarCommentOnHeredocStartLine() {
-    scan("""
-      resource "aws_s3_bucket_policy" "example" {
-        policy = /* NOSONAR */ <<EOF
-      { "Statement": [{ "Effect": "Allow", "Principal": "*" }] }
-      EOF
-      }""");
-    assertThat(visitor.noSonarLines()).containsExactlyInAnyOrder(2, 3, 4);
-  }
-
-  @Test
-  void shouldNotCoverNextLineWithFullLineNoSonarCommentAboveOtherCode() {
-    scan("""
-      resource "aws_s3_bucket" "example" {
-        # NOSONAR
-        acl = "public-read"
-        policy = <<EOF
-      { "Statement": [] }
-      EOF
-      }""");
-    assertThat(visitor.noSonarLines()).containsExactly(2);
   }
 }

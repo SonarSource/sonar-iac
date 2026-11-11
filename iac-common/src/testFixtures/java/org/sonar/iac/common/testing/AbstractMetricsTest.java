@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -48,7 +47,6 @@ import static org.mockito.Mockito.when;
 
 public abstract class AbstractMetricsTest {
 
-  protected NoSonarFilter noSonarFilter = mock(NoSonarFilter.class);
   protected TreeParser<? extends Tree> parser;
   protected String language;
   protected MetricsVisitor visitor;

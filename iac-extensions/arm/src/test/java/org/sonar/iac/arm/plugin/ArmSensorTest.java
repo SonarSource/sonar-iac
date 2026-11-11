@@ -31,6 +31,7 @@ import org.sonar.iac.arm.visitors.ArmSymbolVisitor;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
+import org.sonar.iac.common.extension.visitors.NoSonarVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.predicates.FileType;
@@ -239,8 +240,8 @@ class ArmSensorTest extends ExtensionSensorTest {
   void shouldIncludeAllVisitorsInRegularContext() {
     List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(context, null);
     assertThat(visitors)
-      .hasOnlyElementsOfTypes(ArmSymbolVisitor.class, MetricsVisitor.class, ArmChecksVisitor.class, ArmHighlightingVisitor.class)
-      .hasSize(4);
+      .hasExactlyElementsOfTypes(ArmSymbolVisitor.class, NoSonarVisitor.class, ArmChecksVisitor.class, ArmMetricsVisitor.class,
+        ArmHighlightingVisitor.class);
   }
 
   @Test
@@ -248,7 +249,7 @@ class ArmSensorTest extends ExtensionSensorTest {
     List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(sonarLintContext, null);
     assertThat(visitors)
       .doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class)
-      .hasExactlyElementsOfTypes(ArmSymbolVisitor.class, ArmChecksVisitor.class);
+      .hasExactlyElementsOfTypes(ArmSymbolVisitor.class, NoSonarVisitor.class, ArmChecksVisitor.class);
   }
 
   @Test

@@ -33,6 +33,8 @@ import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
+import org.sonar.iac.terraform.visitors.TerraformChecksVisitor;
+import org.sonar.iac.terraform.visitors.TerraformNoSonarVisitor;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 
@@ -92,13 +94,17 @@ class TerraformSensorTest extends ExtensionSensorTest {
 
   @Test
   void visitors() {
-    assertThat(sensor().visitors(context, null)).hasSize(3);
+    List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(context, null);
+    assertThat(visitors).hasSize(4);
+    assertThat(visitors.get(0)).isInstanceOf(TerraformNoSonarVisitor.class);
   }
 
   @Test
   void shouldNotReturnHighlightingAndMetricsVisitorsInSonarLintContext() {
     List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(sonarLintContext, null);
-    assertThat(visitors).doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class);
+    assertThat(visitors)
+      .doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class)
+      .hasExactlyElementsOfTypes(TerraformNoSonarVisitor.class, TerraformChecksVisitor.class);
   }
 
   private TerraformSensor sensor(String... rules) {

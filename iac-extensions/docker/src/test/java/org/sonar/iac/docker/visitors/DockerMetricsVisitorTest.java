@@ -16,7 +16,6 @@
  */
 package org.sonar.iac.docker.visitors;
 
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Tree;
@@ -28,7 +27,6 @@ import org.sonar.iac.docker.plugin.DockerLanguage;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 
 class DockerMetricsVisitorTest extends AbstractMetricsTest {
 
@@ -39,7 +37,7 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry);
+    return new DockerMetricsVisitor(fileLinesContextFactory, sensorTelemetry);
   }
 
   @Override
@@ -59,101 +57,5 @@ class DockerMetricsVisitorTest extends AbstractMetricsTest {
         command2""");
     assertThat(visitor.linesOfCode()).containsExactly(1, 3, 5, 6, 7);
     verifyLinesOfCodeMetricsAndTelemetry(1, 3, 5, 6, 7);
-  }
-
-  @Test
-  void shouldCoverWholeNextInstructionWithFullLineNoSonarComment() {
-    scan("""
-      FROM foo
-      # NOSONAR
-
-      COPY --chmod=777 \\
-           src/ \\
-           /app/
-      USER root""");
-    assertThat(visitor.noSonarLines()).containsExactlyInAnyOrder(2, 4, 5, 6);
-    verify(noSonarFilter).noSonarInFile(inputFile, Set.of(2, 4, 5, 6));
-  }
-
-  @Test
-  void shouldCoverSingleLineInstructionWithFullLineNoSonarComment() {
-    scan("""
-      FROM foo
-      # NOSONAR
-      USER root
-      RUN chmod 777 /app""");
-    assertThat(visitor.noSonarLines()).containsExactlyInAnyOrder(2, 3);
-  }
-
-  @Test
-  void shouldCoverNextLineOnlyWithNoSonarCommentInsideRunContinuation() {
-    scan("""
-      FROM foo
-      RUN apt-get update && \\
-          # NOSONAR
-          chmod 777 /app/data && \\
-          rm -rf /tmp/cache
-      USER root""");
-    assertThat(visitor.noSonarLines()).containsExactlyInAnyOrder(3, 4);
-  }
-
-  @Test
-  void shouldCoverNextLineWithNoSonarCommentInsideCopyContinuation() {
-    scan("""
-      FROM foo
-      COPY --chmod=777 \\
-           # NOSONAR
-           src/ \\
-           /app/""");
-    assertThat(visitor.noSonarLines()).containsExactlyInAnyOrder(3, 4);
-  }
-
-  @Test
-  void shouldCoverWholeHeredocInstructionWithFullLineNoSonarComment() {
-    scan("""
-      FROM foo
-      # NOSONAR
-      RUN <<EOF
-      chmod 777 /app/data
-      EOF
-      USER root""");
-    assertThat(visitor.noSonarLines()).containsExactlyInAnyOrder(2, 3, 4, 5);
-  }
-
-  @Test
-  void shouldCoverNextLineWithNoSonarCommentInsideHeredoc() {
-    scan("""
-      FROM foo
-      RUN <<EOF
-      apt-get update
-      # NOSONAR
-      chmod 777 /app/data
-      EOF""");
-    assertThat(visitor.noSonarLines()).containsExactlyInAnyOrder(4, 5);
-  }
-
-  @Test
-  void shouldCoverNextInstructionWithWindowsLineEndings() {
-    scan("FROM foo\r\n# NOSONAR\r\nUSER root\r\n");
-    assertThat(visitor.noSonarLines()).containsExactlyInAnyOrder(2, 3);
-  }
-
-  @Test
-  void shouldOnlyRegisterOwnLineWhenNoCodeFollowsNoSonarComment() {
-    scan("""
-      FROM foo
-      # NOSONAR
-      """);
-    assertThat(visitor.noSonarLines()).containsExactly(2);
-  }
-
-  @Test
-  void shouldNotRegisterLinesWithoutNoSonarComment() {
-    scan("""
-      # comment
-      FROM foo
-      # nosonar
-      USER root""");
-    assertThat(visitor.noSonarLines()).isEmpty();
   }
 }

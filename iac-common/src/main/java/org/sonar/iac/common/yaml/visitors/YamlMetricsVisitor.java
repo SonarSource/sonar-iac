@@ -20,7 +20,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Tree;
 import org.sonar.iac.common.extension.ParseException;
@@ -31,9 +30,8 @@ import org.sonar.iac.common.yaml.tree.YamlTree;
 
 public class YamlMetricsVisitor extends MetricsVisitor {
 
-  public YamlMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetry sensorTelemetry,
-    String language) {
-    super(fileLinesContextFactory, noSonarFilter, sensorTelemetry, language);
+  public YamlMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, SensorTelemetry sensorTelemetry, String language) {
+    super(fileLinesContextFactory, sensorTelemetry, language);
   }
 
   @Override

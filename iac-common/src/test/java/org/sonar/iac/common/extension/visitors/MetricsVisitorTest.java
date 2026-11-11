@@ -18,9 +18,7 @@ package org.sonar.iac.common.extension.visitors;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.common.api.tree.Comment;
@@ -33,7 +31,6 @@ import org.sonar.iac.common.extension.TreeParser;
 import org.sonar.iac.common.testing.AbstractMetricsTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 
 class MetricsVisitorTest extends AbstractMetricsTest {
 
@@ -44,7 +41,7 @@ class MetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new MetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry, languageKey()) {
+    return new MetricsVisitor(fileLinesContextFactory, sensorTelemetry, languageKey()) {
     };
   }
 
@@ -58,10 +55,6 @@ class MetricsVisitorTest extends AbstractMetricsTest {
     MetricsVisitor visitor = scan("#comment\nfoo\n \n#NOSONAR\n#");
     assertThat(visitor.commentLines()).containsExactly(1);
     assertThat(visitor.linesOfCode()).containsExactly(2);
-    assertThat(visitor.noSonarLines()).containsExactly(3);
-    Set<Integer> nosonarLines = new HashSet<>();
-    nosonarLines.add(3);
-    verify(noSonarFilter).noSonarInFile(inputFile, nosonarLines);
     verifyLinesOfCodeMetricsAndTelemetry(2);
   }
 

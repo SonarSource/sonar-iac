@@ -27,7 +27,7 @@ import org.jspecify.annotations.Nullable;
 import org.sonar.iac.common.api.tree.impl.TextRange;
 
 /**
- * Computes the lines covered by issue suppression comments, as detected by {@link MetricsVisitor}, that are written alone on
+ * Computes the lines covered by issue suppression comments, as detected by {@link NoSonarVisitor}, that are written alone on
  * their line. It is used where the line an issue is reported on cannot always hold a comment, for example a Dockerfile
  * instruction, a {@code .properties} entry or the content of a heredoc.
  * <p>

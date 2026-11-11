@@ -45,6 +45,7 @@ import org.sonar.iac.jvmframeworkconfig.checks.spring.SpringConfigCheckList;
 import org.sonar.iac.jvmframeworkconfig.parser.JvmFrameworkConfigParser;
 import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigHighlightingVisitor;
 import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigMetricsVisitor;
+import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigNoSonarVisitor;
 import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigTelemetryVisitor;
 
 import static org.sonar.iac.jvmframeworkconfig.plugin.JvmFrameworkConfigExtension.JAVA_REPOSITORY_KEY;
@@ -117,20 +118,18 @@ public class JvmFrameworkConfigSensor extends IacSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     var visitors = new ArrayList<TreeVisitor<InputFileContext>>();
-    var isNotSonarLintContext = SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime());
 
-    if (isNotSonarLintContext) {
-      // The suppressed lines must be registered with NoSonarFilter before ChecksVisitor saves the issues
-      visitors.add(new JvmFrameworkConfigMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
-    }
+    // The suppressed lines must be registered with NoSonarFilter before ChecksVisitor saves the issues
+    visitors.add(new JvmFrameworkConfigNoSonarVisitor(noSonarFilter));
 
     visitors.add(new ChecksVisitor(ChecksVisitor.activeChecks(commonConfigChecks), statistics));
     visitors.add(new ChecksVisitor(ChecksVisitor.activeChecks(springConfigChecks), statistics));
     visitors.add(new ChecksVisitor(ChecksVisitor.activeChecks(micronautConfigChecks), statistics));
     visitors.add(new ChecksVisitor(ChecksVisitor.activeChecks(quarkusConfigChecks), statistics));
 
-    if (isNotSonarLintContext) {
+    if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
       visitors.add(telemetryVisitor);
+      visitors.add(new JvmFrameworkConfigMetricsVisitor(fileLinesContextFactory, sensorTelemetry));
       visitors.add(new JvmFrameworkConfigHighlightingVisitor());
     }
 

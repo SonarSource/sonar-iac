@@ -31,7 +31,7 @@ import org.sonar.iac.common.predicates.YamlFileTypeCache;
 import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.testing.ExtensionSensorTest;
 import org.sonar.iac.common.yaml.YamlLanguage;
-import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigMetricsVisitor;
+import org.sonar.iac.jvmframeworkconfig.plugin.visitors.JvmFrameworkConfigNoSonarVisitor;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 
@@ -157,13 +157,13 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
   @Test
   void shouldReturnVisitors() {
     var sensor = (JvmFrameworkConfigSensor) sensor(checkFactory());
-    assertThat(sensor.visitors(context, null)).hasSize(7);
+    assertThat(sensor.visitors(context, null)).hasSize(8);
   }
 
   @Test
   void shouldReturnFewerVisitorsInSonarLintContext() {
     var sensor = (JvmFrameworkConfigSensor) sensor(checkFactory());
-    assertThat(sensor.visitors(sonarLintContext, null)).hasSize(4);
+    assertThat(sensor.visitors(sonarLintContext, null)).hasSize(5);
   }
 
   @Test
@@ -273,10 +273,18 @@ class JvmFrameworkConfigSensorTest extends ExtensionSensorTest {
   }
 
   @Test
-  void shouldRunMetricsVisitorBeforeChecksVisitorsToRegisterNoSonarLinesFirst() {
+  void shouldRunNoSonarVisitorBeforeChecksVisitorsToRegisterNoSonarLinesFirst() {
     var sensor = (JvmFrameworkConfigSensor) sensor(checkFactory());
     var visitors = sensor.visitors(context, null);
-    assertThat(visitors.get(0)).isInstanceOf(JvmFrameworkConfigMetricsVisitor.class);
+    assertThat(visitors.get(0)).isInstanceOf(JvmFrameworkConfigNoSonarVisitor.class);
+    assertThat(visitors.subList(1, 5)).allMatch(ChecksVisitor.class::isInstance);
+  }
+
+  @Test
+  void shouldRunNoSonarVisitorBeforeChecksVisitorsInSonarLintContext() {
+    var sensor = (JvmFrameworkConfigSensor) sensor(checkFactory());
+    var visitors = sensor.visitors(sonarLintContext, null);
+    assertThat(visitors.get(0)).isInstanceOf(JvmFrameworkConfigNoSonarVisitor.class);
     assertThat(visitors.subList(1, 5)).allMatch(ChecksVisitor.class::isInstance);
   }
 }

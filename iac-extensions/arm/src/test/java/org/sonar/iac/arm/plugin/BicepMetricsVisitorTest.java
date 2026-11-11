@@ -38,7 +38,7 @@ class BicepMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new ArmMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry);
+    return new ArmMetricsVisitor(fileLinesContextFactory, sensorTelemetry);
   }
 
   @Override
@@ -72,19 +72,20 @@ class BicepMetricsVisitorTest extends AbstractMetricsTest {
 
   @ParameterizedTest
   @ValueSource(strings = {
-    "// Comment line 1\n" +
-      "// Comment line 2\n",
-    "/*\n" +
-      "Block comment\n" +
-      "*/\n",
-    "/* Block comment\n" +
-      "with text\n" +
-      "near markers */\n",
-    "/* single-line block comment */\n",
-    "/*\n" +
-      "split block comment */\n",
-    "/* split block comment\n" +
-      "*/\n",
+    """
+      // Comment line 1
+      // Comment line 2
+      /*
+      Block comment
+      */
+      /* Block comment
+      with text
+      near markers */
+      /* single-line block comment */
+      /*
+      split block comment */
+      /* split block comment
+      */"""
   })
   void shouldCalculateCommentLines(String code) {
     scan(code);

@@ -16,7 +16,6 @@
  */
 package org.sonar.iac.arm.plugin;
 
-import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.iac.arm.tree.api.bicep.SyntaxToken;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
@@ -26,8 +25,8 @@ import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
 import static org.sonar.iac.arm.plugin.ArmSensor.isBicepFile;
 
 public class ArmMetricsVisitor extends YamlMetricsVisitor {
-  protected ArmMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetry sensorTelemetry) {
-    super(fileLinesContextFactory, noSonarFilter, sensorTelemetry, ArmExtension.REPOSITORY_KEY);
+  protected ArmMetricsVisitor(FileLinesContextFactory fileLinesContextFactory, SensorTelemetry sensorTelemetry) {
+    super(fileLinesContextFactory, sensorTelemetry, ArmExtension.REPOSITORY_KEY);
   }
 
   @Override

@@ -40,6 +40,7 @@ import org.sonar.iac.common.predicates.FileType;
 import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.yaml.AbstractYamlLanguageSensor;
 import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
+import org.sonar.iac.common.yaml.visitors.YamlNoSonarVisitor;
 import org.sonar.iac.helm.HelmEvaluator;
 import org.sonar.iac.helm.HelmFileSystem;
 import org.sonar.iac.kubernetes.checks.KubernetesCheckList;
@@ -131,9 +132,10 @@ public class KubernetesSensor extends AbstractYamlLanguageSensor {
   @Override
   protected List<TreeVisitor<InputFileContext>> visitors(SensorContext sensorContext, DurationStatistics statistics) {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
+    visitors.add(new YamlNoSonarVisitor(noSonarFilter));
     if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
       visitors.add(new KubernetesHighlightingVisitor());
-      visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry, repositoryKey()));
+      visitors.add(new YamlMetricsVisitor(fileLinesContextFactory, sensorTelemetry, repositoryKey()));
     }
     visitors.add(new ProjectContextEnricherVisitor(projectContextImpl));
     return visitors;

@@ -45,6 +45,7 @@ import org.sonar.iac.docker.checks.DockerCheckList;
 import org.sonar.iac.docker.parser.DockerParser;
 import org.sonar.iac.docker.visitors.DockerHighlightingVisitor;
 import org.sonar.iac.docker.visitors.DockerMetricsVisitor;
+import org.sonar.iac.docker.visitors.DockerNoSonarVisitor;
 import org.sonar.iac.docker.visitors.DockerSymbolVisitor;
 
 public class DockerSensor extends IacSensor {
@@ -198,14 +199,10 @@ public class DockerSensor extends IacSensor {
     List<TreeVisitor<InputFileContext>> visitors = new ArrayList<>();
     visitors.add(new DockerSymbolVisitor());
     visitors.addAll(preCheckVisitors());
-    var isNotSonarLintContext = SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime());
-    if (isNotSonarLintContext) {
-      // The suppressed lines must be registered with NoSonarFilter before ChecksVisitor saves the issues
-      visitors.add(new DockerMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry));
-      visitors.addAll(noSonarVisitors());
-    }
+    visitors.addAll(noSonarVisitors());
     visitors.add(createChecksVisitor(activeChecks(sensorContext), statistics));
-    if (isNotSonarLintContext) {
+    if (SonarRuntimeUtils.isNotSonarLintContext(sensorContext.runtime())) {
+      visitors.add(new DockerMetricsVisitor(fileLinesContextFactory, sensorTelemetry));
       visitors.add(new DockerHighlightingVisitor());
     }
     return visitors;
@@ -245,11 +242,11 @@ public class DockerSensor extends IacSensor {
   }
 
   /**
-   * Visitors registering further suppressed lines with {@link NoSonarFilter}, in addition to the metrics visitor.
-   * Like the metrics visitor, they run before the checks and only outside of SonarLint.
+   * Visitors registering further suppressed lines with {@link NoSonarFilter}, in addition to {@link DockerNoSonarVisitor}.
+   * Like it, they run before the checks, including in SonarQube for IDE.
    */
   protected List<TreeVisitor<InputFileContext>> noSonarVisitors() {
-    return List.of();
+    return List.of(new DockerNoSonarVisitor(noSonarFilter));
   }
 
   @Override

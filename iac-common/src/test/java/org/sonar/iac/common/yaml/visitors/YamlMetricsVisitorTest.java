@@ -17,9 +17,6 @@
 package org.sonar.iac.common.yaml.visitors;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -36,7 +33,6 @@ import org.sonar.iac.common.yaml.YamlParser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class YamlMetricsVisitorTest extends AbstractMetricsTest {
@@ -48,7 +44,7 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
 
   @Override
   protected MetricsVisitor metricsVisitor(FileLinesContextFactory fileLinesContextFactory) {
-    return new YamlMetricsVisitor(fileLinesContextFactory, noSonarFilter, sensorTelemetry, languageKey());
+    return new YamlMetricsVisitor(fileLinesContextFactory, sensorTelemetry, languageKey());
   }
 
   @Override
@@ -172,13 +168,11 @@ class YamlMetricsVisitorTest extends AbstractMetricsTest {
   }
 
   @Test
-  void noSonarLines() {
+  void shouldNotCountNoSonarCommentsAsCommentLines() {
     scan("""
       # NOSONAR
       key: value # NOSONAR""");
-    assertThat(visitor.noSonarLines()).containsExactly(1, 2);
-    Set<Integer> nosonarLines = new HashSet<>(Arrays.asList(1, 2));
-    verify(noSonarFilter).noSonarInFile(inputFile, nosonarLines);
+    assertThat(visitor.commentLines()).isEmpty();
     verifyLinesOfCodeMetricsAndTelemetry(2);
   }
 }

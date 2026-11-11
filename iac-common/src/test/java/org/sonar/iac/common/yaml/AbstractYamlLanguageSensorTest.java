@@ -28,12 +28,16 @@ import org.sonar.api.resources.Language;
 import org.sonar.iac.common.extension.DurationStatistics;
 import org.sonar.iac.common.extension.analyzer.Analyzer;
 import org.sonar.iac.common.extension.analyzer.SingleFileAnalyzer;
+import org.sonar.iac.common.extension.visitors.ChecksVisitor;
 import org.sonar.iac.common.extension.visitors.InputFileContext;
 import org.sonar.iac.common.extension.visitors.MetricsVisitor;
 import org.sonar.iac.common.extension.visitors.SyntaxHighlightingVisitor;
 import org.sonar.iac.common.extension.visitors.TreeVisitor;
 import org.sonar.iac.common.predicates.YamlFileTypeResolver;
 import org.sonar.iac.common.testing.AbstractSensorTest;
+import org.sonar.iac.common.yaml.visitors.YamlHighlightingVisitor;
+import org.sonar.iac.common.yaml.visitors.YamlMetricsVisitor;
+import org.sonar.iac.common.yaml.visitors.YamlNoSonarVisitor;
 import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,13 +59,16 @@ class AbstractYamlLanguageSensorTest extends AbstractSensorTest {
 
   @Test
   void shouldCreateVisitors() {
-    assertThat(sensor().visitors(context, mock(DurationStatistics.class))).hasSize(3);
+    assertThat(sensor().visitors(context, mock(DurationStatistics.class)))
+      .hasExactlyElementsOfTypes(YamlNoSonarVisitor.class, YamlHighlightingVisitor.class, YamlMetricsVisitor.class, ChecksVisitor.class);
   }
 
   @Test
   void shouldNotReturnHighlightingAndMetricsVisitorsInSonarLintContext() {
     List<TreeVisitor<InputFileContext>> visitors = sensor().visitors(sonarLintContext, mock(DurationStatistics.class));
-    assertThat(visitors).doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class);
+    assertThat(visitors)
+      .doesNotHaveAnyElementsOfTypes(SyntaxHighlightingVisitor.class, MetricsVisitor.class)
+      .hasExactlyElementsOfTypes(YamlNoSonarVisitor.class, ChecksVisitor.class);
   }
 
   @Test

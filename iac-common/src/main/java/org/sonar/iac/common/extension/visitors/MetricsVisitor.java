@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import org.sonar.api.batch.measure.Metric;
-import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -32,20 +31,15 @@ import org.sonar.iac.common.api.tree.impl.TextRange;
 
 public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
 
-  public static final String NOSONAR_PREFIX = "NOSONAR";
   private final FileLinesContextFactory fileLinesContextFactory;
-  private final NoSonarFilter noSonarFilter;
   private final SensorTelemetry sensorTelemetry;
   protected final String language;
 
   private Set<Integer> linesOfCode = new HashSet<>();
   private Set<Integer> commentLines = new HashSet<>();
-  private Set<Integer> noSonarLines = new HashSet<>();
 
-  protected MetricsVisitor(FileLinesContextFactory fileLinesContextFactory, NoSonarFilter noSonarFilter, SensorTelemetry sensorTelemetry,
-    String language) {
+  protected MetricsVisitor(FileLinesContextFactory fileLinesContextFactory, SensorTelemetry sensorTelemetry, String language) {
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.noSonarFilter = noSonarFilter;
     this.sensorTelemetry = sensorTelemetry;
     this.language = language;
     languageSpecificMetrics();
@@ -59,7 +53,6 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
   protected void before(InputFileContext ctx, Tree root) {
     linesOfCode = new HashSet<>();
     commentLines = new HashSet<>();
-    noSonarLines = new HashSet<>();
   }
 
   @Override
@@ -75,7 +68,6 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(ctx.inputFile);
     linesOfCode.forEach(line -> fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1));
     fileLinesContext.save();
-    noSonarFilter.noSonarInFile(ctx.inputFile, noSonarLines);
   }
 
   protected void addLoCTelemetry(String language) {
@@ -86,14 +78,15 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
     sensorTelemetry.addFileSize(language, filesize);
   }
 
+  /**
+   * Lines of comments suppressing issues are not counted as comment lines. They are registered by {@link NoSonarVisitor}.
+   */
   protected void addCommentLines(List<Comment> comments) {
     for (Comment comment : comments) {
       String[] lines = comment.contentText().split("(\r)?\n|\r", -1);
       int currentLine = comment.textRange().start().line();
       for (String line : lines) {
-        if (line.contains(NOSONAR_PREFIX)) {
-          noSonarLines.add(currentLine);
-        } else if (hasContent(line)) {
+        if (!line.contains(NoSonarVisitor.NOSONAR_PREFIX) && hasContent(line)) {
           commentLines.add(currentLine);
         }
         currentLine++;
@@ -119,10 +112,6 @@ public abstract class MetricsVisitor extends TreeVisitor<InputFileContext> {
 
   public Set<Integer> commentLines() {
     return commentLines;
-  }
-
-  public Set<Integer> noSonarLines() {
-    return noSonarLines;
   }
 
   public <T extends IacToken> BiConsumer<InputFileContext, T> defaultMetricsVisitor() {
