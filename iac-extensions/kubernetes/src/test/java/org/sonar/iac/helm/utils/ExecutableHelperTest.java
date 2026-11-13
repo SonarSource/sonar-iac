@@ -16,6 +16,7 @@
  */
 package org.sonar.iac.helm.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +36,10 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ExecutableHelperTest {
@@ -81,11 +85,33 @@ class ExecutableHelperTest {
     var process = mock(Process.class);
     var is = mock(InputStream.class);
     when(process.getInputStream()).thenReturn(is);
-    when(is.readAllBytes()).thenThrow(new IOException("Mocked IOException"));
+    when(is.readNBytes(anyInt())).thenThrow(new IOException("Mocked IOException"));
 
     var bytes = ExecutableHelper.readProcessOutput(process);
 
     Assertions.assertThat(bytes).isEmpty();
+  }
+
+  @Test
+  void shouldReturnEmptyArrayAndDestroyProcessWhenOutputExceedsLimit() {
+    var process = mock(Process.class);
+    when(process.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[11]));
+
+    var bytes = ExecutableHelper.readProcessOutput(process, 10);
+
+    assertThat(bytes).isEmpty();
+    verify(process).destroy();
+  }
+
+  @Test
+  void shouldReturnOutputWithinLimit() {
+    var process = mock(Process.class);
+    when(process.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[10]));
+
+    var bytes = ExecutableHelper.readProcessOutput(process, 10);
+
+    assertThat(bytes).hasSize(10);
+    verify(process, never()).destroy();
   }
 
   @Test

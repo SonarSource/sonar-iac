@@ -120,7 +120,7 @@ func addTemplatesIfMissing(tmpl *template.Template, referenceFiles *converters.F
 }
 
 func executePreparedTemplate(tmpl *template.Template, templateName string, values map[string]any) EvaluationResult {
-	var buf strings.Builder
+	buf := boundedBuilder{limit: maxRenderedOutputBytes}
 	err := tmpl.ExecuteTemplate(&buf, templateName, values)
 	if err != nil {
 		return resultWithError(err)

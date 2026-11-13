@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig/v3"
 	"github.com/sonarsource/go/src/text/template"
@@ -241,6 +242,29 @@ var includedNames = make(map[string]int)
 
 const includedMaxRecursion = 1000
 
+const maxRenderedOutputBytes = 64 * 1024 * 1024
+
+// boundedBuilder is a strings.Builder-backed io.Writer that rejects writes once the
+// accumulated output would exceed limit, preventing unbounded memory growth from
+// exponentially expanding template output.
+type boundedBuilder struct {
+	sb    strings.Builder
+	limit int
+}
+
+var errOutputTooLarge = errors.New("rendered template output exceeds the maximum allowed size")
+
+func (b *boundedBuilder) Write(p []byte) (int, error) {
+	if b.sb.Len()+len(p) > b.limit {
+		return 0, errOutputTooLarge
+	}
+	return b.sb.Write(p)
+}
+
+func (b *boundedBuilder) String() string {
+	return b.sb.String()
+}
+
 func initSprigFunctions() template.FuncMap {
 	sprigAllFunctions := sprig.TxtFuncMap()
 
@@ -250,7 +274,68 @@ func initSprigFunctions() template.FuncMap {
 			result[key] = value
 		}
 	}
+
+	// Override functions that can produce arbitrarily large strings with bounded versions, so that the size
+	// is checked before (or right after) allocation instead of only when the output is written.
+	result["repeat"] = boundedRepeat
+	result["indent"] = boundedIndent
+	result["nindent"] = boundedNindent
+	sprigCat := sprigAllFunctions["cat"].(func(...interface{}) string)
+	result["cat"] = func(v ...interface{}) (string, error) {
+		return checkResultSize(sprigCat(v...))
+	}
 	return result
+}
+
+func checkResultSize(result string) (string, error) {
+	if len(result) > maxRenderedOutputBytes {
+		return "", errOutputTooLarge
+	}
+	return result, nil
+}
+
+func boundedRepeat(count int, str string) (string, error) {
+	if count < 0 {
+		return "", errors.New("repeat count must not be negative")
+	}
+	if len(str) > 0 && count > maxRenderedOutputBytes/len(str) {
+		return "", errOutputTooLarge
+	}
+	return strings.Repeat(str, count), nil
+}
+
+func checkIndentedSize(spaces int, s string, extra int) error {
+	if spaces < 0 {
+		return errors.New("indentation must not be negative")
+	}
+	base := len(s) + extra
+	if base > maxRenderedOutputBytes {
+		return errOutputTooLarge
+	}
+	lines := strings.Count(s, "\n") + 1
+	if spaces > (maxRenderedOutputBytes-base)/lines {
+		return errOutputTooLarge
+	}
+	return nil
+}
+
+func indentLines(spaces int, s string) string {
+	pad := strings.Repeat(" ", spaces)
+	return pad + strings.ReplaceAll(s, "\n", "\n"+pad)
+}
+
+func boundedIndent(spaces int, s string) (string, error) {
+	if err := checkIndentedSize(spaces, s, 0); err != nil {
+		return "", err
+	}
+	return indentLines(spaces, s), nil
+}
+
+func boundedNindent(spaces int, s string) (string, error) {
+	if err := checkIndentedSize(spaces, s, 1); err != nil {
+		return "", err
+	}
+	return "\n" + indentLines(spaces, s), nil
 }
 
 func addCustomFunctions(tmpl *template.Template) *template.FuncMap {
@@ -261,7 +346,7 @@ func addCustomFunctions(tmpl *template.Template) *template.FuncMap {
 	}
 
 	functions["include"] = func(name string, data interface{}) (string, error) {
-		var buf strings.Builder
+		buf := boundedBuilder{limit: maxRenderedOutputBytes}
 		v, ok := includedNames[name]
 		if ok {
 			if v > includedMaxRecursion {
@@ -276,6 +361,17 @@ func addCustomFunctions(tmpl *template.Template) *template.FuncMap {
 		return buf.String(), err
 	}
 	functions["required"] = required
+
+	// Override the builtin print functions, so that strings built in pipelines cannot grow unbounded
+	functions["print"] = func(args ...interface{}) (string, error) {
+		return checkResultSize(fmt.Sprint(args...))
+	}
+	functions["printf"] = func(format string, args ...interface{}) (string, error) {
+		return checkResultSize(fmt.Sprintf(format, args...))
+	}
+	functions["println"] = func(args ...interface{}) (string, error) {
+		return checkResultSize(fmt.Sprintln(args...))
+	}
 
 	functions["getHostByName"] = func(name string) string {
 		// IP for documentation purpose

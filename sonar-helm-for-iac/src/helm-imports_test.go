@@ -82,6 +82,79 @@ func Test_toTomlError(t *testing.T) {
 	assert.Equal(t, "unsupported type: unsafe.Pointer", actual)
 }
 
+func Test_boundedBuilder_rejects_output_over_limit(t *testing.T) {
+	b := boundedBuilder{limit: 5}
+	_, err := b.Write([]byte("abcde"))
+	assert.NoError(t, err)
+	_, err = b.Write([]byte("f"))
+	assert.Error(t, err)
+	assert.Equal(t, "abcde", b.String())
+}
+
+func Test_repeat_with_huge_count_fails(t *testing.T) {
+	repeatFn := sprigFunctions["repeat"].(func(int, string) (string, error))
+
+	actual, err := repeatFn(2000000000, "a")
+
+	assert.ErrorContains(t, err, "rendered template output exceeds the maximum allowed size")
+	assert.Equal(t, "", actual)
+}
+
+func Test_repeat_with_negative_count_fails(t *testing.T) {
+	repeatFn := sprigFunctions["repeat"].(func(int, string) (string, error))
+
+	actual, err := repeatFn(-1, "a")
+
+	assert.ErrorContains(t, err, "repeat count must not be negative")
+	assert.Equal(t, "", actual)
+}
+
+func Test_repeat_within_limit(t *testing.T) {
+	repeatFn := sprigFunctions["repeat"].(func(int, string) (string, error))
+
+	actual, err := repeatFn(3, "ab")
+
+	assert.NoError(t, err)
+	assert.Equal(t, "ababab", actual)
+}
+
+func Test_doubling_via_print_fails(t *testing.T) {
+	tmpl := template.New("test")
+	tmpl.Funcs(*addCustomFunctions(tmpl))
+	_, err := tmpl.New("doubling").Parse(`{{ $x := "a" }}{{ range until 40 }}{{ $x = print $x $x }}{{ end }}{{ $x }}`)
+	assert.NoError(t, err)
+
+	buf := boundedBuilder{limit: maxRenderedOutputBytes}
+	err = tmpl.ExecuteTemplate(&buf, "doubling", nil)
+
+	assert.ErrorContains(t, err, "rendered template output exceeds the maximum allowed size")
+}
+
+func Test_indent_with_huge_spaces_fails(t *testing.T) {
+	tmpl := template.New("test")
+	tmpl.Funcs(*addCustomFunctions(tmpl))
+	_, err := tmpl.New("indenting").Parse(`{{ indent 2000000000 "a\nb" }}`)
+	assert.NoError(t, err)
+
+	buf := boundedBuilder{limit: maxRenderedOutputBytes}
+	err = tmpl.ExecuteTemplate(&buf, "indenting", nil)
+
+	assert.ErrorContains(t, err, "rendered template output exceeds the maximum allowed size")
+}
+
+func Test_indent_and_nindent_within_limit(t *testing.T) {
+	indentFn := sprigFunctions["indent"].(func(int, string) (string, error))
+	nindentFn := sprigFunctions["nindent"].(func(int, string) (string, error))
+
+	indented, err := indentFn(2, "a\nb")
+	assert.NoError(t, err)
+	assert.Equal(t, "  a\n  b", indented)
+
+	nindented, err := nindentFn(2, "a\nb")
+	assert.NoError(t, err)
+	assert.Equal(t, "\n  a\n  b", nindented)
+}
+
 func Test_include_deep_recursion(t *testing.T) {
 	tmpl := template.New("test")
 	funcMap := *addCustomFunctions(tmpl)

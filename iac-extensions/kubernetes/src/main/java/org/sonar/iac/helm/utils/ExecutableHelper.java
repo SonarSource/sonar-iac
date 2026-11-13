@@ -34,6 +34,11 @@ import org.sonar.iac.helm.HelmEvaluator;
 
 public final class ExecutableHelper {
   private static final int BUFFER_SIZE = 8192;
+  /**
+   * Must exceed the Go {@code maxRenderedOutputBytes} (64 MiB), because the process output also contains the serialized AST
+   * and the Protobuf framing on top of the rendered template.
+   */
+  static final int MAX_PROCESS_OUTPUT_BYTES = 2 * 64 * 1024 * 1024;
   private static final Logger LOG = LoggerFactory.getLogger(ExecutableHelper.class);
 
   private ExecutableHelper() {
@@ -79,8 +84,18 @@ public final class ExecutableHelper {
    *   unreadable and an empty output as a failed evaluation, so no distinction is made between them.
    */
   public static byte[] readProcessOutput(Process process) {
+    return readProcessOutput(process, MAX_PROCESS_OUTPUT_BYTES);
+  }
+
+  static byte[] readProcessOutput(Process process, int maxBytes) {
     try (var output = process.getInputStream()) {
-      return output.readAllBytes();
+      var bytes = output.readNBytes(maxBytes + 1);
+      if (bytes.length > maxBytes) {
+        LOG.warn("Output of {} exceeds the maximum allowed size of {} bytes", HelmEvaluator.HELM_FOR_IAC_EXECUTABLE, maxBytes);
+        process.destroy();
+        return new byte[0];
+      }
+      return bytes;
     } catch (IOException e) {
       LOG.debug("Error reading process output for {}", HelmEvaluator.HELM_FOR_IAC_EXECUTABLE, e);
       return new byte[0];
