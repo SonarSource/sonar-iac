@@ -70,7 +70,7 @@ object CfnLintRulesGenerator {
             id,
             columns[2],
             RULE_URL.format(id),
-            DESCRIPTION_PREFIX.format(id, columns[3]),
+            DESCRIPTION_PREFIX.format(id, columns[3].asSafeHtml()),
             tags,
             type,
             severity,
@@ -85,6 +85,8 @@ object CfnLintRulesGenerator {
         toolName = "cfn-lint",
         docUrl = RULE_URL.format("")
     )
+
+    private fun String.asSafeHtml() = replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
     private fun String.toCamelCase() = replace("[a-z][A-Z]".toRegex()) { it.value.first() + "-" + it.value.last().lowercase() }
 }

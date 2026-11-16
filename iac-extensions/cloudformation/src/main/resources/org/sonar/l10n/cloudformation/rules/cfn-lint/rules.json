@@ -3780,7 +3780,7 @@
     "name": "Check if ImageId Parameters have the correct type",
     "url": "https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md#W2506",
     "tags": ["parameters","ec2","imageid"],
-    "description": "This issue is raised by the rule [W2506] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: See if there are any refs for ImageId to a parameter of inappropriate type. Appropriate Types are [AWS::EC2::Image::Id, AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>]",
+    "description": "This issue is raised by the rule [W2506] from \"AWS CloudFormation Linter\" (aka cfn-lint). This is not an issue raised by Sonar analyzers.<br/><br/>AWS CloudFormation Linter Message: See if there are any refs for ImageId to a parameter of inappropriate type. Appropriate Types are [AWS::EC2::Image::Id, AWS::SSM::Parameter::Value&lt;AWS::EC2::Image::Id&gt;]",
     "constantDebtMinutes": 5,
     "type": "CODE_SMELL",
     "severity": "MAJOR",
