@@ -69,10 +69,12 @@ public class YamlFileTypeResolver {
   protected final YamlFileTypeCache yamlFileTypeCache;
   protected final SharedFileHeadReader sharedFileHeadReader;
 
-  // Lazily built on first use via filePredicatesOrder(): a subclass contributes its own predicates through
-  // additionalFilePredicates(), which may depend on subclass fields only initialized after super(...) returns.
+  // Predicate orders are built lazily: contribution hooks may depend on subclass fields initialized after super(...).
   @Nullable
   private List<YamlFileTypePredicate> filePredicatesOrder;
+
+  @Nullable
+  private List<YamlFileTypePredicate> hiddenFilePredicatesOrder;
 
   public YamlFileTypeResolver(FileSystem fileSystem, Configuration config, YamlFileTypeCache yamlFileTypeCache) {
     FilePredicates predicates = fileSystem.predicates();
@@ -89,11 +91,24 @@ public class YamlFileTypeResolver {
   }
 
   /**
-   * Predicates contributed by a subclass, appended after the community predicates with the lowest precedence. Called
-   * lazily (not from the constructor) so a subclass' own fields are initialized first.
+   * Predicates tried after the community predicates; first match wins.
    */
   protected List<YamlFileTypePredicate> additionalFilePredicates() {
     return List.of();
+  }
+
+  /**
+   * Language gate for hidden MAIN files, independent of {@link #candidateLanguages()}.
+   */
+  protected FilePredicate hiddenLanguagePredicate(FilePredicates predicates) {
+    return predicates.hasLanguages(YAML_LANGUAGE_KEY, IacLanguage.GITHUB_ACTIONS.getKey());
+  }
+
+  /**
+   * Ordered predicates for hidden candidates on supporting runtimes; normal predicates are not included automatically.
+   */
+  protected List<YamlFileTypePredicate> hiddenFilePredicates() {
+    return List.of(githubActionsFilePredicate);
   }
 
   /**
@@ -141,6 +156,13 @@ public class YamlFileTypeResolver {
     return List.copyOf(order);
   }
 
+  private List<YamlFileTypePredicate> hiddenFilePredicatesOrder() {
+    if (hiddenFilePredicatesOrder == null) {
+      hiddenFilePredicatesOrder = List.copyOf(hiddenFilePredicates());
+    }
+    return hiddenFilePredicatesOrder;
+  }
+
   protected static boolean isExtendedLoggingEnabled(Configuration config) {
     return config.getBoolean(EXTENDED_LOGGING_PROPERTY_NAME).orElse(false);
   }
@@ -150,7 +172,9 @@ public class YamlFileTypeResolver {
    * recorded against whichever sensor actually triggers the (at most once) scan.
    */
   protected void dispatchTimers(DurationStatistics durationStatistics) {
-    filePredicatesOrder().forEach(predicate -> predicate.applyTimers(durationStatistics));
+    var predicates = new LinkedHashSet<>(filePredicatesOrder());
+    predicates.addAll(hiddenFilePredicatesOrder());
+    predicates.forEach(predicate -> predicate.applyTimers(durationStatistics));
   }
 
   public List<InputFile> getInputFiles(FileType fileType) {
@@ -185,13 +209,11 @@ public class YamlFileTypeResolver {
 
     var candidatePredicate = createCandidatePredicate(predicates);
     if (hiddenFilesAnalysisSupported) {
-      // Hidden files skip only the candidateLanguages() gate above, not a predicate's own language gate: a hidden
-      // .github/workflows file must still satisfy GithubActionsFilePredicate's own hasLanguages(...) check, since it's
-      // the only predicate tried against hidden files (see #classify).
+      // Hidden candidates have their own language gate and predicate order, not the normal classifier chain.
       var hiddenFileCandidates = predicates.and(
         IndexedFile::isHidden,
         predicates.hasType(InputFile.Type.MAIN),
-        predicates.hasLanguages(IacLanguage.YAML.getKey(), IacLanguage.GITHUB_ACTIONS.getKey()));
+        hiddenLanguagePredicate(predicates));
       candidatePredicate = predicates.or(
         predicates.and(inputFile -> !inputFile.isHidden(), candidatePredicate),
         hiddenFileCandidates);
@@ -214,11 +236,11 @@ public class YamlFileTypeResolver {
   }
 
   /**
-   * Assigns the candidate its {@link FileType}: first matching predicate wins, early return. A hidden file is matched
-   * only against {@link #githubActionsFilePredicate} - the only sensor currently matching on hidden files.
+   * Assigns the candidate its {@link FileType}: first matching predicate wins, early return.
+   * Supporting runtimes classify hidden files only through the dedicated hidden predicate order.
    */
   private void classify(InputFile inputFile, boolean hiddenFilesAnalysisSupported) {
-    var order = hiddenFilesAnalysisSupported && inputFile.isHidden() ? List.of(githubActionsFilePredicate) : filePredicatesOrder();
+    var order = hiddenFilesAnalysisSupported && inputFile.isHidden() ? hiddenFilePredicatesOrder() : filePredicatesOrder();
     for (YamlFileTypePredicate predicate : order) {
       if (predicate.apply(inputFile)) {
         yamlFileTypeCache.putIfUncached(inputFile, predicate.fileType());

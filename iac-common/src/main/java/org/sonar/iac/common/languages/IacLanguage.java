@@ -24,6 +24,7 @@ public enum IacLanguage {
   AZURE_PIPELINES("azurepipelines", "Azure Pipelines"),
   CLOUDFORMATION("cloudformation", "CloudFormation"),
   DOCKER("docker", "Docker"),
+  DOCKER_COMPOSE("dockercompose", "Docker Compose"),
   GITHUB_ACTIONS("githubactions", "GitHub Actions"),
   JAVA("java", "Java"),
   JSON("json", "JSON"),
