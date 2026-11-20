@@ -20,4 +20,10 @@ plugins {
 
 dependencies {
     implementation(libs.sonar.scanner.gradle)
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
