@@ -98,10 +98,10 @@ class ShellFormImplTest {
 
     assertThat(shellForm.arguments()).hasSize(1);
     assertThat(shellForm.arguments().get(0).expressions()).hasSize(1);
-    EncapsulatedVariable var = (EncapsulatedVariable) shellForm.arguments().get(0).expressions().get(0);
-    assertThat(var.identifier()).isEqualTo("var");
-    assertThat(var.modifierSeparator()).isNull();
-    assertThat(var.modifier()).hasValue("%%[a-z]+");
+    EncapsulatedVariable encapsulatedVariable = (EncapsulatedVariable) shellForm.arguments().get(0).expressions().get(0);
+    assertThat(encapsulatedVariable.identifier()).isEqualTo("var");
+    assertThat(encapsulatedVariable.modifierSeparator()).isNull();
+    assertThat(encapsulatedVariable.modifier()).hasValue("%%[a-z]+");
   }
 
   @Test

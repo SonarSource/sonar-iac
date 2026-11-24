@@ -51,12 +51,12 @@ class VariableDeclarationImplTest {
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(VARIABLE_DECLARATION)).isTrue();
 
-    VariableDeclaration var = (VariableDeclaration) tree.statements().get(0);
+    VariableDeclaration variableDeclaration = (VariableDeclaration) tree.statements().get(0);
 
-    assertThat(var.declaratedName()).hasKind(ArmTree.Kind.IDENTIFIER).hasValue("var").hasRange(3, 4, 3, 9);
-    assertThat(var.value()).asStringLiteral().hasValue("val").hasRange(3, 11, 3, 16);
+    assertThat(variableDeclaration.declaratedName()).hasKind(ArmTree.Kind.IDENTIFIER).hasValue("var").hasRange(3, 4, 3, 9);
+    assertThat(variableDeclaration.value()).asStringLiteral().hasValue("val").hasRange(3, 11, 3, 16);
 
-    assertThat(var.children()).hasSize(2);
+    assertThat(variableDeclaration.children()).hasSize(2);
   }
 
   @Test
@@ -89,11 +89,11 @@ class VariableDeclarationImplTest {
     assertThat(tree.statements()).hasSize(1);
     assertThat(tree.statements().get(0).is(VARIABLE_DECLARATION)).isTrue();
 
-    VariableDeclaration var = (VariableDeclaration) tree.statements().get(0);
+    VariableDeclaration variableDeclaration = (VariableDeclaration) tree.statements().get(0);
 
-    assertThat(var.declaratedName()).hasKind(ArmTree.Kind.IDENTIFIER).hasValue("var").hasRange(3, 4, 3, 9);
-    assertThat(var.value()).asStringLiteral().hasValue("val").hasRange(3, 11, 3, 16);
+    assertThat(variableDeclaration.declaratedName()).hasKind(ArmTree.Kind.IDENTIFIER).hasValue("var").hasRange(3, 4, 3, 9);
+    assertThat(variableDeclaration.value()).asStringLiteral().hasValue("val").hasRange(3, 11, 3, 16);
 
-    assertThat(var.children()).hasSize(2);
+    assertThat(variableDeclaration.children()).hasSize(2);
   }
 }
