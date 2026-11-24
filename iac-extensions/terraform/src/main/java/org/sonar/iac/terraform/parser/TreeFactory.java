@@ -79,6 +79,8 @@ import org.sonar.iac.terraform.tree.impl.TemplateInterpolationTreeImpl;
 import org.sonar.iac.terraform.tree.impl.TupleTreeImpl;
 import org.sonar.iac.terraform.tree.impl.VariableExprTreeImpl;
 
+// S1172 - Unused function parameters should be removed - the spacing argument is ignored, but it's needed from grammar perspective
+@SuppressWarnings("java:S1172")
 public class TreeFactory {
   public FileTree file(Optional<List<StatementTree>> statements, Optional<SyntaxToken> spacing, SyntaxToken eof) {
     return new FileTreeImpl(statements.or(Collections.emptyList()), eof);
@@ -239,12 +241,11 @@ public class TreeFactory {
   public ForObjectTree forObject(SyntaxToken openBrace,
     AbstractForTree.ForIntro intro,
     ExpressionTree firstExpression,
-    SyntaxToken arrow,
-    ExpressionTree secondExpression,
+    Pair<SyntaxToken, ExpressionTree> arrowAndSecondExpression,
     Optional<SyntaxToken> ellipsis,
     Optional<Pair<SyntaxToken, ExpressionTree>> condition,
     SyntaxToken closeBrace) {
-    return new ForObjectTreeImpl(openBrace, intro, firstExpression, arrow, secondExpression, ellipsis.orNull(), condition.orNull(), closeBrace);
+    return new ForObjectTreeImpl(openBrace, intro, firstExpression, arrowAndSecondExpression, ellipsis.orNull(), condition.orNull(), closeBrace);
   }
 
   public AbstractForTree.ForIntro forIntro(SyntaxToken forToken, SeparatedTrees<VariableExprTree> identifiers, SyntaxToken inToken,
