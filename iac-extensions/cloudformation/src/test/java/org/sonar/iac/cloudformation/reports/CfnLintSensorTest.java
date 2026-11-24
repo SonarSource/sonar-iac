@@ -51,7 +51,8 @@ class CfnLintSensorTest extends AbstractExternalReportSensorTest {
   @Override
   protected CfnLintRulesDefinition getRulesDefinition() {
     var rulesDefinition = mock(CfnLintRulesDefinition.class);
-    when(rulesDefinition.getRuleLoader()).thenReturn(mock(ExternalRuleLoader.class));
+    var ruleLoader = mock(ExternalRuleLoader.class);
+    when(rulesDefinition.getRuleLoader()).thenReturn(ruleLoader);
     return rulesDefinition;
   }
 

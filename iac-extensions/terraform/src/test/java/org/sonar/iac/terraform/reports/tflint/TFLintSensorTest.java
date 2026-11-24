@@ -52,7 +52,8 @@ class TFLintSensorTest extends AbstractExternalReportSensorTest {
   @Override
   protected TFLintRulesDefinition getRulesDefinition() {
     var rulesDefinition = mock(TFLintRulesDefinition.class);
-    when(rulesDefinition.getRuleLoader()).thenReturn(mock(ExternalRuleLoader.class));
+    var ruleLoader = mock(ExternalRuleLoader.class);
+    when(rulesDefinition.getRuleLoader()).thenReturn(ruleLoader);
     return rulesDefinition;
   }
 
