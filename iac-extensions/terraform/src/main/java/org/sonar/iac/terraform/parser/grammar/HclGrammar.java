@@ -308,8 +308,7 @@ public class HclGrammar {
       f.forObject(b.token(Punctuator.LCURLYBRACE),
         FOR_INTRO(),
         EXPRESSION(),
-        b.token(Punctuator.DOUBLEARROW),
-        EXPRESSION(),
+        f.newPair(b.token(Punctuator.DOUBLEARROW), EXPRESSION()),
         b.optional(b.token(Punctuator.ELLIPSIS)),
         b.optional(f.newPair(b.token(HclKeyword.IF), EXPRESSION())),
         b.token(Punctuator.RCURLYBRACE)));

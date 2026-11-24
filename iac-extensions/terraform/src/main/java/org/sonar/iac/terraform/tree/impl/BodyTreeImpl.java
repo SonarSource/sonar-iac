@@ -26,11 +26,11 @@ import org.sonar.iac.terraform.api.tree.SyntaxToken;
 
 public class BodyTreeImpl extends TerraformTreeImpl implements BodyTree {
 
-  private SyntaxToken openBrace;
+  private final SyntaxToken openBrace;
   @Nullable
-  private SyntaxToken newlineToken;
-  private List<StatementTree> statements;
-  private SyntaxToken closeBrace;
+  private final SyntaxToken newlineToken;
+  private final List<StatementTree> statements;
+  private final SyntaxToken closeBrace;
 
   public BodyTreeImpl(SyntaxToken openBrace, @Nullable SyntaxToken newlineToken, List<StatementTree> statements, SyntaxToken closeBrace) {
     this.openBrace = openBrace;
