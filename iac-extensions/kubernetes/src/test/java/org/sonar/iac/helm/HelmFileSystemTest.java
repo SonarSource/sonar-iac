@@ -54,7 +54,7 @@ class HelmFileSystemTest {
 
   private File baseDir;
 
-  private static final String helmProjectPathPrefix = "charts/project/";
+  private static final String HELM_PROJECT_PATH_PREFIX = "charts/project/";
 
   private SensorContextTester context;
 
@@ -65,7 +65,7 @@ class HelmFileSystemTest {
     baseDir = tmpDir.toPath().toRealPath().resolve("test-project").toFile();
     FileUtils.forceMkdir(baseDir);
     context = SensorContextTester.create(baseDir);
-    FileUtils.forceMkdir(baseDir.toPath().resolve(helmProjectPathPrefix).resolve("templates").toFile());
+    FileUtils.forceMkdir(baseDir.toPath().resolve(HELM_PROJECT_PATH_PREFIX).resolve("templates").toFile());
     helmFilesystem = new HelmFileSystem(new DefaultFileSystemProvider(context.fileSystem()));
   }
 
@@ -76,8 +76,8 @@ class HelmFileSystemTest {
 
   @Test
   void getFileRelativePathShouldReturnCorrectPathWhenHelmProjectFolderExists() throws IOException {
-    var inputFile = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
-    var chartYamlFile = createInputFile(helmProjectPathPrefix + File.separator + "Chart.yaml");
+    var inputFile = createInputFile(HELM_PROJECT_PATH_PREFIX + "templates/pod.yaml");
+    var chartYamlFile = createInputFile(HELM_PROJECT_PATH_PREFIX + File.separator + "Chart.yaml");
     addToFilesystem(context, inputFile, chartYamlFile);
     var inputFileContext = new HelmInputFileContext(context, inputFile, null);
 
@@ -87,7 +87,7 @@ class HelmFileSystemTest {
 
   @Test
   void getFileRelativePathShouldReturnFilenameWhenHelmProjectFolderDoesNotExist() throws IOException {
-    var inputFile = createInputFile(helmProjectPathPrefix + "pod.yaml");
+    var inputFile = createInputFile(HELM_PROJECT_PATH_PREFIX + "pod.yaml");
     var inputFileContext = new HelmInputFileContext(context, inputFile, null);
 
     var result = HelmFileSystem.getFileRelativePath(inputFileContext);
@@ -97,12 +97,12 @@ class HelmFileSystemTest {
   @MethodSource("inputFiles")
   @ParameterizedTest
   void inputFilesShouldBeCorrectlyRetrieved(String relativePath, boolean shouldBeIncluded) throws IOException {
-    FileUtils.forceMkdir(new File(baseDir + File.separator + helmProjectPathPrefix + "foo/bar"));
-    InputFile helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
+    FileUtils.forceMkdir(new File(baseDir + File.separator + HELM_PROJECT_PATH_PREFIX + "foo/bar"));
+    InputFile helmTemplate = createInputFile(HELM_PROJECT_PATH_PREFIX + "templates/pod.yaml");
 
-    InputFile chartYamlFile = createInputFile(helmProjectPathPrefix + File.separator + "Chart.yaml");
+    InputFile chartYamlFile = createInputFile(HELM_PROJECT_PATH_PREFIX + File.separator + "Chart.yaml");
     addToFilesystem(context, helmTemplate, chartYamlFile);
-    InputFile additionalFile = createInputFile(helmProjectPathPrefix + relativePath);
+    InputFile additionalFile = createInputFile(HELM_PROJECT_PATH_PREFIX + relativePath);
     addToFilesystem(context, helmTemplate, additionalFile);
 
     Map<String, String> helmDependentFiles = helmFilesystem.getRelatedHelmFiles(new HelmInputFileContext(context, helmTemplate, null));
@@ -135,7 +135,7 @@ class HelmFileSystemTest {
 
   @Test
   void shouldReturnEmptyMapWhenNoParentDirectoryCanBeFound() throws IOException {
-    var helmTemplate = createInputFile(helmProjectPathPrefix + "templates/pod.yaml");
+    var helmTemplate = createInputFile(HELM_PROJECT_PATH_PREFIX + "templates/pod.yaml");
     var relatedHelmFiles = helmFilesystem.getRelatedHelmFiles(new HelmInputFileContext(context, helmTemplate, null));
 
     assertThat(relatedHelmFiles).isEmpty();
@@ -193,8 +193,8 @@ class HelmFileSystemTest {
     // tempDir/Chart.yaml
     var chartPath = tmpDir.toPath().toRealPath().resolve("Chart.yaml");
     Files.createFile(chartPath);
-    FileUtils.forceMkdir(new File(baseDir + File.separator + helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4"));
-    var helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
+    FileUtils.forceMkdir(new File(baseDir + File.separator + HELM_PROJECT_PATH_PREFIX + "templates/sub1/sub2/sub3/sub4"));
+    var helmTemplate = createInputFile(HELM_PROJECT_PATH_PREFIX + "templates/sub1/sub2/sub3/sub4/pod.yaml");
     addToFilesystem(context, helmTemplate);
 
     var templateInputFileContext = new InputFileContext(context, helmTemplate, IacLanguage.KUBERNETES);
@@ -211,9 +211,9 @@ class HelmFileSystemTest {
 
   @Test
   void shouldReturnPathWhenChartYamlIsAboveSonarLint() throws IOException {
-    FileUtils.forceMkdir(new File(baseDir + File.separator + helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4"));
-    var chartYaml = createInputFile(helmProjectPathPrefix + "Chart.yaml");
-    var helmTemplate = createInputFile(helmProjectPathPrefix + "templates/sub1/sub2/sub3/sub4/pod.yaml");
+    FileUtils.forceMkdir(new File(baseDir + File.separator + HELM_PROJECT_PATH_PREFIX + "templates/sub1/sub2/sub3/sub4"));
+    var chartYaml = createInputFile(HELM_PROJECT_PATH_PREFIX + "Chart.yaml");
+    var helmTemplate = createInputFile(HELM_PROJECT_PATH_PREFIX + "templates/sub1/sub2/sub3/sub4/pod.yaml");
     addToFilesystem(context, helmTemplate);
 
     var templateInputFileContext = new InputFileContext(context, helmTemplate, IacLanguage.KUBERNETES);
@@ -224,7 +224,7 @@ class HelmFileSystemTest {
 
     var result = HelmFileSystem.retrieveHelmProjectFolder(Path.of(templateInputFileContext.inputFile.uri()), context.fileSystem(), sonarLintFileListener);
 
-    assertThat(result).isEqualTo(Path.of(baseDir + File.separator + helmProjectPathPrefix));
+    assertThat(result).isEqualTo(Path.of(baseDir + File.separator + HELM_PROJECT_PATH_PREFIX));
   }
 
   protected void addToFilesystem(SensorContextTester sensorContext, InputFile... inputFiles) {
