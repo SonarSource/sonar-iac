@@ -34,13 +34,11 @@ public final class YamlTreeUtils {
   }
 
   public static List<String> getListValueElements(@Nullable Tree tree) {
-    if (tree instanceof ScalarTree scalarTree) {
-      return List.of(TextUtils.getValue(scalarTree).orElse(""));
-    } else if (tree instanceof SequenceTree sequenceTree) {
-      return getValuesOfSequenceTree(sequenceTree);
-    } else {
-      return Collections.emptyList();
-    }
+    return switch (tree) {
+      case ScalarTree scalarTree -> List.of(TextUtils.getValue(scalarTree).orElse(""));
+      case SequenceTree sequenceTree -> getValuesOfSequenceTree(sequenceTree);
+      case null, default -> Collections.emptyList();
+    };
   }
 
   /**

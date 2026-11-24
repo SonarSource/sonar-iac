@@ -31,15 +31,12 @@ public interface IacYamlConverter<T extends Tree, S> {
     if (node.isRecursive()) {
       throw new ParserException("Recursive node found", node.getStartMark());
     }
-    if (node instanceof MappingNode mappingNode) {
-      return convertMapping(mappingNode);
-    } else if (node instanceof ScalarNode scalarNode) {
-      return convertScalar(scalarNode);
-    } else if (node instanceof SequenceNode sequenceNode) {
-      return convertSequence(sequenceNode);
-    } else {
-      throw new ParserException("Unexpected node type: " + node.getClass(), node.getStartMark());
-    }
+    return switch (node) {
+      case MappingNode mappingNode -> convertMapping(mappingNode);
+      case ScalarNode scalarNode -> convertScalar(scalarNode);
+      case SequenceNode sequenceNode -> convertSequence(sequenceNode);
+      default -> throw new ParserException("Unexpected node type: " + node.getClass(), node.getStartMark());
+    };
   }
 
   T convertFile(List<Node> nodes);
