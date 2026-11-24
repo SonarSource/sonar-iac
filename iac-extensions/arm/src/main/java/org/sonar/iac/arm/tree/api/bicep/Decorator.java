@@ -27,12 +27,10 @@ public interface Decorator extends HasKeyword {
   @Nullable
   default FunctionCall functionCallOrMemberFunctionCall() {
     Expression decoratorExpression = expression();
-    if (decoratorExpression instanceof FunctionCall functionCall) {
-      return functionCall;
-    } else if (decoratorExpression instanceof MemberExpression memberExpression && memberExpression.expression() instanceof FunctionCall functionCall) {
-      return functionCall;
-    } else {
-      return null;
-    }
+    return switch (decoratorExpression) {
+      case FunctionCall functionCall -> functionCall;
+      case MemberExpression memberExpression when memberExpression.expression() instanceof FunctionCall functionCall -> functionCall;
+      default -> null;
+    };
   }
 }
