@@ -17,7 +17,6 @@
 package org.sonar.iac.arm.checks;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -130,7 +129,7 @@ class SecureValuesExposureCheckTest {
     ResourceDeclaration resourceDeclaration = (ResourceDeclaration) file.statements().get(0);
     ContextualResource resource = ContextualResource.fromPresent(ArmTestUtils.CTX, resourceDeclaration);
 
-    List<Expression> references = SecureValuesExposureCheck.extractPropertyValuesFromTemplate(resource.object("template").list("resources")).collect(Collectors.toList());
+    List<Expression> references = SecureValuesExposureCheck.extractPropertyValuesFromTemplate(resource.object("template").list("resources")).toList();
 
     Assertions.assertThat(references).isNotEmpty();
     Assertions.assertThat(references)
@@ -184,7 +183,7 @@ class SecureValuesExposureCheckTest {
       }""");
     ContextualResource resource = ContextualResource.fromPresent(ArmTestUtils.CTX, resourceDeclaration);
 
-    List<Expression> references = SecureValuesExposureCheck.extractPropertyValuesFromTemplate(resource.object("template").list("resources")).collect(Collectors.toList());
+    List<Expression> references = SecureValuesExposureCheck.extractPropertyValuesFromTemplate(resource.object("template").list("resources")).toList();
 
     Assertions.assertThat(references).isNotEmpty();
     Assertions.assertThat(references)

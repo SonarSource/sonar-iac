@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -216,7 +215,7 @@ class PrivilegedUserCheckTest {
       return pathStream
         .map(Path::getFileName)
         .map(fileName -> testFileDir + "/" + fileName)
-        .collect(Collectors.toList());
+        .toList();
     } catch (IOException e) {
       throw new AssertionError("Can not load test files from " + testFileDir);
     }

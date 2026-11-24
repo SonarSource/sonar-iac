@@ -19,7 +19,6 @@ package org.sonar.iac.common.checks;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,7 @@ class CommonChecksTest {
     return files.stream()
       .map(file -> getNameWithoutExtension(file.getName()))
       .map(this::classForName)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public static String getNameWithoutExtension(String fileName) {
