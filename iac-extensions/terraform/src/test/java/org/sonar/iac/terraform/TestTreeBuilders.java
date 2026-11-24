@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.iac.terraform.api.tree.AttributeTree;
 import org.sonar.iac.terraform.api.tree.BlockTree;
@@ -173,7 +172,7 @@ public class TestTreeBuilders {
     }
 
     private List<SyntaxToken> getSeparators() {
-      return Stream.generate(() -> token(",")).limit(elements.size()).collect(Collectors.toList());
+      return Stream.generate(() -> token(",")).limit(elements.size()).toList();
     }
   }
 }

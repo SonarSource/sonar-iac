@@ -19,7 +19,6 @@ package org.sonar.iac.common.checks.policy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.AbstractTestTree;
@@ -159,7 +158,7 @@ class PolicyTest {
       return children.stream()
         .filter(PropertyTree.class::isInstance)
         .map(PropertyTree.class::cast)
-        .collect(Collectors.toList());
+        .toList();
     }
   }
 }

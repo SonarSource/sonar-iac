@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -242,7 +241,7 @@ class ParameterDeclarationImplTest {
     File tree = (File) parser.parse(file.contents(), mockFile);
     List<String> names = tree.statements().stream()
       .map(statement -> ((ParameterDeclarationImpl) statement).declaratedName().value())
-      .collect(Collectors.toList());
+      .toList();
     assertThat(names).contains("vaultName", "softDeleteRetentionInDays", "networkRuleBypassOptions", "ipRules", "tags", "certData", "secretsObject");
   }
 

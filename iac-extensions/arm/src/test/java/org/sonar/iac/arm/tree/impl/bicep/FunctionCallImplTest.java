@@ -17,7 +17,6 @@
 package org.sonar.iac.arm.tree.impl.bicep;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
@@ -77,7 +76,7 @@ class FunctionCallImplTest {
           throw new RuntimeException("Invalid cast from " + t.getClass());
         }
       })
-      .collect(Collectors.toList());
+      .toList();
     softly.assertThat(elementsAndSeparatorsAsText).containsExactly("123", ",", "456");
 
     softly.assertThat(recursiveTransformationOfTreeChildrenToStrings(tree))
