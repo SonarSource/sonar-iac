@@ -34,3 +34,11 @@ require (
 	golang.org/x/crypto v0.52.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+// golang.org/x/net appears in the module graph only because golang.org/x/crypto requires it in its own go.mod.
+// No package of it is compiled into the binary ("go mod why -m golang.org/x/net" reports that it is not needed),
+// so this exclude only removes it from "go mod graph" and does not change the built binary.
+// "exclude" matches one exact version: after updating golang.org/x/crypto, put here the golang.org/x/net version
+// that "go mod graph" reports, then run "go mod tidy".
+// Test_go_mod_graph_does_not_list_golang_org_x_net in src/dependencies_test.go fails until this is done.
+exclude golang.org/x/net v0.54.0
