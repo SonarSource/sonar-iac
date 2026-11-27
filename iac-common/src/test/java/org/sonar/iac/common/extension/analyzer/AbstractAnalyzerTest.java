@@ -227,7 +227,8 @@ abstract class AbstractAnalyzerTest {
 
   TreeParser parser() {
     TreeParser treeParser = mock(TreeParser.class);
-    when(treeParser.parse(anyString(), any(InputFileContext.class))).thenReturn(mock(Tree.class));
+    Tree tree = mock(Tree.class);
+    when(treeParser.parse(anyString(), any(InputFileContext.class))).thenReturn(tree);
     return treeParser;
   }
 }

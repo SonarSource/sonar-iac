@@ -36,13 +36,14 @@ public class ForObjectTreeImpl extends AbstractForTree implements ForObjectTree 
   private final TreeFactory.@Nullable Pair<SyntaxToken, ExpressionTree> condition;
   private final SyntaxToken closeBrace;
 
-  public ForObjectTreeImpl(SyntaxToken openBrace, ForIntro intro, ExpressionTree firstExpression, SyntaxToken arrow, ExpressionTree secondExpression,
+  public ForObjectTreeImpl(SyntaxToken openBrace, ForIntro intro, ExpressionTree firstExpression,
+    TreeFactory.Pair<SyntaxToken, ExpressionTree> arrowAndSecondExpression,
     @Nullable SyntaxToken ellipsis, TreeFactory.@Nullable Pair<SyntaxToken, ExpressionTree> condition, SyntaxToken closeBrace) {
     super(intro);
     this.openBrace = openBrace;
     this.firstExpression = firstExpression;
-    this.arrow = arrow;
-    this.secondExpression = secondExpression;
+    this.arrow = arrowAndSecondExpression.first();
+    this.secondExpression = arrowAndSecondExpression.second();
     this.ellipsis = ellipsis;
     this.condition = condition;
     this.closeBrace = closeBrace;

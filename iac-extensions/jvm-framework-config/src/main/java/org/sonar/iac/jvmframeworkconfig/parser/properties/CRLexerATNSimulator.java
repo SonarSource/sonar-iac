@@ -43,17 +43,19 @@ public class CRLexerATNSimulator extends LexerATNSimulator {
   @Override
   public void consume(CharStream input) {
     int curChar = input.LA(CURRENT_CHAR_TO_CONSUME);
-    if (curChar == '\n') {
-      line++;
-      charPositionInLine = 0;
-    } else if (curChar == '\r') {
-      int nextChar = input.LA(NEXT_CHAR_TO_CONSUME);
-      if (nextChar != '\n') {
+    switch (curChar) {
+      case '\n' -> {
         line++;
         charPositionInLine = 0;
       }
-    } else {
-      charPositionInLine++;
+      case '\r' -> {
+        int nextChar = input.LA(NEXT_CHAR_TO_CONSUME);
+        if (nextChar != '\n') {
+          line++;
+          charPositionInLine = 0;
+        }
+      }
+      default -> charPositionInLine += 1;
     }
     input.consume();
   }

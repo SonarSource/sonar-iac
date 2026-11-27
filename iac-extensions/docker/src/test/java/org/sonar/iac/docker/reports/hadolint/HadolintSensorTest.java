@@ -51,7 +51,8 @@ class HadolintSensorTest extends AbstractExternalReportSensorTest {
   @Override
   protected HadolintRulesDefinition getRulesDefinition() {
     var rulesDefinition = mock(HadolintRulesDefinition.class);
-    when(rulesDefinition.getRuleLoader()).thenReturn(mock(ExternalRuleLoader.class));
+    var ruleLoader = mock(ExternalRuleLoader.class);
+    when(rulesDefinition.getRuleLoader()).thenReturn(ruleLoader);
     return rulesDefinition;
   }
 

@@ -708,7 +708,8 @@ class KubernetesSensorTest extends ExtensionSensorTest {
     Checks<IacCheck> checks = mock(Checks.class);
     Mockito.<Checks<IacCheck>>when(checkFactory.create(any())).thenReturn(checks);
     when(checks.all()).thenReturn(List.of(issueRaiser));
-    when(checks.ruleKey(any())).thenReturn(mock(RuleKey.class));
+    RuleKey ruleKey = mock(RuleKey.class);
+    when(checks.ruleKey(any())).thenReturn(ruleKey);
     return checkFactory;
   }
 

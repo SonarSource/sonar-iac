@@ -17,7 +17,6 @@
 package org.sonar.iac.common.yaml.tree;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.iac.common.api.tree.HasTextRange;
 import org.sonar.iac.common.api.tree.impl.TextRange;
@@ -53,7 +52,7 @@ class FileTreeImplTest extends YamlTreeTest {
     assertThat(tree.documents()).hasSize(2);
     assertThat(tree.textRange()).hasRange(1, 0, 3, 4);
 
-    List<TextRange> documentRanges = tree.documents().stream().map(HasTextRange::textRange).collect(Collectors.toList());
+    List<TextRange> documentRanges = tree.documents().stream().map(HasTextRange::textRange).toList();
     assertThat(tree.textRange()).isEqualTo(TextRanges.merge(documentRanges));
     assertThat(tree.toHighlight()).isEqualTo(tree.documents().get(0).textRange());
   }

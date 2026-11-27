@@ -259,7 +259,8 @@ class KubernetesChecksVisitorTest {
     when(config.getBoolean(KubernetesChecksVisitor.ENABLE_SECONDARY_LOCATIONS_IN_VALUES_YAML_KEY)).thenReturn(Optional.of(isPropertyEnabled));
     when(inputFileContext.sensorContext.config()).thenReturn(config);
     var fileSystem = mock(FileSystem.class);
-    when(fileSystem.predicates()).thenReturn(mock(FilePredicates.class));
+    var filePredicates = mock(FilePredicates.class);
+    when(fileSystem.predicates()).thenReturn(filePredicates);
     when(inputFileContext.sensorContext.fileSystem()).thenReturn(fileSystem);
     doNothing().when(inputFileContext).reportIssue(any(), any(), any(), any());
 
