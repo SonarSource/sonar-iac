@@ -16,8 +16,10 @@
  */
 package org.sonar.iac.common.checks;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public final class ShellUtils {
 
@@ -29,6 +31,10 @@ public final class ShellUtils {
    * List of shells that execute Bash code => we need to parse it.
    */
   private static final Set<String> SUPPORTED_SHELLS = Set.of("bash", "bash.exe", "sh", "msys2", "wsl-bash", "msys2bash.cmd");
+  // Single-letter options that neither take an argument nor stop execution (-n reads without running, -D only prints strings).
+  private static final Pattern SHORT_OPTIONS = Pattern.compile("-[abcefhiklmprstuvxBCEHPT]+|\\+[abefhiklmprstuvxBCEHPT]+");
+  private static final Set<String> OPTIONS_WITH_ARGUMENT = Set.of("-o", "+o", "-O", "+O");
+  private static final Set<String> LONG_OPTIONS = Set.of("--noprofile", "--norc", "--posix");
 
   public static boolean isBashShell(String shell) {
     var normalizedShell = getNormalizedShellCommand(shell);
@@ -42,6 +48,43 @@ public final class ShellUtils {
    */
   public static boolean isErrexitOption(String token) {
     return token.startsWith("-") && !token.startsWith("--") && token.contains("e");
+  }
+
+  /**
+   * Returns the index of the command string run by {@code sh -c} or {@code bash -c} in the given arguments, or -1 if there is none.
+   * Unknown options are rejected because their arity could change which argument is the command string.
+   * See <a href="https://www.gnu.org/software/bash/manual/html_node/Invoking-Bash.html">Invoking Bash</a>.
+   */
+  public static int shellScriptIndex(List<String> argv) {
+    if (argv.isEmpty() || argv.get(0).chars().anyMatch(Character::isWhitespace) || !isBashShell(argv.get(0))) {
+      return -1;
+    }
+
+    boolean commandString = false;
+    int index = 1;
+    while (index < argv.size() && isOption(argv.get(index))) {
+      var option = argv.get(index);
+      if (OPTIONS_WITH_ARGUMENT.contains(option)) {
+        // The option name that follows is an argument, not an option: without skipping it, "bash -o pipefail -c script" stops at "pipefail",
+        // and in "bash -o -c script" the "-c" would be misread as the command-string flag although Bash rejects it as an option name.
+        index += 2;
+      } else if (SHORT_OPTIONS.matcher(option).matches() || LONG_OPTIONS.contains(option)) {
+        commandString |= option.startsWith("-") && !option.startsWith("--") && option.contains("c");
+        index++;
+      } else {
+        return -1;
+      }
+    }
+
+    if (index < argv.size() && "--".equals(argv.get(index))) {
+      index++;
+    }
+
+    return commandString && index < argv.size() ? index : -1;
+  }
+
+  private static boolean isOption(String argument) {
+    return (argument.startsWith("-") || argument.startsWith("+")) && !"--".equals(argument);
   }
 
   private static String getNormalizedShellCommand(String shell) {

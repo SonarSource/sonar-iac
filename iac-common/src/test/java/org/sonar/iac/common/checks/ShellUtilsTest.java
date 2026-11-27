@@ -16,7 +16,11 @@
  */
 package org.sonar.iac.common.checks;
 
+import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,5 +93,54 @@ class ShellUtilsTest {
   @ValueSource(strings = {"-x", "-u", "-o", "--errexit", "errexit", "e", "pipefail", "{0}"})
   void shouldNotDetectErrexitOption(String text) {
     assertThat(ShellUtils.isErrexitOption(text)).isFalse();
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldFindTheCommandStringOfShellInvocations(List<String> argv, int expected) {
+    assertThat(ShellUtils.shellScriptIndex(argv)).isEqualTo(expected);
+  }
+
+  static Stream<Arguments> shouldFindTheCommandStringOfShellInvocations() {
+    return Stream.of(
+      Arguments.of(List.of("sh", "-c", "npm install"), 2),
+      Arguments.of(List.of("/bin/bash", "-ec", "npm install"), 2),
+      Arguments.of(List.of("bash", "-o", "errexit", "-c", "npm install"), 4),
+      Arguments.of(List.of("bash", "-O", "extglob", "-c", "npm install"), 4),
+      Arguments.of(List.of("bash", "+o", "posix", "+O", "extglob", "+e", "-c", "npm install"), 7),
+      Arguments.of(List.of("bash", "--noprofile", "--norc", "--posix", "-c", "npm install"), 5),
+      // Bash reads the command string from the first non-option argument, which may follow other options or "--".
+      Arguments.of(List.of("bash", "-c", "-x", "npm install"), 3),
+      Arguments.of(List.of("sh", "-c", "--", "npm install"), 3),
+      Arguments.of(List.of("sh", "-c", "npm install", "name", "argument"), 2));
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void shouldNotFindACommandStringWhenInvocationIsMissingOrAmbiguous(List<String> argv) {
+    assertThat(ShellUtils.shellScriptIndex(argv)).isEqualTo(-1);
+  }
+
+  static Stream<List<String>> shouldNotFindACommandStringWhenInvocationIsMissingOrAmbiguous() {
+    return Stream.of(
+      List.of(),
+      List.of("sh"),
+      List.of("sh", "-c"),
+      List.of("sh", "-o"),
+      List.of("sh", "script.sh"),
+      List.of("sh", "-e", "script.sh"),
+      List.of("sh", "+c", "npm install"),
+      List.of("sh", "-Zc", "npm install"),
+      List.of("sh", "-", "-c", "npm install"),
+      List.of("bash", "--rcfile", "file", "-c", "npm install"),
+      List.of("echo", "-c", "npm install"),
+      List.of("bash", "--norc", "script.sh"),
+      // isBashShell ignores everything after the first space, so an executable name containing one is not a shell.
+      List.of("sh -x", "-c", "npm install"),
+      // -n reads commands without running them, and -D only prints translatable strings.
+      List.of("sh", "-nc", "npm install"),
+      List.of("bash", "-D", "-c", "npm install"),
+      // The argument of -o is an option name, so a "-c" in its place is not the command-string flag; Bash rejects it and runs nothing.
+      List.of("bash", "-o", "-c", "npm install"));
   }
 }
